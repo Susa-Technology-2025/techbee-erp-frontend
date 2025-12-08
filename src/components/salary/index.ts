@@ -1,0 +1,1 @@
+export { default as SalaryRuleCard } from '../../app/hr/payroll/settings/_components/salary-rules/SalaryRuleCard'; 

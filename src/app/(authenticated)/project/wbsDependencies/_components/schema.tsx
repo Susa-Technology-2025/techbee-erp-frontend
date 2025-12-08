@@ -1,0 +1,2 @@
+import {z} from "zod"
+export const WbsDependencyFormSchema = z.object({ id: z.string().optional().nullable(), type: z.enum(["FS", "SS", "FF", "SF"], { error: "Type is required" }), lagDays: z.coerce.number().optional().nullable(), fromField: z.object({ id: z.string({ error: "From Field Where Unique Input is required" }) }).meta({ url: "/wbsItems" }), to: z.object({ id: z.string({ error: "To Where Unique Input is required" }) }).meta({ url: "/wbsItems" }) })

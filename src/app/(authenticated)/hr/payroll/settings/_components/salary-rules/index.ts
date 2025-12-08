@@ -1,0 +1,1 @@
+export { default as SalaryRuleCard } from './SalaryRuleCard'; 

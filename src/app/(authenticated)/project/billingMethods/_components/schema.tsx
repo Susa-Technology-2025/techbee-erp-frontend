@@ -1,0 +1,2 @@
+import {z} from "zod"
+export const BillingMethodSchema = z.object({ id: z.string().optional().nullable(), method: z.enum(["FixedPrice", "TimeAndMaterial", "Milestone"], { error: "Method is required" }),isSystem: z.boolean().default(false), active: z.boolean({ error: "Active status is required" }).default(true), description: z.string().optional().nullable(), projectTypesDefaultFor: z.array(z.object({ id: z.string().optional().nullable() }).optional().nullable()).optional().nullable().meta({ url: "/projectTypes" }) })

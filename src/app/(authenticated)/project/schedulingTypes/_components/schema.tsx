@@ -1,0 +1,2 @@
+import {z} from "zod"
+export const SchedulingTypeFormSchema = z.object({ id: z.string().optional().nullable(), name: z.string({ error: "Name is required" }), code: z.string({ error: "Code is required" }), active: z.boolean({ error: "Active status is required" }).default(false), isSystem: z.boolean({ error: "Is system status is required" }).default(false), activities: z.array(z.unknown()).optional().nullable().meta({ url: "/activities" }) })

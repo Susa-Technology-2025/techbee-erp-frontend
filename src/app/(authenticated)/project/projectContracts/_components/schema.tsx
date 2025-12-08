@@ -1,0 +1,2 @@
+import {z} from "zod"
+export const ProjectContractFormSchema = z.object({ id: z.string().optional().nullable(), notes: z.string().optional().nullable(), linkedInvoiceRef: z.string().optional().nullable(), currency: z.enum(["ETB", "USD", "EUR", "GBP", "AED"]).optional().nullable(), defaultRate: z.coerce.number().optional().nullable(), billingMethod: z.object({ id: z.string() }).meta({ url: "/billingMethods" }), project: z.object({ id: z.string() }).meta({ url: "/projects" }), })
