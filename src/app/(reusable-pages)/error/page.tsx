@@ -1,7 +1,6 @@
 // app/error/page.tsx
-import { Box, Typography, Button, Paper } from "@mui/material";
+import { Box, Typography, Button, Paper, Link } from "@mui/material";
 import ReportProblemRoundedIcon from "@mui/icons-material/ReportProblemRounded";
-import Link from "next/link";
 
 export default function ErrorPage() {
   return (

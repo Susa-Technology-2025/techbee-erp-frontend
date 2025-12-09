@@ -9,8 +9,7 @@ import PhoneIcon from "@mui/icons-material/Phone";
 import EmailIcon from "@mui/icons-material/Email";
 import AutoFixHighIcon from "@mui/icons-material/AutoFixHigh";
 import ShieldIcon from "@mui/icons-material/Shield";
-import Link from "next/link";
-import { Paper } from "@mui/material";
+import { Paper, Link } from "@mui/material";
 import DashActions from "@/components/dash-actions";
 
 const ErrorPage = ({

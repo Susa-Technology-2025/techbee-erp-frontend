@@ -1,7 +1,6 @@
 // app/unauthorized/page.tsx
-import { Box, Typography, Button, Paper } from "@mui/material";
+import { Box, Typography, Button, Paper, Link } from "@mui/material";
 import LockRoundedIcon from "@mui/icons-material/LockRounded";
-import Link from "next/link";
 
 export default function UnauthorizedPage() {
   return (

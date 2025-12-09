@@ -8,6 +8,10 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
+        hostname: "mindabg.com",
+      },
+      {
+        protocol: "https",
         hostname: "cdn.susa.et",
       },
       {
@@ -19,6 +23,7 @@ const nextConfig: NextConfig = {
   experimental: {
     useCache: true,
   },
+  cacheComponents: true,
   typescript: {
     ignoreBuildErrors: true,
   },
