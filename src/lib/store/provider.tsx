@@ -13,7 +13,7 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
   return (
     <TanstackProvider>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <Provider store={store}>{children}</Provider>;
+        <Provider store={store}>{children}</Provider>
       </LocalizationProvider>
     </TanstackProvider>
   );

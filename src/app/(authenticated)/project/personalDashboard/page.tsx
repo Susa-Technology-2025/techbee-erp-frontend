@@ -48,6 +48,13 @@ import {
     alpha,
     AppBar,
     Toolbar,
+    Grid,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
 } from '@mui/material';
 import { TabContext, TabList, TabPanel } from "@mui/lab";
 import TaskIcon from '@mui/icons-material/Task';
@@ -86,6 +93,12 @@ import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import WorkIcon from '@mui/icons-material/Work';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import PersonIcon from '@mui/icons-material/Person';
+import LinkIcon from '@mui/icons-material/Link';
+import DescriptionIcon from '@mui/icons-material/Description';
+import AssessmentIcon from '@mui/icons-material/Assessment';
+import TimelineIcon from '@mui/icons-material/Timeline';
+import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
+import HourglassFullIcon from '@mui/icons-material/HourglassFull';
 import Link from 'next/link';
 import TaskCreationDialog from './_components/taskDialog';
 import { useDataQuery } from '@/lib/tanstack/useDataQuery';
@@ -128,14 +141,14 @@ interface Task {
     projectTitle: string;
     projectType: string;
     projectTypeCode: string;
-    priority: string;
+    priority: string | null;
     approvalStatus: string;
     taskStage: string;
-    percentCompletion: number;
+    percentCompletion: number | null;
     plannedStartDate: string;
     plannedEndDate: string;
     actualCompletionDate: string | null;
-    durationDays: number;
+    durationDays: number | null;
     riskOrIssues: string | null;
 }
 
@@ -186,9 +199,9 @@ interface TeamMember {
 interface TeamAssignment {
     projectId: string;
     projectCode: string;
-    allocationPercent: number;
+    allocationPercent: number | null;
     isOwner: boolean;
-    startDate: string;
+    startDate: string | null;
     endDate: string | null;
 }
 
@@ -198,6 +211,31 @@ interface Assignment {
     startDate: string;
     endDate: string | null;
     role: string;
+}
+
+interface TimeEntry {
+    timeEntryId: string;
+    workDate: string;
+    startTime: string;
+    endTime: string;
+    durationHours: number;
+    wbsItemId: string;
+    wbsItemTitle: string;
+    projectCode: string;
+    projectTitle: string;
+    notes: string;
+    billable: boolean;
+    approvalStatus: string;
+    type: string;
+}
+
+interface HoursByProject {
+    projectId: string;
+    projectCode: string;
+    projectTitle: string;
+    plannedHours: number;
+    actualHours: number;
+    remainingHours: number;
 }
 
 interface DashboardData {
@@ -218,7 +256,10 @@ interface DashboardData {
             completed: { count: number; percent: number };
         };
         view: string;
-        items: Task[];
+        upcoming: Task[];
+        overdue: Task[];
+        completed: Task[];
+        all: Task[];
     };
     myProjects: {
         summary: {
@@ -238,36 +279,19 @@ interface DashboardData {
             completed: number;
             overdue: number;
         };
-        items: TaskIAssigned[];
+        upcoming: TaskIAssigned[];
+        overdue: TaskIAssigned[];
+        completed: TaskIAssigned[];
+        activeItems: TaskIAssigned[];
+        all: TaskIAssigned[];
     };
     myWeek: {
         weekRange: {
             start: string;
             end: string;
         };
-        hoursByProject: Array<{
-            projectId: string;
-            projectCode: string;
-            projectTitle: string;
-            plannedHours: number;
-            actualHours: number;
-            remainingHours: number;
-        }>;
-        timeEntries: Array<{
-            timeEntryId: string;
-            workDate: string;
-            startTime: string;
-            endTime: string;
-            durationHours: number;
-            wbsItemId: string;
-            wbsItemTitle: string;
-            projectCode: string;
-            projectTitle: string;
-            notes: string;
-            billable: boolean;
-            approvalStatus: string;
-            type: string;
-        }>;
+        hoursByProject: HoursByProject[];
+        timeEntries: TimeEntry[];
         tasksDueThisWeek: number;
         tasksCompletedThisWeek: number;
         overdueTasks: number;
@@ -298,10 +322,10 @@ interface DashboardData {
         projectCode: string;
         projectTitle: string;
         plannedEndDate: string;
-        priority: string;
+        priority: string | null;
         approvalStatus: string;
         taskStage: string;
-        percentCompletion: number;
+        percentCompletion: number | null;
         projectType: string;
         riskFlag: boolean | null;
         category: string | null;
@@ -318,8 +342,9 @@ interface DashboardData {
 }
 
 // Helper functions
-const getPriorityColor = (priority: string) => {
-    switch (priority?.toLowerCase()) {
+const getPriorityColor = (priority: string | null) => {
+    if (!priority) return '#64748b';
+    switch (priority.toLowerCase()) {
         case 'high': return '#dc3545';
         case 'medium': return '#f59e0b';
         case 'low': return '#10b981';
@@ -335,12 +360,14 @@ const getStatusColor = (status: string) => {
         case 'pending': return 'warning';
         case 'draft': return 'default';
         case 'todo': return 'warning';
+        case 'done': return 'success';
+        case 'stage 1': return 'info';
         default: return 'default';
     }
 };
 
-const formatDate = (dateString: string) => {
-    if (!dateString) return 'No date';
+const formatDate = (dateString: string | null) => {
+    if (!dateString) return 'Not set';
     return new Date(dateString).toLocaleDateString('en-US', {
         month: 'short',
         day: 'numeric',
@@ -348,7 +375,7 @@ const formatDate = (dateString: string) => {
     });
 };
 
-const formatDateTime = (dateString: string) => {
+const formatDateTime = (dateString: string | null) => {
     if (!dateString) return 'No date';
     return new Date(dateString).toLocaleDateString('en-US', {
         month: 'short',
@@ -358,11 +385,20 @@ const formatDateTime = (dateString: string) => {
     });
 };
 
+const formatTime = (timeString: string | null) => {
+    if (!timeString) return '';
+    return new Date(timeString).toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+};
+
 // ========== MAIN COMPONENT ==========
 export default function PersonalDashboard() {
     const session = useSelector((state: RootState) => state.session);
     const theme = useTheme();
-
+    const [taskViewType, setTaskViewType] = useState<'all' | 'upcoming' | 'overdue' | 'completed'>('all');
+    const [assignedTaskViewType, setAssignedTaskViewType] = useState<'all' | 'upcoming' | 'overdue' | 'completed' | 'active'>('all');
     const { data, isLoading, isError, error } = useDataQuery<DashboardData>({
         apiEndPoint: `https://project.api.techbee.et/api/projects/analytics/personal?userId=${session?.user?.id}`,
         enabled: Boolean(session?.user?.id)
@@ -419,10 +455,11 @@ export default function PersonalDashboard() {
         setSearchQuery('');
         setShowFavoritesOnly(false);
         setSortBy('date');
+        setTaskViewType('all');
+        setAssignedTaskViewType('all');
     };
 
     if (isLoading || !data) {
-
         return (
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
                 <CircularProgress />
@@ -451,45 +488,85 @@ export default function PersonalDashboard() {
         team,
         upcomingDeadlines,
         dashboardStats,
-        user
+        user,
+        myWeek,
+        window: timeWindow
     } = data;
 
-    // Calculate stats
-    const totalTasks = myTasks.summary.total.count;
-    const overdueTasks = myTasks.summary.overdue.count;
-    const completedTasks = myTasks.summary.completed.count;
-    const activeProjects = myProjects.summary.totalActive;
-    const pendingProjects = myProjects.summary.totalPending;
-    const completedProjects = myProjects.summary.totalCompleted;
-    const totalProjects = myProjects.summary.totalProjects;
-    const totalTeamMembers = team.summary.totalMembers;
-    const activeTeamMembers = team.summary.activeMembers;
+    // Helper function to get filtered tasks based on view type
+    const getFilteredTasks = () => {
+        let tasks: Task[] = [];
 
-    // Calculate completion percentage
-    const tasksCompletionPercent = totalTasks > 0
-        ? Math.round((completedTasks / totalTasks) * 100)
-        : 0;
+        // Get tasks based on selected view type
+        switch (taskViewType) {
+            case 'upcoming':
+                tasks = myTasks.upcoming || [];
+                break;
+            case 'overdue':
+                tasks = myTasks.overdue || [];
+                break;
+            case 'completed':
+                tasks = myTasks.completed || [];
+                break;
+            case 'all':
+            default:
+                tasks = myTasks.all || [];
+                break;
+        }
 
-    const projectsCompletionPercent = totalProjects > 0
-        ? Math.round((completedProjects / totalProjects) * 100)
-        : 0;
+        // Apply additional filters
+        return tasks.filter(task => {
+            const matchesStatus = statusFilter === 'All' || task.taskStage === statusFilter;
+            const matchesPriority = priorityFilter === 'All' || task.priority === priorityFilter;
+            const matchesSearch = searchQuery === '' ||
+                task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                (task.description && task.description.toLowerCase().includes(searchQuery.toLowerCase()));
+            return matchesStatus && matchesPriority && matchesSearch;
+        });
+    };
 
-    // Filter and sort functions
-    const filteredProjects = myProjects.recent.filter(project => {
+    const filteredTasks = getFilteredTasks();
+
+    // Helper function to get filtered assigned tasks
+    const getFilteredAssignedTasks = () => {
+        let tasks: TaskIAssigned[] = [];
+
+        switch (assignedTaskViewType) {
+            case 'upcoming':
+                tasks = tasksIAssigned.upcoming || [];
+                break;
+            case 'overdue':
+                tasks = tasksIAssigned.overdue || [];
+                break;
+            case 'completed':
+                tasks = tasksIAssigned.completed || [];
+                break;
+            case 'active':
+                tasks = tasksIAssigned.activeItems || [];
+                break;
+            case 'all':
+            default:
+                tasks = tasksIAssigned.all || [];
+                break;
+        }
+
+        return tasks.filter(task => {
+            const matchesSearch = searchQuery === '' ||
+                task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                (task.description && task.description.toLowerCase().includes(searchQuery.toLowerCase()));
+            return matchesSearch;
+        });
+    };
+
+    const filteredAssignedTasks = getFilteredAssignedTasks();
+
+    // Filter and sort functions for projects
+    const filteredProjects = (myProjects.recent || []).filter(project => {
         const matchesStatus = statusFilter === 'All' || project.projectStage === statusFilter;
         const matchesSearch = searchQuery === '' ||
             project.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            project.description.toLowerCase().includes(searchQuery.toLowerCase());
+            (project.description && project.description.toLowerCase().includes(searchQuery.toLowerCase()));
         return matchesStatus && matchesSearch;
-    });
-
-    const filteredTasks = myTasks.items.filter(task => {
-        const matchesStatus = statusFilter === 'All' || task.taskStage === statusFilter;
-        const matchesPriority = priorityFilter === 'All' || task.priority === priorityFilter;
-        const matchesSearch = searchQuery === '' ||
-            task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            task.description.toLowerCase().includes(searchQuery.toLowerCase());
-        return matchesStatus && matchesPriority && matchesSearch;
     });
 
     const sortedProjects = [...filteredProjects].sort((a, b) => {
@@ -500,16 +577,172 @@ export default function PersonalDashboard() {
 
     const sortedTasks = [...filteredTasks].sort((a, b) => {
         if (sortBy === 'date') return new Date(b.plannedStartDate).getTime() - new Date(a.plannedStartDate).getTime();
-        if (sortBy === 'progress') return b.percentCompletion - a.percentCompletion;
+        if (sortBy === 'progress') return (b.percentCompletion || 0) - (a.percentCompletion || 0);
         return a.title.localeCompare(b.title);
     });
 
-    // Get all categories from data
-    const allCategories = Array.from(new Set([
-        ...myProjects.recent.map(p => p.projectType),
-        ...myTasks.items.map(t => t.projectType),
-        ...goals.quarterly.map(g => g.category)
-    ])).filter(Boolean);
+    // Component for Task Card in Grid View
+    const TaskCardGrid = ({ task, isAssigned = false }: { task: Task | TaskIAssigned, isAssigned?: boolean }) => {
+        const isOverdue = (myTasks.overdue || []).some(t => t.wbsItemId === task.wbsItemId);
+        const isCompleted = (myTasks.completed || []).some(t => t.wbsItemId === task.wbsItemId);
+        const assignedTask = task as TaskIAssigned;
+
+        return (
+            <Card sx={{
+                height: '100%',
+                position: 'relative',
+                transition: 'transform 0.2s',
+                '&:hover': { transform: 'translateY(-4px)' },
+                borderLeft: isOverdue ? '4px solid #dc3545' :
+                    isCompleted ? '4px solid #10b981' : '4px solid transparent'
+            }}>
+                {isOverdue && (
+                    <Box sx={{
+                        position: 'absolute',
+                        top: 8,
+                        right: 8,
+                        bgcolor: '#fee2e2',
+                        color: '#dc3545',
+                        borderRadius: 1,
+                        px: 1,
+                        py: 0.5,
+                        fontSize: '0.75rem',
+                        fontWeight: 600,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 0.5
+                    }}>
+                        <ErrorIcon fontSize="small" />
+                        Overdue
+                    </Box>
+                )}
+                {isCompleted && (
+                    <Box sx={{
+                        position: 'absolute',
+                        top: 8,
+                        right: 8,
+                        bgcolor: '#d1fae5',
+                        color: '#10b981',
+                        borderRadius: 1,
+                        px: 1,
+                        py: 0.5,
+                        fontSize: '0.75rem',
+                        fontWeight: 600,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 0.5
+                    }}>
+                        <CheckIcon fontSize="small" />
+                        Completed
+                    </Box>
+                )}
+
+                <CardHeader
+                    avatar={
+                        <Avatar sx={{
+                            bgcolor: isOverdue ? '#fee2e2' :
+                                isCompleted ? '#d1fae5' : '#e0e7ff'
+                        }}>
+                            <TaskIcon sx={{
+                                color: isOverdue ? '#dc3545' :
+                                    isCompleted ? '#10b981' : '#4361ee'
+                            }} />
+                        </Avatar>
+                    }
+                    title={
+                        <Typography variant="h6" fontWeight={600}>
+                            {task.title}
+                        </Typography>
+                    }
+                    subheader={
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1, flexWrap: 'wrap' }}>
+                            <Chip label={task.projectType} size="small" />
+                            {task.priority && (
+                                <Chip
+                                    label={task.priority}
+                                    size="small"
+                                    sx={{
+                                        bgcolor: getPriorityColor(task.priority),
+                                        color: 'white'
+                                    }}
+                                />
+                            )}
+                            {isAssigned && (
+                                <Chip
+                                    icon={<AssignmentIcon />}
+                                    label="Assigned"
+                                    size="small"
+                                    color="info"
+                                    variant="outlined"
+                                />
+                            )}
+                        </Box>
+                    }
+                />
+                <CardContent>
+                    <Typography variant="body2" color="text.secondary" gutterBottom>
+                        Project: {task.projectTitle || task.projectCode}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                        {task.description || 'No description available'}
+                    </Typography>
+
+                    <Box sx={{ mb: 2 }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                            <Typography variant="caption">Progress</Typography>
+                            <Typography variant="caption" fontWeight={600}>
+                                {task.percentCompletion !== null ? `${task.percentCompletion}%` : 'Not set'}
+                            </Typography>
+                        </Box>
+                        <LinearProgress
+                            variant="determinate"
+                            value={task.percentCompletion || 0}
+                            sx={{ height: 8, borderRadius: 4 }}
+                        />
+                    </Box>
+
+                    {isAssigned && assignedTask.assignments && assignedTask.assignments.length > 0 && (
+                        <Box sx={{ mb: 2 }}>
+                            <Typography variant="caption" color="text.secondary" display="block">
+                                Assigned to: {assignedTask.assignments.map(a => a.role).join(', ')}
+                            </Typography>
+                        </Box>
+                    )}
+
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                            <AccessTimeIcon fontSize="small" />
+                            <Typography variant="caption">
+                                Due: {formatDate(task.plannedEndDate)}
+                            </Typography>
+                        </Box>
+                        <Chip
+                            label={task.taskStage}
+                            size="small"
+                            color={getStatusColor(task.taskStage)}
+                        />
+                    </Box>
+
+                    {task.durationDays !== null && (
+                        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
+                            Duration: {task.durationDays} days
+                        </Typography>
+                    )}
+
+                    {task.approvalStatus && (
+                        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
+                            Status: {task.approvalStatus}
+                        </Typography>
+                    )}
+                </CardContent>
+                <CardActions sx={{ justifyContent: 'space-between', p: 2, pt: 0 }}>
+                    <Button size="small" onClick={() => handleTaskClick(task)}>
+                        View Details
+                    </Button>
+                </CardActions>
+            </Card>
+        );
+    };
 
     // Component for Project Card in Grid View
     const ProjectCardGrid = ({ project }: { project: Project }) => (
@@ -533,7 +766,7 @@ export default function PersonalDashboard() {
                         </Typography>
                     }
                     subheader={
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1, flexWrap: 'wrap' }}>
                             <Chip label={project.projectType} size="small" />
                             <Chip
                                 label={project.projectStage}
@@ -549,10 +782,16 @@ export default function PersonalDashboard() {
                                     variant="outlined"
                                 />
                             )}
+                            {project.approvalStatus && (
+                                <Chip
+                                    label={project.approvalStatus}
+                                    size="small"
+                                    color="default"
+                                    variant="outlined"
+                                />
+                            )}
                         </Box>
-
                     }
-
                     action={
                         <IconButton size="small">
                             <MoreVert fontSize="small" />
@@ -563,6 +802,7 @@ export default function PersonalDashboard() {
                     <Typography variant="body2" color="text.secondary" paragraph>
                         {project.description || 'No description available'}
                     </Typography>
+
                     <Box sx={{ mb: 2 }}>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
                             <Typography variant="caption">Progress</Typography>
@@ -576,7 +816,8 @@ export default function PersonalDashboard() {
                             sx={{ height: 8, borderRadius: 4 }}
                         />
                     </Box>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                             <GroupIcon fontSize="small" />
                             <Typography variant="caption">
@@ -587,6 +828,7 @@ export default function PersonalDashboard() {
                             Due: {formatDate(project.plannedEndDate)}
                         </Typography>
                     </Box>
+
                     {project.customerName && (
                         <Box sx={{ mt: 1, display: 'flex', alignItems: 'center', gap: 0.5 }}>
                             <PersonIcon fontSize="small" />
@@ -595,117 +837,32 @@ export default function PersonalDashboard() {
                             </Typography>
                         </Box>
                     )}
+
+                    {project.billingMethod && (
+                        <Box sx={{ mt: 0.5, display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                            <AttachMoneyIcon fontSize="small" />
+                            <Typography variant="caption" color="text.secondary">
+                                Billing: {project.billingMethod}
+                            </Typography>
+                        </Box>
+                    )}
+
+                    {project.actualEndDate && (
+                        <Box sx={{ mt: 0.5, display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                            <CheckIcon fontSize="small" />
+                            <Typography variant="caption" color="text.secondary">
+                                Completed: {formatDate(project.actualEndDate)}
+                            </Typography>
+                        </Box>
+                    )}
                 </CardContent>
                 <CardActions sx={{ justifyContent: 'space-between', p: 2, pt: 0 }}>
-                    <Button size="small"
-                    // onClick={() => handleProjectClick(project)}
-                    >
+                    <Button size="small">
                         View Details
                     </Button>
-                    <Box sx={{ display: 'flex', gap: 1 }}>
-                        {/* <Tooltip title="Edit">
-                            <IconButton size="small">
-                                <EditIcon fontSize="small" />
-                            </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Share">
-                            <IconButton size="small">
-                                <ShareIcon fontSize="small" />
-                            </IconButton>
-                        </Tooltip> */}
-                    </Box>
                 </CardActions>
             </Card>
-        </Link >
-    );
-
-    // Component for Task Card in Grid View
-    const TaskCardGrid = ({ task }: { task: Task }) => (
-        // <Link href={`/tasks/${task.wbsItemId}`} passHref>
-        <Card sx={{
-            height: '100%',
-            position: 'relative',
-            transition: 'transform 0.2s',
-            '&:hover': { transform: 'translateY(-4px)' }
-        }}>
-            <CardHeader
-                avatar={
-                    <Avatar sx={{ bgcolor: '#e0e7ff' }}>
-                        <TaskIcon sx={{ color: '#4361ee' }} />
-                    </Avatar>
-                }
-                title={
-                    <Typography variant="h6" fontWeight={600}>
-                        {task.title}
-                    </Typography>
-                }
-                subheader={
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
-                        <Chip label={task.projectType} size="small" />
-                        <Chip
-                            label={task.priority}
-                            size="small"
-                            sx={{
-                                bgcolor: getPriorityColor(task.priority),
-                                color: 'white'
-                            }}
-                        />
-                    </Box>
-                }
-            />
-            <CardContent>
-                <Typography variant="body2" color="text.secondary" gutterBottom>
-                    Project: {task.projectTitle || task.projectCode}
-                </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                    {task.description || 'No description available'}
-                </Typography>
-                <Box sx={{ mb: 2 }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                        <Typography variant="caption">Progress</Typography>
-                        <Typography variant="caption" fontWeight={600}>
-                            {task.percentCompletion}%
-                        </Typography>
-                    </Box>
-                    <LinearProgress
-                        variant="determinate"
-                        value={task.percentCompletion}
-                        sx={{ height: 8, borderRadius: 4 }}
-                    />
-                </Box>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                        <AccessTimeIcon fontSize="small" />
-                        <Typography variant="caption">
-                            {formatDate(task.plannedEndDate)}
-                        </Typography>
-                    </Box>
-                    <Chip
-                        label={task.taskStage}
-                        size="small"
-                        color={getStatusColor(task.taskStage)}
-                    />
-                </Box>
-            </CardContent>
-            <CardActions sx={{ justifyContent: 'space-between', p: 2, pt: 0 }}>
-                <Button size="small" onClick={() => handleTaskClick(task)}>
-                    View Details
-                </Button>
-                {/* <Box sx={{ display: 'flex', gap: 1 }}>
-                        <Tooltip title="Mark Complete">
-                            <IconButton size="small">
-                                <CheckIcon fontSize="small" />
-                            </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Edit">
-                            <IconButton size="small">
-                                <EditIcon fontSize="small" />
-                            </IconButton>
-                        </Tooltip>
-                    </Box> */}
-            </CardActions>
-        </Card>
-        // </Link>
+        </Link>
     );
 
     // Component for Goal Card
@@ -715,18 +872,24 @@ export default function PersonalDashboard() {
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
                     <Box>
                         <Typography variant="h6" fontWeight={600}>{goal.title}</Typography>
-                        <Chip label={goal.category} size="small" sx={{ mt: 1 }} />
-                        {goal.priority && (
+                        <Box sx={{ display: 'flex', gap: 1, mt: 1, flexWrap: 'wrap' }}>
+                            <Chip label={goal.category} size="small" />
+                            {goal.priority && (
+                                <Chip
+                                    label={goal.priority}
+                                    size="small"
+                                    sx={{
+                                        bgcolor: getPriorityColor(goal.priority),
+                                        color: 'white'
+                                    }}
+                                />
+                            )}
                             <Chip
-                                label={goal.priority}
+                                label={goal.approvalStatus}
                                 size="small"
-                                sx={{
-                                    bgcolor: getPriorityColor(goal.priority),
-                                    color: 'white',
-                                    ml: 1
-                                }}
+                                color={getStatusColor(goal.approvalStatus)}
                             />
-                        )}
+                        </Box>
                     </Box>
                     <Typography variant="h4" fontWeight={700} color="#4361ee">
                         {goal.percentCompletion}%
@@ -740,19 +903,23 @@ export default function PersonalDashboard() {
                     value={goal.percentCompletion}
                     sx={{ height: 8, borderRadius: 4, mb: 2 }}
                 />
-                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Box>
+                        <Typography variant="caption" color="#64748b" display="block">
+                            Owner: {goal.responsibleOwner}
+                        </Typography>
                         <Typography variant="caption" color="#64748b">
-                            Status: {goal.approvalStatus}
+                            Team: {goal.assignedTeamOrDept}
                         </Typography>
                     </Box>
                     <Typography variant="caption" color="#64748b">
                         Due: {formatDate(goal.plannedEndDate)}
                     </Typography>
                 </Box>
-                {goal.responsibleOwner && (
+                {goal.billable !== null && (
                     <Typography variant="caption" color="#64748b" sx={{ display: 'block', mt: 1 }}>
-                        Owner: {goal.responsibleOwner}
+                        {goal.billable ? 'Billable' : 'Non-billable'}
+                        {goal.billingAmount !== null && ` • $${goal.billingAmount}`}
                     </Typography>
                 )}
             </CardContent>
@@ -767,16 +934,21 @@ export default function PersonalDashboard() {
                     <Avatar sx={{ bgcolor: '#4361ee', width: 56, height: 56 }}>
                         {member.name?.[0]?.toUpperCase() || 'U'}
                     </Avatar>
-                    <Box>
+                    <Box sx={{ flex: 1 }}>
                         <Typography variant="h6" fontWeight={600}>
                             {member.name || 'Unnamed User'}
                         </Typography>
-                        <Typography variant="body2" color="#64748b">
+                        <Typography variant="body2" color="#64748b" noWrap>
                             {member.email}
                         </Typography>
                         {member.department && (
-                            <Typography variant="caption" color="#64748b">
+                            <Typography variant="caption" color="#64748b" display="block">
                                 {member.department}
+                            </Typography>
+                        )}
+                        {member.role && (
+                            <Typography variant="caption" color="#64748b">
+                                {member.role}
                             </Typography>
                         )}
                     </Box>
@@ -796,7 +968,7 @@ export default function PersonalDashboard() {
                         color={member.availability === 'available' ? 'success' : 'warning'}
                     />
                 </Box>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Box>
                         <Typography variant="body2" color="#64748b">
                             Active Tasks: {member.tasksActive}
@@ -809,9 +981,21 @@ export default function PersonalDashboard() {
                     )}
                 </Box>
                 {member.assignments.length > 0 && (
-                    <Typography variant="caption" color="#64748b" sx={{ display: 'block', mt: 1 }}>
-                        Assigned to {member.assignments.length} project(s)
-                    </Typography>
+                    <Box sx={{ mt: 1 }}>
+                        <Typography variant="caption" color="#64748b" display="block">
+                            Assigned to {member.assignments.length} project(s)
+                        </Typography>
+                        {member.assignments.slice(0, 2).map((assignment, idx) => (
+                            <Typography key={idx} variant="caption" color="#64748b" display="block">
+                                • {assignment.projectCode} ({assignment.allocationPercent || 0}%)
+                            </Typography>
+                        ))}
+                        {member.assignments.length > 2 && (
+                            <Typography variant="caption" color="#64748b">
+                                +{member.assignments.length - 2} more
+                            </Typography>
+                        )}
+                    </Box>
                 )}
             </CardContent>
         </Card>
@@ -834,50 +1018,143 @@ export default function PersonalDashboard() {
                     <Typography variant="caption" color="#64748b">
                         {deadline.description || deadline.projectTitle}
                     </Typography>
-                    {deadline.priority && (
+                    <Box sx={{ display: 'flex', gap: 1, mt: 0.5, flexWrap: 'wrap' }}>
+                        {deadline.priority && (
+                            <Chip
+                                label={deadline.priority}
+                                size="small"
+                                sx={{
+                                    bgcolor: getPriorityColor(deadline.priority),
+                                    color: 'white'
+                                }}
+                            />
+                        )}
                         <Chip
-                            label={deadline.priority}
+                            label={deadline.taskStage || 'Task'}
                             size="small"
-                            sx={{
-                                bgcolor: getPriorityColor(deadline.priority),
-                                color: 'white',
-                                mt: 0.5,
-                                mr: 1
-                            }}
                         />
-                    )}
-                    <Chip
-                        label={deadline.taskStage || 'Task'}
-                        size="small"
-                        sx={{ mt: 0.5 }}
-                    />
+                        <Chip
+                            label={deadline.projectType}
+                            size="small"
+                            variant="outlined"
+                        />
+                    </Box>
                 </Box>
-                <Box sx={{ textAlign: 'right' }}>
+                <Box sx={{ textAlign: 'right', minWidth: 100 }}>
                     <Typography variant="caption" fontWeight={600} color="#4361ee">
                         {formatDate(deadline.deadline)}
                     </Typography>
                     <Typography variant="caption" color="#64748b" display="block">
-                        {deadline.percentCompletion}% complete
+                        {deadline.percentCompletion !== null ? `${deadline.percentCompletion}% complete` : 'Progress not set'}
                     </Typography>
                 </Box>
             </CardContent>
         </Card>
     );
 
+    // Component for Time Entry Card
+    const TimeEntryCard = ({ entry }: { entry: TimeEntry }) => (
+        <Card sx={{ mb: 2 }}>
+            <CardContent>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+                    <Typography fontWeight={600} variant="body1">
+                        {entry.wbsItemTitle}
+                    </Typography>
+                    <Chip
+                        label={`${entry.durationHours}h`}
+                        size="small"
+                        color="primary"
+                    />
+                </Box>
+                <Typography variant="body2" color="text.secondary" gutterBottom>
+                    {entry.projectTitle} ({entry.projectCode})
+                </Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                    <Typography variant="caption" color="text.secondary">
+                        {formatDate(entry.workDate)} • {formatTime(entry.startTime)} - {formatTime(entry.endTime)}
+                    </Typography>
+                    <Chip
+                        label={entry.billable ? 'Billable' : 'Non-billable'}
+                        size="small"
+                        color={entry.billable ? 'success' : 'default'}
+                    />
+                </Box>
+                {entry.notes && (
+                    <Typography variant="caption" color="text.secondary">
+                        Notes: {entry.notes}
+                    </Typography>
+                )}
+                <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
+                    <Chip
+                        label={entry.type}
+                        size="small"
+                        variant="outlined"
+                    />
+                    <Chip
+                        label={entry.approvalStatus}
+                        size="small"
+                        color={getStatusColor(entry.approvalStatus)}
+                    />
+                </Box>
+            </CardContent>
+        </Card>
+    );
+
+    // Component for Hours by Project Card
+    const HoursByProjectCard = ({ projectHours }: { projectHours: HoursByProject }) => {
+        const completionPercent = projectHours.plannedHours > 0
+            ? (projectHours.actualHours / projectHours.plannedHours) * 100
+            : 0;
+
+        return (
+            <Card sx={{ mb: 2 }}>
+                <CardContent>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                        <Box>
+                            <Typography fontWeight={600}>
+                                {projectHours.projectTitle}
+                            </Typography>
+                            <Typography variant="caption" color="#64748b">
+                                {projectHours.projectCode}
+                            </Typography>
+                        </Box>
+                        <Chip
+                            label={`${projectHours.actualHours}/${projectHours.plannedHours} hrs`}
+                            color={projectHours.actualHours >= projectHours.plannedHours ? 'success' : 'warning'}
+                        />
+                    </Box>
+                    <LinearProgress
+                        variant="determinate"
+                        value={completionPercent}
+                        sx={{ height: 8, borderRadius: 4, mb: 1 }}
+                    />
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <Typography variant="caption" color="#64748b">
+                            Remaining: {projectHours.remainingHours} hrs
+                        </Typography>
+                        <Typography variant="caption" color="#64748b">
+                            {Math.round(completionPercent)}% Complete
+                        </Typography>
+                    </Box>
+                </CardContent>
+            </Card>
+        );
+    };
+
     return (
         <Box sx={{ bgcolor: theme.palette.background.default, minHeight: '100vh', pl: 0, pr: 0 }}>
             <Box sx={{ p: 3 }}>
                 {/* Header */}
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4, flexWrap: 'wrap', gap: 2 }}>
                     <Box>
                         <Typography variant="h4" fontWeight={700} color="#3a0ca3">
                             Welcome, {user.name}!
                         </Typography>
                         <Typography variant="subtitle1" color="#64748b">
-                            Project & Task Dashboard • {formatDate(data.window.from)} to {formatDate(data.window.to)}
+                            Dashboard Period: {formatDate(timeWindow.from)} to {formatDate(timeWindow.to)}
                         </Typography>
                     </Box>
-                    <Box sx={{ display: 'flex', gap: 2 }}>
+                    <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
                         <Button
                             variant="contained"
                             startIcon={<AddIcon />}
@@ -900,7 +1177,7 @@ export default function PersonalDashboard() {
                 {/* Dashboard Stats Summary */}
                 {dashboardStats && (
                     <Box sx={{ mb: 4 }}>
-                        <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
                             <DashboardIcon sx={{ color: '#4361ee' }} />
                             Dashboard Overview
                         </Typography>
@@ -925,44 +1202,52 @@ export default function PersonalDashboard() {
                                     </Typography>
                                 </CardContent>
                             </Card>
-                            {dashboardStats.onTimeDelivery !== null && (
-                                <Card sx={{ flex: '1 1 200px', minWidth: 200 }}>
-                                    <CardContent>
-                                        <Typography variant="h4" fontWeight={700} color="#f59e0b">
-                                            {dashboardStats.onTimeDelivery}%
-                                        </Typography>
-                                        <Typography color="#64748b" variant="body2">
-                                            On-time Delivery
-                                        </Typography>
-                                    </CardContent>
-                                </Card>
-                            )}
-                            {dashboardStats.customerSatisfaction !== null && (
-                                <Card sx={{ flex: '1 1 200px', minWidth: 200 }}>
-                                    <CardContent>
-                                        <Typography variant="h4" fontWeight={700} color="#8b5cf6">
-                                            {dashboardStats.customerSatisfaction}%
-                                        </Typography>
-                                        <Typography color="#64748b" variant="body2">
-                                            Customer Satisfaction
-                                        </Typography>
-                                    </CardContent>
-                                </Card>
-                            )}
+                            <Card sx={{ flex: '1 1 200px', minWidth: 200 }}>
+                                <CardContent>
+                                    <Typography variant="h4" fontWeight={700} color={dashboardStats.onTimeDelivery !== null ? '#f59e0b' : '#64748b'}>
+                                        {dashboardStats.onTimeDelivery !== null ? `${dashboardStats.onTimeDelivery}%` : 'N/A'}
+                                    </Typography>
+                                    <Typography color="#64748b" variant="body2">
+                                        On-time Delivery
+                                    </Typography>
+                                </CardContent>
+                            </Card>
+                            <Card sx={{ flex: '1 1 200px', minWidth: 200 }}>
+                                <CardContent>
+                                    <Typography variant="h4" fontWeight={700} color={dashboardStats.budgetUtilization !== null ? '#8b5cf6' : '#64748b'}>
+                                        {dashboardStats.budgetUtilization !== null ? `${dashboardStats.budgetUtilization}%` : 'N/A'}
+                                    </Typography>
+                                    <Typography color="#64748b" variant="body2">
+                                        Budget Utilization
+                                    </Typography>
+                                </CardContent>
+                            </Card>
+                            <Card sx={{ flex: '1 1 200px', minWidth: 200 }}>
+                                <CardContent>
+                                    <Typography variant="h4" fontWeight={700} color={dashboardStats.customerSatisfaction !== null ? '#ec4899' : '#64748b'}>
+                                        {dashboardStats.customerSatisfaction !== null ? `${dashboardStats.customerSatisfaction}%` : 'N/A'}
+                                    </Typography>
+                                    <Typography color="#64748b" variant="body2">
+                                        Customer Satisfaction
+                                    </Typography>
+                                </CardContent>
+                            </Card>
                         </Box>
                     </Box>
                 )}
 
                 {/* Tabs */}
                 <TabContext value={tabValue}>
-                    <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
-                        <TabList onChange={handleTabChange} aria-label="dashboard tabs">
+                    <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3, overflowX: 'auto' }}>
+                        <TabList onChange={handleTabChange} aria-label="dashboard tabs" variant="scrollable">
                             <Tab label="Overview" value="overview" />
-                            <Tab label="Projects" value="projects" />
-                            <Tab label="Tasks" value="tasks" />
+                            <Tab label="My Tasks" value="tasks" />
+                            <Tab label="My Projects" value="projects" />
+                            <Tab label="Assigned Tasks" value="assigned" />
+                            <Tab label="My Week" value="week" />
                             <Tab label="Goals" value="goals" />
                             <Tab label="Team" value="team" />
-                            <Tab label="My Week" value="week" />
+                            <Tab label="Data Summary" value="summary" />
                         </TabList>
                     </Box>
 
@@ -975,21 +1260,32 @@ export default function PersonalDashboard() {
                                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                         <Box>
                                             <Typography variant="h4" fontWeight={700} color="#4361ee">
-                                                {totalTasks}
+                                                {myTasks.summary.total.count}
                                             </Typography>
                                             <Typography color="#64748b" variant="body2" gutterBottom>
                                                 Total Tasks
                                             </Typography>
                                             <Box sx={{ mt: 2 }}>
                                                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                                                    <Typography variant="caption">Completed</Typography>
+                                                    <Typography variant="caption">Upcoming</Typography>
                                                     <Typography variant="caption" fontWeight={600}>
-                                                        {tasksCompletionPercent}%
+                                                        {myTasks.summary.upcoming.count}
                                                     </Typography>
                                                 </Box>
                                                 <LinearProgress
                                                     variant="determinate"
-                                                    value={tasksCompletionPercent}
+                                                    value={(myTasks.summary.upcoming.count / myTasks.summary.total.count) * 100}
+                                                    sx={{ height: 8, borderRadius: 4, mb: 1 }}
+                                                />
+                                                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                                                    <Typography variant="caption">Completed</Typography>
+                                                    <Typography variant="caption" fontWeight={600}>
+                                                        {myTasks.summary.completed.count}
+                                                    </Typography>
+                                                </Box>
+                                                <LinearProgress
+                                                    variant="determinate"
+                                                    value={(myTasks.summary.completed.count / myTasks.summary.total.count) * 100}
                                                     sx={{ height: 8, borderRadius: 4 }}
                                                 />
                                             </Box>
@@ -1006,21 +1302,32 @@ export default function PersonalDashboard() {
                                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                         <Box>
                                             <Typography variant="h4" fontWeight={700} color="#10b981">
-                                                {totalProjects}
+                                                {myProjects.summary.totalProjects}
                                             </Typography>
                                             <Typography color="#64748b" variant="body2" gutterBottom>
                                                 Total Projects
                                             </Typography>
                                             <Box sx={{ mt: 2 }}>
                                                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                                                    <Typography variant="caption">Completed</Typography>
+                                                    <Typography variant="caption">Active</Typography>
                                                     <Typography variant="caption" fontWeight={600}>
-                                                        {projectsCompletionPercent}%
+                                                        {myProjects.summary.totalActive}
                                                     </Typography>
                                                 </Box>
                                                 <LinearProgress
                                                     variant="determinate"
-                                                    value={projectsCompletionPercent}
+                                                    value={(myProjects.summary.totalActive / myProjects.summary.totalProjects) * 100}
+                                                    sx={{ height: 8, borderRadius: 4, mb: 1 }}
+                                                />
+                                                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                                                    <Typography variant="caption">Completed</Typography>
+                                                    <Typography variant="caption" fontWeight={600}>
+                                                        {myProjects.summary.totalCompleted}
+                                                    </Typography>
+                                                </Box>
+                                                <LinearProgress
+                                                    variant="determinate"
+                                                    value={(myProjects.summary.totalCompleted / myProjects.summary.totalProjects) * 100}
                                                     sx={{ height: 8, borderRadius: 4 }}
                                                 />
                                             </Box>
@@ -1037,27 +1344,38 @@ export default function PersonalDashboard() {
                                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                         <Box>
                                             <Typography variant="h4" fontWeight={700} color="#f59e0b">
-                                                {overdueTasks}
+                                                {tasksIAssigned.summary.total}
                                             </Typography>
                                             <Typography color="#64748b" variant="body2" gutterBottom>
-                                                Overdue Tasks
+                                                Tasks Assigned
                                             </Typography>
                                             <Box sx={{ mt: 2 }}>
                                                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                                                    <Typography variant="caption">Resolved</Typography>
+                                                    <Typography variant="caption">Active</Typography>
                                                     <Typography variant="caption" fontWeight={600}>
-                                                        {myTasks.summary.overdue.percent}%
+                                                        {tasksIAssigned.summary.active}
                                                     </Typography>
                                                 </Box>
                                                 <LinearProgress
                                                     variant="determinate"
-                                                    value={myTasks.summary.overdue.percent}
+                                                    value={(tasksIAssigned.summary.active / tasksIAssigned.summary.total) * 100}
+                                                    sx={{ height: 8, borderRadius: 4, mb: 1 }}
+                                                />
+                                                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                                                    <Typography variant="caption">Overdue</Typography>
+                                                    <Typography variant="caption" fontWeight={600}>
+                                                        {tasksIAssigned.summary.overdue}
+                                                    </Typography>
+                                                </Box>
+                                                <LinearProgress
+                                                    variant="determinate"
+                                                    value={(tasksIAssigned.summary.overdue / tasksIAssigned.summary.total) * 100}
                                                     sx={{ height: 8, borderRadius: 4 }}
                                                 />
                                             </Box>
                                         </Box>
                                         <Box sx={{ color: '#fef3c7', fontSize: 40 }}>
-                                            <ErrorIcon fontSize="inherit" />
+                                            <AssignmentIcon fontSize="inherit" />
                                         </Box>
                                     </Box>
                                 </CardContent>
@@ -1068,7 +1386,7 @@ export default function PersonalDashboard() {
                                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                         <Box>
                                             <Typography variant="h4" fontWeight={700} color="#8b5cf6">
-                                                {totalTeamMembers}
+                                                {team.summary.totalMembers}
                                             </Typography>
                                             <Typography color="#64748b" variant="body2" gutterBottom>
                                                 Team Members
@@ -1077,12 +1395,23 @@ export default function PersonalDashboard() {
                                                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
                                                     <Typography variant="caption">Active</Typography>
                                                     <Typography variant="caption" fontWeight={600}>
-                                                        {activeTeamMembers}/{totalTeamMembers}
+                                                        {team.summary.activeMembers}
                                                     </Typography>
                                                 </Box>
                                                 <LinearProgress
                                                     variant="determinate"
-                                                    value={totalTeamMembers > 0 ? (activeTeamMembers / totalTeamMembers) * 100 : 0}
+                                                    value={(team.summary.activeMembers / team.summary.totalMembers) * 100}
+                                                    sx={{ height: 8, borderRadius: 4, mb: 1 }}
+                                                />
+                                                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                                                    <Typography variant="caption">Available</Typography>
+                                                    <Typography variant="caption" fontWeight={600}>
+                                                        {team.summary.availableMembers}
+                                                    </Typography>
+                                                </Box>
+                                                <LinearProgress
+                                                    variant="determinate"
+                                                    value={(team.summary.availableMembers / team.summary.totalMembers) * 100}
                                                     sx={{ height: 8, borderRadius: 4 }}
                                                 />
                                             </Box>
@@ -1108,8 +1437,9 @@ export default function PersonalDashboard() {
                             </Box>
                         ) : (
                             <Card sx={{ mb: 4 }}>
-                                <CardContent>
-                                    <Typography color="text.secondary" align="center">
+                                <CardContent sx={{ textAlign: 'center', py: 4 }}>
+                                    <TrackChangesIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
+                                    <Typography color="text.secondary">
                                         No goals set for this quarter
                                     </Typography>
                                 </CardContent>
@@ -1123,22 +1453,19 @@ export default function PersonalDashboard() {
                                     <CardContent>
                                         <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
                                             <HistoryIcon sx={{ color: '#4361ee' }} />
-                                            Recent Projects
+                                            Recent Projects ({myProjects.recent.length})
                                         </Typography>
                                         {myProjects.recent.length > 0 ? (
                                             <>
                                                 <List sx={{ maxHeight: 400, overflow: 'auto' }}>
                                                     {myProjects.recent.slice(0, 4).map((project) => (
-                                                        <Link href={`/project/${project.projectId}`} passHref>
-
+                                                        <Link href={`/project/${project.projectId}`} passHref key={project.projectId}>
                                                             <ListItem
-                                                                key={project.projectId}
                                                                 sx={{
                                                                     borderBottom: '1px solid #e2e8f0',
                                                                     cursor: 'pointer',
                                                                     '&:hover': { bgcolor: '#f1f5f9' }
                                                                 }}
-                                                            // onClick={() => handleProjectClick(project)}
                                                             >
                                                                 <ListItemAvatar>
                                                                     <Avatar sx={{ bgcolor: '#e0e7ff' }}>
@@ -1170,14 +1497,17 @@ export default function PersonalDashboard() {
                                                 </List>
                                                 <Box sx={{ mt: 2, textAlign: 'center' }}>
                                                     <Button onClick={() => setTabValue('projects')}>
-                                                        View All Projects
+                                                        View All Projects ({myProjects.recent.length})
                                                     </Button>
                                                 </Box>
                                             </>
                                         ) : (
-                                            <Typography color="text.secondary" align="center">
-                                                No recent projects
-                                            </Typography>
+                                            <Box sx={{ textAlign: 'center', py: 4 }}>
+                                                <FolderIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
+                                                <Typography color="text.secondary">
+                                                    No recent projects
+                                                </Typography>
+                                            </Box>
                                         )}
                                     </CardContent>
                                 </Card>
@@ -1188,11 +1518,11 @@ export default function PersonalDashboard() {
                                     <CardContent>
                                         <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
                                             <ScheduleIcon sx={{ color: '#4361ee' }} />
-                                            Upcoming Deadlines
+                                            Upcoming Deadlines ({upcomingDeadlines.length})
                                         </Typography>
                                         {upcomingDeadlines.length > 0 ? (
                                             <>
-                                                {upcomingDeadlines.map((deadline, index) => (
+                                                {upcomingDeadlines.slice(0, 4).map((deadline, index) => (
                                                     <UpcomingDeadlineCard key={index} deadline={deadline} />
                                                 ))}
                                                 <Box sx={{ mt: 2, textAlign: 'center' }}>
@@ -1202,26 +1532,148 @@ export default function PersonalDashboard() {
                                                 </Box>
                                             </>
                                         ) : (
-                                            <Typography color="text.secondary" align="center">
-                                                No upcoming deadlines
-                                            </Typography>
+                                            <Box sx={{ textAlign: 'center', py: 4 }}>
+                                                <ScheduleIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
+                                                <Typography color="text.secondary">
+                                                    No upcoming deadlines
+                                                </Typography>
+                                            </Box>
                                         )}
                                     </CardContent>
                                 </Card>
                             </Box>
                         </Box>
+                    </TabPanel>
 
-                        {/* Tasks I Assigned Section */}
-                        {tasksIAssigned.items.length > 0 && (
-                            <Box sx={{ mt: 4 }}>
-                                <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
-                                    <AssignmentIcon sx={{ color: '#4361ee' }} />
-                                    Tasks I Assigned ({tasksIAssigned.summary.total})
-                                </Typography>
-                                <Card>
-                                    <CardContent>
-                                        <List sx={{ maxHeight: 300, overflow: 'auto' }}>
-                                            {tasksIAssigned.items.map((task) => (
+                    {/* My Tasks Tab */}
+                    <TabPanel value="tasks" sx={{ p: 0 }}>
+                        <Card sx={{ mb: 3 }}>
+                            <CardContent>
+                                {/* Task Filter Buttons Section */}
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexWrap: 'wrap', gap: 2 }}>
+                                    <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                                        <Button
+                                            variant={taskViewType === 'all' ? 'contained' : 'outlined'}
+                                            onClick={() => setTaskViewType('all')}
+                                            size="small"
+                                            sx={{
+                                                bgcolor: taskViewType === 'all' ? '#4361ee' : 'transparent',
+                                                color: taskViewType === 'all' ? 'white' : '#4361ee',
+                                                borderColor: '#4361ee',
+                                                '&:hover': {
+                                                    bgcolor: taskViewType === 'all' ? '#3a0ca3' : 'rgba(67, 97, 238, 0.04)'
+                                                }
+                                            }}
+                                        >
+                                            All ({myTasks.all.length})
+                                        </Button>
+                                        <Button
+                                            variant={taskViewType === 'upcoming' ? 'contained' : 'outlined'}
+                                            onClick={() => setTaskViewType('upcoming')}
+                                            size="small"
+                                            sx={{
+                                                bgcolor: taskViewType === 'upcoming' ? '#4361ee' : 'transparent',
+                                                color: taskViewType === 'upcoming' ? 'white' : '#4361ee',
+                                                borderColor: '#4361ee',
+                                                '&:hover': {
+                                                    bgcolor: taskViewType === 'upcoming' ? '#3a0ca3' : 'rgba(67, 97, 238, 0.04)'
+                                                }
+                                            }}
+                                        >
+                                            Upcoming ({myTasks.upcoming.length})
+                                        </Button>
+                                        <Button
+                                            variant={taskViewType === 'overdue' ? 'contained' : 'outlined'}
+                                            onClick={() => setTaskViewType('overdue')}
+                                            size="small"
+                                            sx={{
+                                                bgcolor: taskViewType === 'overdue' ? '#dc3545' : 'transparent',
+                                                color: taskViewType === 'overdue' ? 'white' : '#dc3545',
+                                                borderColor: taskViewType === 'overdue' ? '#dc3545' : 'rgba(220, 53, 69, 0.5)',
+                                                '&:hover': {
+                                                    bgcolor: taskViewType === 'overdue' ? '#bd2130' : 'rgba(220, 53, 69, 0.04)'
+                                                }
+                                            }}
+                                        >
+                                            Overdue ({myTasks.overdue.length})
+                                        </Button>
+                                        <Button
+                                            variant={taskViewType === 'completed' ? 'contained' : 'outlined'}
+                                            onClick={() => setTaskViewType('completed')}
+                                            size="small"
+                                            sx={{
+                                                bgcolor: taskViewType === 'completed' ? '#10b981' : 'transparent',
+                                                color: taskViewType === 'completed' ? 'white' : '#10b981',
+                                                borderColor: taskViewType === 'completed' ? '#10b981' : 'rgba(16, 185, 129, 0.5)',
+                                                '&:hover': {
+                                                    bgcolor: taskViewType === 'completed' ? '#0da271' : 'rgba(16, 185, 129, 0.04)'
+                                                }
+                                            }}
+                                        >
+                                            Completed ({myTasks.completed.length})
+                                        </Button>
+                                    </Box>
+
+                                    <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+                                        <TextField
+                                            size="small"
+                                            placeholder="Search tasks..."
+                                            value={searchQuery}
+                                            onChange={(e) => setSearchQuery(e.target.value)}
+                                            InputProps={{
+                                                startAdornment: (
+                                                    <InputAdornment position="start">
+                                                        <SearchIcon />
+                                                    </InputAdornment>
+                                                ),
+                                            }}
+                                        />
+                                        <IconButton onClick={() => setViewMode(viewMode === 'list' ? 'grid' : 'list')}>
+                                            {viewMode === 'list' ? <GridViewIcon /> : <ViewListIcon />}
+                                        </IconButton>
+                                    </Box>
+                                </Box>
+
+                                {/* Add summary chips for current view */}
+                                <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
+                                    <Chip
+                                        icon={<ScheduleIcon />}
+                                        label={`${filteredTasks.length} tasks`}
+                                        variant="outlined"
+                                        size="small"
+                                    />
+                                    {taskViewType === 'all' && (
+                                        <>
+                                            <Chip
+                                                icon={<ErrorIcon />}
+                                                label={`${myTasks.overdue.length} overdue`}
+                                                variant="outlined"
+                                                size="small"
+                                                color="error"
+                                            />
+                                            <Chip
+                                                icon={<CheckIcon />}
+                                                label={`${myTasks.completed.length} completed`}
+                                                variant="outlined"
+                                                size="small"
+                                                color="success"
+                                            />
+                                            <Chip
+                                                icon={<HourglassEmptyIcon />}
+                                                label={`${myTasks.upcoming.length} upcoming`}
+                                                variant="outlined"
+                                                size="small"
+                                                color="info"
+                                            />
+                                        </>
+                                    )}
+                                </Box>
+
+                                {/* Tasks Display */}
+                                {filteredTasks.length > 0 ? (
+                                    viewMode === 'list' ? (
+                                        <List sx={{ maxHeight: 600, overflow: 'auto' }}>
+                                            {sortedTasks.map((task) => (
                                                 <ListItem
                                                     key={task.wbsItemId}
                                                     sx={{
@@ -1232,47 +1684,118 @@ export default function PersonalDashboard() {
                                                     onClick={() => handleTaskClick(task)}
                                                 >
                                                     <ListItemAvatar>
-                                                        <Avatar sx={{ bgcolor: '#e0e7ff' }}>
-                                                            <TaskIcon sx={{ color: '#4361ee' }} />
+                                                        <Avatar sx={{
+                                                            bgcolor: taskViewType === 'overdue' ? '#fee2e2' :
+                                                                taskViewType === 'completed' ? '#d1fae5' : '#e0e7ff'
+                                                        }}>
+                                                            <TaskIcon sx={{
+                                                                color: taskViewType === 'overdue' ? '#dc3545' :
+                                                                    taskViewType === 'completed' ? '#10b981' : '#4361ee'
+                                                            }} />
                                                         </Avatar>
                                                     </ListItemAvatar>
                                                     <ListItemText
                                                         primary={
-                                                            <Typography fontWeight={600}>
-                                                                {task.title}
-                                                            </Typography>
+                                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
+                                                                <Typography fontWeight={600}>
+                                                                    {task.title}
+                                                                </Typography>
+                                                                {taskViewType === 'overdue' && (
+                                                                    <ErrorIcon fontSize="small" color="error" />
+                                                                )}
+                                                                {taskViewType === 'completed' && (
+                                                                    <CheckIcon fontSize="small" color="success" />
+                                                                )}
+                                                            </Box>
                                                         }
                                                         secondary={
-                                                            <Typography variant="body2" color="#64748b">
-                                                                Assigned to: {task.assignments.length} person(s) • {task.percentCompletion}% complete
-                                                            </Typography>
+                                                            <>
+                                                                <Typography variant="body2" color="#64748b">
+                                                                    {task.projectTitle} • {task.projectType} • Due: {formatDate(task.plannedEndDate)}
+                                                                </Typography>
+                                                                <LinearProgress
+                                                                    variant="determinate"
+                                                                    value={task.percentCompletion || 0}
+                                                                    sx={{
+                                                                        height: 4,
+                                                                        borderRadius: 2,
+                                                                        width: "200px",
+                                                                        mt: 1,
+                                                                        bgcolor: taskViewType === 'completed' ? '#d1fae5' : '#e2e8f0'
+                                                                    }}
+                                                                />
+                                                            </>
                                                         }
                                                     />
                                                     <ListItemSecondaryAction>
-                                                        <Chip
-                                                            label={task.taskStage}
-                                                            size="small"
-                                                            color={getStatusColor(task.taskStage)}
-                                                        />
+                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
+                                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                                                <Box sx={{
+                                                                    width: 8,
+                                                                    height: 8,
+                                                                    borderRadius: '50%',
+                                                                    bgcolor: getPriorityColor(task.priority)
+                                                                }} />
+                                                                <Typography variant="caption" color="#64748b">
+                                                                    {task.priority?.toUpperCase() || 'No priority'}
+                                                                </Typography>
+                                                            </Box>
+                                                            <Chip
+                                                                label={task.taskStage}
+                                                                size="small"
+                                                                color={getStatusColor(task.taskStage)}
+                                                            />
+                                                        </Box>
                                                     </ListItemSecondaryAction>
                                                 </ListItem>
                                             ))}
                                         </List>
-                                    </CardContent>
-                                </Card>
-                            </Box>
-                        )}
+                                    ) : (
+                                        <Box
+                                            sx={{
+                                                display: "grid",
+                                                gridTemplateColumns: {
+                                                    xs: "1fr",
+                                                    sm: "1fr",
+                                                    md: "repeat(2, 1fr)",
+                                                },
+                                                gap: 3,
+                                            }}
+                                        >
+                                            {sortedTasks.map((task) => (
+                                                <TaskCardGrid key={task.wbsItemId} task={task} />
+                                            ))}
+                                        </Box>
+                                    )
+                                ) : (
+                                    <Box sx={{ textAlign: 'center', py: 4 }}>
+                                        <TaskIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
+                                        <Typography color="text.secondary">
+                                            {taskViewType === 'upcoming' && 'No upcoming tasks found.'}
+                                            {taskViewType === 'overdue' && 'No overdue tasks found.'}
+                                            {taskViewType === 'completed' && 'No completed tasks found.'}
+                                            {taskViewType === 'all' && 'No tasks found matching your filters.'}
+                                        </Typography>
+                                        {(searchQuery || statusFilter !== 'All' || priorityFilter !== 'All') && (
+                                            <Button onClick={clearFilters} sx={{ mt: 2 }}>
+                                                Clear all filters
+                                            </Button>
+                                        )}
+                                    </Box>
+                                )}
+                            </CardContent>
+                        </Card>
                     </TabPanel>
 
                     {/* Projects Tab */}
                     <TabPanel value="projects" sx={{ p: 0 }}>
                         <Card sx={{ mb: 3 }}>
                             <CardContent>
-                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexWrap: 'wrap', gap: 2 }}>
                                     <Typography variant="h6" fontWeight={600}>
-                                        All Projects ({filteredProjects.length})
+                                        My Projects ({filteredProjects.length})
                                     </Typography>
-                                    <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+                                    <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
                                         <TextField
                                             size="small"
                                             placeholder="Search projects..."
@@ -1304,20 +1827,48 @@ export default function PersonalDashboard() {
                                     </Box>
                                 </Box>
 
+                                {/* Project Summary Stats */}
+                                <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
+                                    <Chip
+                                        icon={<FolderIcon />}
+                                        label={`${myProjects.summary.totalProjects} total`}
+                                        variant="outlined"
+                                        size="small"
+                                    />
+                                    <Chip
+                                        icon={<BoltIcon />}
+                                        label={`${myProjects.summary.totalActive} active`}
+                                        variant="outlined"
+                                        size="small"
+                                        color="success"
+                                    />
+                                    <Chip
+                                        icon={<HourglassEmptyIcon />}
+                                        label={`${myProjects.summary.totalPending} pending`}
+                                        variant="outlined"
+                                        size="small"
+                                        color="warning"
+                                    />
+                                    <Chip
+                                        icon={<CheckIcon />}
+                                        label={`${myProjects.summary.totalCompleted} completed`}
+                                        variant="outlined"
+                                        size="small"
+                                        color="info"
+                                    />
+                                </Box>
+
                                 {filteredProjects.length > 0 ? (
                                     viewMode === 'list' ? (
                                         <List sx={{ maxHeight: 600, overflow: 'auto' }}>
                                             {sortedProjects.map((project) => (
-                                                <Link href={`/project/${project.projectId}`} passHref>
-
+                                                <Link href={`/project/${project.projectId}`} passHref key={project.projectId}>
                                                     <ListItem
-                                                        key={project.projectId}
                                                         sx={{
                                                             borderBottom: '1px solid #e2e8f0',
                                                             cursor: 'pointer',
                                                             '&:hover': { bgcolor: '#f1f5f9' }
                                                         }}
-                                                    // onClick={() => handleProjectClick(project)}
                                                     >
                                                         <ListItemAvatar>
                                                             <Avatar sx={{ bgcolor: '#e0e7ff' }}>
@@ -1326,7 +1877,7 @@ export default function PersonalDashboard() {
                                                         </ListItemAvatar>
                                                         <ListItemText
                                                             primary={
-                                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
                                                                     <Typography fontWeight={600}>
                                                                         {project.title}
                                                                     </Typography>
@@ -1349,7 +1900,7 @@ export default function PersonalDashboard() {
                                                             }
                                                         />
                                                         <ListItemSecondaryAction>
-                                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
                                                                 <Chip
                                                                     label={project.projectStage}
                                                                     size="small"
@@ -1383,6 +1934,7 @@ export default function PersonalDashboard() {
                                     )
                                 ) : (
                                     <Box sx={{ textAlign: 'center', py: 4 }}>
+                                        <FolderIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
                                         <Typography color="text.secondary">
                                             No projects found matching your filters.
                                         </Typography>
@@ -1395,18 +1947,94 @@ export default function PersonalDashboard() {
                         </Card>
                     </TabPanel>
 
-                    {/* Tasks Tab */}
-                    <TabPanel value="tasks" sx={{ p: 0 }}>
+                    {/* Assigned Tasks Tab */}
+                    <TabPanel value="assigned" sx={{ p: 0 }}>
                         <Card sx={{ mb: 3 }}>
                             <CardContent>
-                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-                                    <Typography variant="h6" fontWeight={600}>
-                                        All Tasks ({filteredTasks.length})
-                                    </Typography>
+                                {/* Assigned Task Filter Buttons Section */}
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexWrap: 'wrap', gap: 2 }}>
+                                    <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                                        <Button
+                                            variant={assignedTaskViewType === 'all' ? 'contained' : 'outlined'}
+                                            onClick={() => setAssignedTaskViewType('all')}
+                                            size="small"
+                                            sx={{
+                                                bgcolor: assignedTaskViewType === 'all' ? '#4361ee' : 'transparent',
+                                                color: assignedTaskViewType === 'all' ? 'white' : '#4361ee',
+                                                borderColor: '#4361ee',
+                                                '&:hover': {
+                                                    bgcolor: assignedTaskViewType === 'all' ? '#3a0ca3' : 'rgba(67, 97, 238, 0.04)'
+                                                }
+                                            }}
+                                        >
+                                            All ({tasksIAssigned.all.length})
+                                        </Button>
+                                        <Button
+                                            variant={assignedTaskViewType === 'upcoming' ? 'contained' : 'outlined'}
+                                            onClick={() => setAssignedTaskViewType('upcoming')}
+                                            size="small"
+                                            sx={{
+                                                bgcolor: assignedTaskViewType === 'upcoming' ? '#4361ee' : 'transparent',
+                                                color: assignedTaskViewType === 'upcoming' ? 'white' : '#4361ee',
+                                                borderColor: '#4361ee',
+                                                '&:hover': {
+                                                    bgcolor: assignedTaskViewType === 'upcoming' ? '#3a0ca3' : 'rgba(67, 97, 238, 0.04)'
+                                                }
+                                            }}
+                                        >
+                                            Upcoming ({tasksIAssigned.upcoming.length})
+                                        </Button>
+                                        <Button
+                                            variant={assignedTaskViewType === 'overdue' ? 'contained' : 'outlined'}
+                                            onClick={() => setAssignedTaskViewType('overdue')}
+                                            size="small"
+                                            sx={{
+                                                bgcolor: assignedTaskViewType === 'overdue' ? '#dc3545' : 'transparent',
+                                                color: assignedTaskViewType === 'overdue' ? 'white' : '#dc3545',
+                                                borderColor: taskViewType === 'overdue' ? '#dc3545' : 'rgba(220, 53, 69, 0.5)',
+                                                '&:hover': {
+                                                    bgcolor: assignedTaskViewType === 'overdue' ? '#bd2130' : 'rgba(220, 53, 69, 0.04)'
+                                                }
+                                            }}
+                                        >
+                                            Overdue ({tasksIAssigned.overdue.length})
+                                        </Button>
+                                        <Button
+                                            variant={assignedTaskViewType === 'completed' ? 'contained' : 'outlined'}
+                                            onClick={() => setAssignedTaskViewType('completed')}
+                                            size="small"
+                                            sx={{
+                                                bgcolor: assignedTaskViewType === 'completed' ? '#10b981' : 'transparent',
+                                                color: assignedTaskViewType === 'completed' ? 'white' : '#10b981',
+                                                borderColor: assignedTaskViewType === 'completed' ? '#10b981' : 'rgba(16, 185, 129, 0.5)',
+                                                '&:hover': {
+                                                    bgcolor: assignedTaskViewType === 'completed' ? '#0da271' : 'rgba(16, 185, 129, 0.04)'
+                                                }
+                                            }}
+                                        >
+                                            Completed ({tasksIAssigned.completed.length})
+                                        </Button>
+                                        <Button
+                                            variant={assignedTaskViewType === 'active' ? 'contained' : 'outlined'}
+                                            onClick={() => setAssignedTaskViewType('active')}
+                                            size="small"
+                                            sx={{
+                                                bgcolor: assignedTaskViewType === 'active' ? '#f59e0b' : 'transparent',
+                                                color: assignedTaskViewType === 'active' ? 'white' : '#f59e0b',
+                                                borderColor: assignedTaskViewType === 'active' ? '#f59e0b' : 'rgba(245, 158, 11, 0.5)',
+                                                '&:hover': {
+                                                    bgcolor: assignedTaskViewType === 'active' ? '#d97706' : 'rgba(245, 158, 11, 0.04)'
+                                                }
+                                            }}
+                                        >
+                                            Active ({tasksIAssigned.activeItems.length})
+                                        </Button>
+                                    </Box>
+
                                     <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
                                         <TextField
                                             size="small"
-                                            placeholder="Search tasks..."
+                                            placeholder="Search assigned tasks..."
                                             value={searchQuery}
                                             onChange={(e) => setSearchQuery(e.target.value)}
                                             InputProps={{
@@ -1417,99 +2045,190 @@ export default function PersonalDashboard() {
                                                 ),
                                             }}
                                         />
-                                        <IconButton onClick={() => setViewMode(viewMode === 'list' ? 'grid' : 'list')}>
-                                            {viewMode === 'list' ? <GridViewIcon /> : <ViewListIcon />}
-                                        </IconButton>
                                     </Box>
                                 </Box>
 
-                                {filteredTasks.length > 0 ? (
-                                    viewMode === 'list' ? (
-                                        <List sx={{ maxHeight: 600, overflow: 'auto' }}>
-                                            {sortedTasks.map((task) => (
-                                                <ListItem
-                                                    key={task.wbsItemId}
-                                                    sx={{
-                                                        borderBottom: '1px solid #e2e8f0',
-                                                        cursor: 'pointer',
-                                                        '&:hover': { bgcolor: '#f1f5f9' }
-                                                    }}
-                                                    onClick={() => handleTaskClick(task)}
-                                                >
-                                                    <ListItemAvatar>
-                                                        <Avatar sx={{ bgcolor: '#e0e7ff' }}>
-                                                            <TaskIcon sx={{ color: '#4361ee' }} />
-                                                        </Avatar>
-                                                    </ListItemAvatar>
-                                                    <ListItemText
-                                                        primary={
-                                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                                                <Typography fontWeight={600}>
-                                                                    {task.title}
-                                                                </Typography>
-                                                            </Box>
-                                                        }
-                                                        secondary={
-                                                            <>
-                                                                <Typography variant="body2" color="#64748b">
-                                                                    {task.projectTitle} • {task.projectType} • Due: {formatDate(task.plannedEndDate)}
-                                                                </Typography>
-                                                                <LinearProgress
-                                                                    variant="determinate"
-                                                                    value={task.percentCompletion}
-                                                                    sx={{ height: 4, borderRadius: 2, width: "200px", mt: 1 }}
-                                                                />
-                                                            </>
-                                                        }
-                                                    />
-                                                    <ListItemSecondaryAction>
-                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                                                <Box sx={{
-                                                                    width: 8,
-                                                                    height: 8,
-                                                                    borderRadius: '50%',
-                                                                    bgcolor: getPriorityColor(task.priority)
-                                                                }} />
-                                                                <Typography variant="caption" color="#64748b">
-                                                                    {task.priority?.toUpperCase()}
-                                                                </Typography>
-                                                            </Box>
-                                                            <Chip
-                                                                label={task.taskStage}
-                                                                size="small"
-                                                                color={getStatusColor(task.taskStage)}
-                                                            />
-                                                        </Box>
-                                                    </ListItemSecondaryAction>
-                                                </ListItem>
-                                            ))}
-                                        </List>
-                                    ) : (
-                                        <Box
-                                            sx={{
-                                                display: "grid",
-                                                gridTemplateColumns: {
-                                                    xs: "1fr",
-                                                    sm: "1fr",
-                                                    md: "repeat(2, 1fr)",
-                                                },
-                                                gap: 3,
-                                            }}
-                                        >
-                                            {sortedTasks.map((task) => (
-                                                <TaskCardGrid key={task.wbsItemId} task={task} />
-                                            ))}
-                                        </Box>
-                                    )
+                                {/* Assigned Tasks Summary Stats */}
+                                <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
+                                    <Chip
+                                        icon={<AssignmentIcon />}
+                                        label={`${filteredAssignedTasks.length} tasks`}
+                                        variant="outlined"
+                                        size="small"
+                                    />
+                                    <Chip
+                                        icon={<BoltIcon />}
+                                        label={`${tasksIAssigned.summary.active} active`}
+                                        variant="outlined"
+                                        size="small"
+                                        color="success"
+                                    />
+                                    <Chip
+                                        icon={<ErrorIcon />}
+                                        label={`${tasksIAssigned.summary.overdue} overdue`}
+                                        variant="outlined"
+                                        size="small"
+                                        color="error"
+                                    />
+                                    <Chip
+                                        icon={<CheckIcon />}
+                                        label={`${tasksIAssigned.summary.completed} completed`}
+                                        variant="outlined"
+                                        size="small"
+                                        color="info"
+                                    />
+                                    <Chip
+                                        icon={<HourglassEmptyIcon />}
+                                        label={`${tasksIAssigned.summary.pending} pending`}
+                                        variant="outlined"
+                                        size="small"
+                                        color="warning"
+                                    />
+                                </Box>
+
+                                {/* Assigned Tasks Display */}
+                                {filteredAssignedTasks.length > 0 ? (
+                                    <Box
+                                        sx={{
+                                            display: "grid",
+                                            gridTemplateColumns: {
+                                                xs: "1fr",
+                                                sm: "1fr",
+                                                md: "repeat(2, 1fr)",
+                                            },
+                                            gap: 3,
+                                        }}
+                                    >
+                                        {filteredAssignedTasks.map((task) => (
+                                            <TaskCardGrid key={task.wbsItemId} task={task} isAssigned={true} />
+                                        ))}
+                                    </Box>
                                 ) : (
                                     <Box sx={{ textAlign: 'center', py: 4 }}>
+                                        <AssignmentIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
                                         <Typography color="text.secondary">
-                                            No tasks found matching your filters.
+                                            {assignedTaskViewType === 'upcoming' && 'No upcoming assigned tasks found.'}
+                                            {assignedTaskViewType === 'overdue' && 'No overdue assigned tasks found.'}
+                                            {assignedTaskViewType === 'completed' && 'No completed assigned tasks found.'}
+                                            {assignedTaskViewType === 'active' && 'No active assigned tasks found.'}
+                                            {assignedTaskViewType === 'all' && 'No assigned tasks found matching your filters.'}
                                         </Typography>
-                                        <Button onClick={clearFilters} sx={{ mt: 2 }}>
-                                            Clear all filters
-                                        </Button>
+                                        {searchQuery && (
+                                            <Button onClick={() => setSearchQuery('')} sx={{ mt: 2 }}>
+                                                Clear search
+                                            </Button>
+                                        )}
+                                    </Box>
+                                )}
+                            </CardContent>
+                        </Card>
+                    </TabPanel>
+
+                    {/* My Week Tab */}
+                    <TabPanel value="week" sx={{ p: 0 }}>
+                        <Card>
+                            <CardContent>
+                                <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
+                                    <CalendarTodayIcon sx={{ color: '#4361ee' }} />
+                                    My Week Overview
+                                    <Typography variant="caption" color="#64748b" sx={{ ml: 1 }}>
+                                        {formatDate(myWeek.weekRange.start)} - {formatDate(myWeek.weekRange.end)}
+                                    </Typography>
+                                </Typography>
+
+                                {/* Week Summary Stats */}
+                                <Box sx={{ mb: 4 }}>
+                                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 3 }}>
+                                        <Card sx={{ flex: '1 1 150px', minWidth: 150 }}>
+                                            <CardContent sx={{ textAlign: 'center' }}>
+                                                <Typography variant="h4" fontWeight={700} color="#4361ee">
+                                                    {myWeek.tasksDueThisWeek}
+                                                </Typography>
+                                                <Typography variant="body2" color="#64748b">
+                                                    Tasks Due This Week
+                                                </Typography>
+                                            </CardContent>
+                                        </Card>
+                                        <Card sx={{ flex: '1 1 150px', minWidth: 150 }}>
+                                            <CardContent sx={{ textAlign: 'center' }}>
+                                                <Typography variant="h4" fontWeight={700} color="#10b981">
+                                                    {myWeek.tasksCompletedThisWeek}
+                                                </Typography>
+                                                <Typography variant="body2" color="#64748b">
+                                                    Tasks Completed
+                                                </Typography>
+                                            </CardContent>
+                                        </Card>
+                                        <Card sx={{ flex: '1 1 150px', minWidth: 150 }}>
+                                            <CardContent sx={{ textAlign: 'center' }}>
+                                                <Typography variant="h4" fontWeight={700} color="#f59e0b">
+                                                    {myWeek.overdueTasks}
+                                                </Typography>
+                                                <Typography variant="body2" color="#64748b">
+                                                    Overdue Tasks
+                                                </Typography>
+                                            </CardContent>
+                                        </Card>
+                                        <Card sx={{ flex: '1 1 150px', minWidth: 150 }}>
+                                            <CardContent sx={{ textAlign: 'center' }}>
+                                                <Typography variant="h4" fontWeight={700} color="#8b5cf6">
+                                                    {myWeek.timeEntries.length}
+                                                </Typography>
+                                                <Typography variant="body2" color="#64748b">
+                                                    Time Entries
+                                                </Typography>
+                                            </CardContent>
+                                        </Card>
+                                        <Card sx={{ flex: '1 1 150px', minWidth: 150 }}>
+                                            <CardContent sx={{ textAlign: 'center' }}>
+                                                <Typography variant="h4" fontWeight={700} color="#ec4899">
+                                                    {myWeek.hoursByProject.length}
+                                                </Typography>
+                                                <Typography variant="body2" color="#64748b">
+                                                    Projects Tracked
+                                                </Typography>
+                                            </CardContent>
+                                        </Card>
+                                    </Box>
+                                </Box>
+
+                                {/* Hours by Project */}
+                                <Typography variant="subtitle1" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                                    <AccessTimeIcon />
+                                    Hours by Project ({myWeek.hoursByProject.length})
+                                </Typography>
+                                {myWeek.hoursByProject.length > 0 ? (
+                                    <Box sx={{ mb: 4 }}>
+                                        {myWeek.hoursByProject.map((projectHours, index) => (
+                                            <HoursByProjectCard key={index} projectHours={projectHours} />
+                                        ))}
+                                    </Box>
+                                ) : (
+                                    <Box sx={{ mb: 4, textAlign: 'center', py: 4 }}>
+                                        <AccessTimeIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
+                                        <Typography color="text.secondary">
+                                            No hours logged for projects this week
+                                        </Typography>
+                                    </Box>
+                                )}
+
+                                {/* Time Entries */}
+                                <Typography variant="subtitle1" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                                    <WorkIcon />
+                                    Recent Time Entries ({myWeek.timeEntries.length})
+                                </Typography>
+                                {myWeek.timeEntries.length > 0 ? (
+                                    <Box>
+                                        {myWeek.timeEntries.map((entry) => (
+                                            <TimeEntryCard key={entry.timeEntryId} entry={entry} />
+                                        ))}
+                                    </Box>
+                                ) : (
+                                    <Box sx={{ textAlign: 'center', py: 4 }}>
+                                        <WorkIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
+                                        <Typography color="text.secondary">
+                                            No time entries for this week
+                                        </Typography>
                                     </Box>
                                 )}
                             </CardContent>
@@ -1524,6 +2243,8 @@ export default function PersonalDashboard() {
                                     <TrackChangesIcon sx={{ color: '#4361ee' }} />
                                     Quarterly Goals & Progress
                                 </Typography>
+
+                                {/* Goals Summary Stats */}
                                 <Box sx={{ mb: 3 }}>
                                     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 3 }}>
                                         <Card sx={{ flex: '1 1 150px', minWidth: 150 }}>
@@ -1576,9 +2297,12 @@ export default function PersonalDashboard() {
                                         ))}
                                     </Box>
                                 ) : (
-                                    <Typography color="text.secondary" align="center" sx={{ py: 4 }}>
-                                        No goals set for this quarter
-                                    </Typography>
+                                    <Box sx={{ textAlign: 'center', py: 4 }}>
+                                        <TrackChangesIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
+                                        <Typography color="text.secondary">
+                                            No goals set for this quarter
+                                        </Typography>
+                                    </Box>
                                 )}
                             </CardContent>
                         </Card>
@@ -1592,6 +2316,8 @@ export default function PersonalDashboard() {
                                     <PeopleIcon sx={{ color: '#4361ee' }} />
                                     Team Members ({team.summary.totalMembers})
                                 </Typography>
+
+                                {/* Team Summary Stats */}
                                 <Box sx={{ mb: 3 }}>
                                     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 3 }}>
                                         <Card sx={{ flex: '1 1 150px', minWidth: 150 }}>
@@ -1624,6 +2350,26 @@ export default function PersonalDashboard() {
                                                 </Typography>
                                             </CardContent>
                                         </Card>
+                                        <Card sx={{ flex: '1 1 150px', minWidth: 150 }}>
+                                            <CardContent sx={{ textAlign: 'center' }}>
+                                                <Typography variant="h4" fontWeight={700} color="#f59e0b">
+                                                    {team.members.reduce((sum, member) => sum + member.tasksActive, 0)}
+                                                </Typography>
+                                                <Typography variant="body2" color="#64748b">
+                                                    Active Tasks
+                                                </Typography>
+                                            </CardContent>
+                                        </Card>
+                                        <Card sx={{ flex: '1 1 150px', minWidth: 150 }}>
+                                            <CardContent sx={{ textAlign: 'center' }}>
+                                                <Typography variant="h4" fontWeight={700} color="#ec4899">
+                                                    {team.members.reduce((sum, member) => sum + member.tasksCompleted, 0)}
+                                                </Typography>
+                                                <Typography variant="body2" color="#64748b">
+                                                    Completed Tasks
+                                                </Typography>
+                                            </CardContent>
+                                        </Card>
                                     </Box>
                                 </Box>
 
@@ -1634,148 +2380,196 @@ export default function PersonalDashboard() {
                                         ))}
                                     </Box>
                                 ) : (
-                                    <Typography color="text.secondary" align="center" sx={{ py: 4 }}>
-                                        No team members found
-                                    </Typography>
+                                    <Box sx={{ textAlign: 'center', py: 4 }}>
+                                        <PeopleIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
+                                        <Typography color="text.secondary">
+                                            No team members found
+                                        </Typography>
+                                    </Box>
                                 )}
                             </CardContent>
                         </Card>
                     </TabPanel>
 
-                    {/* My Week Tab */}
-                    <TabPanel value="week" sx={{ p: 0 }}>
+                    {/* Data Summary Tab */}
+                    <TabPanel value="summary" sx={{ p: 0 }}>
                         <Card>
                             <CardContent>
                                 <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
-                                    <CalendarTodayIcon sx={{ color: '#4361ee' }} />
-                                    My Week Overview
-                                    <Typography variant="caption" color="#64748b" sx={{ ml: 1 }}>
-                                        {formatDate(data.myWeek.weekRange.start)} - {formatDate(data.myWeek.weekRange.end)}
-                                    </Typography>
+                                    <AssessmentIcon sx={{ color: '#4361ee' }} />
+                                    Data Summary & Statistics
                                 </Typography>
 
-                                <Box sx={{ mb: 4 }}>
-                                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 3 }}>
-                                        <Card sx={{ flex: '1 1 150px', minWidth: 150 }}>
-                                            <CardContent sx={{ textAlign: 'center' }}>
-                                                <Typography variant="h4" fontWeight={700} color="#4361ee">
-                                                    {data.myWeek.tasksDueThisWeek}
-                                                </Typography>
-                                                <Typography variant="body2" color="#64748b">
-                                                    Tasks Due This Week
-                                                </Typography>
-                                            </CardContent>
-                                        </Card>
-                                        <Card sx={{ flex: '1 1 150px', minWidth: 150 }}>
-                                            <CardContent sx={{ textAlign: 'center' }}>
-                                                <Typography variant="h4" fontWeight={700} color="#10b981">
-                                                    {data.myWeek.tasksCompletedThisWeek}
-                                                </Typography>
-                                                <Typography variant="body2" color="#64748b">
-                                                    Tasks Completed
-                                                </Typography>
-                                            </CardContent>
-                                        </Card>
-                                        <Card sx={{ flex: '1 1 150px', minWidth: 150 }}>
-                                            <CardContent sx={{ textAlign: 'center' }}>
-                                                <Typography variant="h4" fontWeight={700} color="#f59e0b">
-                                                    {data.myWeek.overdueTasks}
-                                                </Typography>
-                                                <Typography variant="body2" color="#64748b">
-                                                    Overdue Tasks
-                                                </Typography>
-                                            </CardContent>
-                                        </Card>
-                                    </Box>
+                                {/* Data Overview Cards */}
+                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 4 }}>
+                                    <Card sx={{ flex: '1 1 180px', minWidth: 180 }}>
+                                        <CardContent>
+                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                                                <TaskIcon color="primary" />
+                                                <Typography variant="subtitle2" color="text.secondary">My Tasks</Typography>
+                                            </Box>
+                                            <Typography variant="h4" fontWeight={700}>{myTasks.all.length}</Typography>
+                                            <Typography variant="caption" color="text.secondary">
+                                                Total: {myTasks.summary.total.count} • Upcoming: {myTasks.upcoming.length} • Overdue: {myTasks.overdue.length} • Completed: {myTasks.completed.length}
+                                            </Typography>
+                                        </CardContent>
+                                    </Card>
+
+                                    <Card sx={{ flex: '1 1 180px', minWidth: 180 }}>
+                                        <CardContent>
+                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                                                <FolderIcon color="secondary" />
+                                                <Typography variant="subtitle2" color="text.secondary">Projects</Typography>
+                                            </Box>
+                                            <Typography variant="h4" fontWeight={700}>{myProjects.recent.length}</Typography>
+                                            <Typography variant="caption" color="text.secondary">
+                                                Active: {myProjects.summary.totalActive} • Completed: {myProjects.summary.totalCompleted} • Pending: {myProjects.summary.totalPending}
+                                            </Typography>
+                                        </CardContent>
+                                    </Card>
+
+                                    <Card sx={{ flex: '1 1 180px', minWidth: 180 }}>
+                                        <CardContent>
+                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                                                <AssignmentIcon color="info" />
+                                                <Typography variant="subtitle2" color="text.secondary">Assigned Tasks</Typography>
+                                            </Box>
+                                            <Typography variant="h4" fontWeight={700}>{tasksIAssigned.all.length}</Typography>
+                                            <Typography variant="caption" color="text.secondary">
+                                                Active: {tasksIAssigned.activeItems.length} • Overdue: {tasksIAssigned.overdue.length} • Completed: {tasksIAssigned.completed.length}
+                                            </Typography>
+                                        </CardContent>
+                                    </Card>
+
+                                    <Card sx={{ flex: '1 1 180px', minWidth: 180 }}>
+                                        <CardContent>
+                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                                                <PeopleIcon color="success" />
+                                                <Typography variant="subtitle2" color="text.secondary">Team</Typography>
+                                            </Box>
+                                            <Typography variant="h4" fontWeight={700}>{team.members.length}</Typography>
+                                            <Typography variant="caption" color="text.secondary">
+                                                Active: {team.summary.activeMembers} • Available: {team.summary.availableMembers}
+                                            </Typography>
+                                        </CardContent>
+                                    </Card>
+
+                                    <Card sx={{ flex: '1 1 180px', minWidth: 180 }}>
+                                        <CardContent>
+                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                                                <TrackChangesIcon color="warning" />
+                                                <Typography variant="subtitle2" color="text.secondary">Goals</Typography>
+                                            </Box>
+                                            <Typography variant="h4" fontWeight={700}>{goals.quarterly.length}</Typography>
+                                            <Typography variant="caption" color="text.secondary">
+                                                On Track: {goals.summary.onTrack} • At Risk: {goals.summary.atRisk} • Completed: {goals.summary.completed}
+                                            </Typography>
+                                        </CardContent>
+                                    </Card>
+
+                                    <Card sx={{ flex: '1 1 180px', minWidth: 180 }}>
+                                        <CardContent>
+                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                                                <AccessTimeIcon color="error" />
+                                                <Typography variant="subtitle2" color="text.secondary">This Week</Typography>
+                                            </Box>
+                                            <Typography variant="h4" fontWeight={700}>{myWeek.timeEntries.length}</Typography>
+                                            <Typography variant="caption" color="text.secondary">
+                                                Time Entries: {myWeek.timeEntries.length} • Projects Tracked: {myWeek.hoursByProject.length}
+                                            </Typography>
+                                        </CardContent>
+                                    </Card>
                                 </Box>
 
-                                {/* Hours by Project */}
-                                <Typography variant="subtitle1" gutterBottom sx={{ mb: 2 }}>
-                                    Hours by Project
+                                {/* Data Tables */}
+                                <Typography variant="h6" gutterBottom sx={{ mb: 2 }}>
+                                    Detailed Data Breakdown
                                 </Typography>
-                                {data.myWeek.hoursByProject.length > 0 ? (
-                                    <Box sx={{ mb: 4 }}>
-                                        {data.myWeek.hoursByProject.map((projectHours, index) => (
-                                            <Card key={index} sx={{ mb: 2 }}>
-                                                <CardContent>
-                                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                                                        <Box>
-                                                            <Typography fontWeight={600}>
-                                                                {projectHours.projectTitle}
-                                                            </Typography>
-                                                            <Typography variant="caption" color="#64748b">
-                                                                {projectHours.projectCode}
-                                                            </Typography>
-                                                        </Box>
-                                                        <Chip
-                                                            label={`${projectHours.actualHours}/${projectHours.plannedHours} hrs`}
-                                                            color={projectHours.actualHours >= projectHours.plannedHours ? 'success' : 'warning'}
-                                                        />
-                                                    </Box>
-                                                    <LinearProgress
-                                                        variant="determinate"
-                                                        value={(projectHours.actualHours / projectHours.plannedHours) * 100}
-                                                        sx={{ height: 8, borderRadius: 4 }}
-                                                    />
-                                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
-                                                        <Typography variant="caption" color="#64748b">
-                                                            Remaining: {projectHours.remainingHours} hrs
-                                                        </Typography>
-                                                        <Typography variant="caption" color="#64748b">
-                                                            {Math.round((projectHours.actualHours / projectHours.plannedHours) * 100)}% Complete
-                                                        </Typography>
-                                                    </Box>
-                                                </CardContent>
-                                            </Card>
-                                        ))}
-                                    </Box>
-                                ) : (
-                                    <Typography color="text.secondary" align="center" sx={{ mb: 4, py: 2 }}>
-                                        No hours logged for this week
-                                    </Typography>
-                                )}
 
-                                {/* Time Entries */}
-                                <Typography variant="subtitle1" gutterBottom sx={{ mb: 2 }}>
-                                    Recent Time Entries
-                                </Typography>
-                                {data.myWeek.timeEntries.length > 0 ? (
-                                    <List>
-                                        {data.myWeek.timeEntries.map((entry) => (
-                                            <ListItem key={entry.timeEntryId} sx={{ borderBottom: '1px solid #e2e8f0' }}>
-                                                <ListItemAvatar>
-                                                    <Avatar sx={{ bgcolor: '#e0e7ff' }}>
-                                                        <WorkIcon sx={{ color: '#4361ee' }} />
-                                                    </Avatar>
-                                                </ListItemAvatar>
-                                                <ListItemText
-                                                    primary={
-                                                        <Typography fontWeight={600}>
-                                                            {entry.wbsItemTitle}
-                                                        </Typography>
-                                                    }
-                                                    secondary={
-                                                        <Typography variant="body2" color="#64748b">
-                                                            {entry.projectTitle} • {entry.durationHours} hours • {formatDateTime(entry.workDate)}
-                                                            {entry.notes && ` • ${entry.notes}`}
-                                                        </Typography>
-                                                    }
-                                                />
-                                                <ListItemSecondaryAction>
-                                                    <Chip
-                                                        label={entry.billable ? 'Billable' : 'Non-billable'}
-                                                        size="small"
-                                                        color={entry.billable ? 'success' : 'default'}
-                                                    />
-                                                </ListItemSecondaryAction>
-                                            </ListItem>
-                                        ))}
-                                    </List>
-                                ) : (
-                                    <Typography color="text.secondary" align="center" sx={{ py: 2 }}>
-                                        No time entries for this week
-                                    </Typography>
-                                )}
+                                <TableContainer component={Paper} sx={{ mb: 3 }}>
+                                    <Table size="small">
+                                        <TableHead>
+                                            <TableRow>
+                                                <TableCell>Data Category</TableCell>
+                                                <TableCell align="right">Count</TableCell>
+                                                <TableCell>Details</TableCell>
+                                            </TableRow>
+                                        </TableHead>
+                                        <TableBody>
+                                            <TableRow>
+                                                <TableCell>My Tasks (All)</TableCell>
+                                                <TableCell align="right">{myTasks.all.length}</TableCell>
+                                                <TableCell>View in My Tasks tab</TableCell>
+                                            </TableRow>
+                                            <TableRow>
+                                                <TableCell>My Tasks (Upcoming)</TableCell>
+                                                <TableCell align="right">{myTasks.upcoming.length}</TableCell>
+                                                <TableCell>Due in the future</TableCell>
+                                            </TableRow>
+                                            <TableRow>
+                                                <TableCell>My Tasks (Overdue)</TableCell>
+                                                <TableCell align="right">{myTasks.overdue.length}</TableCell>
+                                                <TableCell>Past due date</TableCell>
+                                            </TableRow>
+                                            <TableRow>
+                                                <TableCell>My Tasks (Completed)</TableCell>
+                                                <TableCell align="right">{myTasks.completed.length}</TableCell>
+                                                <TableCell>Finished tasks</TableCell>
+                                            </TableRow>
+                                            <TableRow>
+                                                <TableCell>Projects</TableCell>
+                                                <TableCell align="right">{myProjects.recent.length}</TableCell>
+                                                <TableCell>Active: {myProjects.summary.totalActive}, Completed: {myProjects.summary.totalCompleted}</TableCell>
+                                            </TableRow>
+                                            <TableRow>
+                                                <TableCell>Tasks I Assigned (All)</TableCell>
+                                                <TableCell align="right">{tasksIAssigned.all.length}</TableCell>
+                                                <TableCell>View in Assigned Tasks tab</TableCell>
+                                            </TableRow>
+                                            <TableRow>
+                                                <TableCell>Tasks I Assigned (Active)</TableCell>
+                                                <TableCell align="right">{tasksIAssigned.activeItems.length}</TableCell>
+                                                <TableCell>Currently in progress</TableCell>
+                                            </TableRow>
+                                            <TableRow>
+                                                <TableCell>Team Members</TableCell>
+                                                <TableCell align="right">{team.members.length}</TableCell>
+                                                <TableCell>Available: {team.summary.availableMembers}</TableCell>
+                                            </TableRow>
+                                            <TableRow>
+                                                <TableCell>Goals</TableCell>
+                                                <TableCell align="right">{goals.quarterly.length}</TableCell>
+                                                <TableCell>On Track: {goals.summary.onTrack}</TableCell>
+                                            </TableRow>
+                                            <TableRow>
+                                                <TableCell>Time Entries (This Week)</TableCell>
+                                                <TableCell align="right">{myWeek.timeEntries.length}</TableCell>
+                                                <TableCell>Logged work hours</TableCell>
+                                            </TableRow>
+                                            <TableRow>
+                                                <TableCell>Upcoming Deadlines</TableCell>
+                                                <TableCell align="right">{upcomingDeadlines.length}</TableCell>
+                                                <TableCell>Tasks and projects with approaching deadlines</TableCell>
+                                            </TableRow>
+                                        </TableBody>
+                                    </Table>
+                                </TableContainer>
+
+                                {/* API Response Info */}
+                                <Card variant="outlined" sx={{ mt: 3 }}>
+                                    <CardContent>
+                                        <Typography variant="subtitle1" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                            <LinkIcon />
+                                            Period
+                                        </Typography>
+                                        <Typography variant="body2" color="text.secondary" paragraph>
+                                            Dashboard Period: {formatDate(timeWindow.from)} to {formatDate(timeWindow.to)}
+                                        </Typography>
+                                        <Typography variant="body2" color="text.secondary">
+                                            User: {user.name} ({user.email})
+                                        </Typography>
+                                    </CardContent>
+                                </Card>
                             </CardContent>
                         </Card>
                     </TabPanel>
@@ -1835,7 +2629,6 @@ export default function PersonalDashboard() {
                 </DialogContent>
             </Dialog>
 
-
             {/* Detail View Drawer */}
             <Drawer
                 anchor="right"
@@ -1889,13 +2682,13 @@ export default function PersonalDashboard() {
                                             <Box sx={{ flex: '1 1 150px' }}>
                                                 <Typography variant="caption" color="#64748b">Progress</Typography>
                                                 <Typography variant="h6" fontWeight={700}>
-                                                    {selectedItem.percentCompletion}%
+                                                    {selectedItem.percentCompletion !== null ? `${selectedItem.percentCompletion}%` : 'Not set'}
                                                 </Typography>
                                             </Box>
                                             <Box sx={{ width: '100%' }}>
                                                 <LinearProgress
                                                     variant="determinate"
-                                                    value={selectedItem.percentCompletion}
+                                                    value={selectedItem.percentCompletion || 0}
                                                     sx={{ height: 8, borderRadius: 4 }}
                                                 />
                                             </Box>
@@ -1992,7 +2785,7 @@ export default function PersonalDashboard() {
                                                     </ListItemAvatar>
                                                     <ListItemText
                                                         primary={assignment.role}
-                                                        secondary={`${assignment.allocationPercent}% allocation`}
+                                                        secondary={`${assignment.allocationPercent}% allocation • Started: ${formatDate(assignment.startDate)}`}
                                                     />
                                                 </ListItem>
                                             ))}
