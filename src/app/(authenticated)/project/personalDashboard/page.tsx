@@ -588,159 +588,161 @@ export default function PersonalDashboard() {
         const assignedTask = task as TaskIAssigned;
 
         return (
-            <Card sx={{
-                height: '100%',
-                position: 'relative',
-                transition: 'transform 0.2s',
-                '&:hover': { transform: 'translateY(-4px)' },
-                borderLeft: isOverdue ? '4px solid #dc3545' :
-                    isCompleted ? '4px solid #10b981' : '4px solid transparent'
-            }}>
-                {isOverdue && (
-                    <Box sx={{
-                        position: 'absolute',
-                        top: 8,
-                        right: 8,
-                        bgcolor: '#fee2e2',
-                        color: '#dc3545',
-                        borderRadius: 1,
-                        px: 1,
-                        py: 0.5,
-                        fontSize: '0.75rem',
-                        fontWeight: 600,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 0.5
-                    }}>
-                        <ErrorIcon fontSize="small" />
-                        Overdue
-                    </Box>
-                )}
-                {isCompleted && (
-                    <Box sx={{
-                        position: 'absolute',
-                        top: 8,
-                        right: 8,
-                        bgcolor: '#d1fae5',
-                        color: '#10b981',
-                        borderRadius: 1,
-                        px: 1,
-                        py: 0.5,
-                        fontSize: '0.75rem',
-                        fontWeight: 600,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 0.5
-                    }}>
-                        <CheckIcon fontSize="small" />
-                        Completed
-                    </Box>
-                )}
-
-                <CardHeader
-                    avatar={
-                        <Avatar sx={{
-                            bgcolor: isOverdue ? '#fee2e2' :
-                                isCompleted ? '#d1fae5' : '#e0e7ff'
+            <Link href={`/project/${task.projectId}`} passHref key={task.wbsItemId}>
+                <Card sx={{
+                    height: '100%',
+                    position: 'relative',
+                    transition: 'transform 0.2s',
+                    '&:hover': { transform: 'translateY(-4px)' },
+                    borderLeft: isOverdue ? '4px solid #dc3545' :
+                        isCompleted ? '4px solid #10b981' : '4px solid transparent'
+                }}>
+                    {isOverdue && (
+                        <Box sx={{
+                            position: 'absolute',
+                            top: 8,
+                            right: 8,
+                            bgcolor: '#fee2e2',
+                            color: '#dc3545',
+                            borderRadius: 1,
+                            px: 1,
+                            py: 0.5,
+                            fontSize: '0.75rem',
+                            fontWeight: 600,
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 0.5
                         }}>
-                            <TaskIcon sx={{
-                                color: isOverdue ? '#dc3545' :
-                                    isCompleted ? '#10b981' : '#4361ee'
-                            }} />
-                        </Avatar>
-                    }
-                    title={
-                        <Typography variant="h6" fontWeight={600}>
-                            {task.title}
-                        </Typography>
-                    }
-                    subheader={
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1, flexWrap: 'wrap' }}>
-                            <Chip label={task.projectType} size="small" />
-                            {task.priority && (
-                                <Chip
-                                    label={task.priority}
-                                    size="small"
-                                    sx={{
-                                        bgcolor: getPriorityColor(task.priority),
-                                        color: 'white'
-                                    }}
-                                />
-                            )}
-                            {isAssigned && (
-                                <Chip
-                                    icon={<AssignmentIcon />}
-                                    label="Assigned"
-                                    size="small"
-                                    color="info"
-                                    variant="outlined"
-                                />
-                            )}
+                            <ErrorIcon fontSize="small" />
+                            Overdue
                         </Box>
-                    }
-                />
-                <CardContent>
-                    <Typography variant="body2" color="text.secondary" gutterBottom>
-                        Project: {task.projectTitle || task.projectCode}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                        {task.description || 'No description available'}
-                    </Typography>
+                    )}
+                    {isCompleted && (
+                        <Box sx={{
+                            position: 'absolute',
+                            top: 8,
+                            right: 8,
+                            bgcolor: '#d1fae5',
+                            color: '#10b981',
+                            borderRadius: 1,
+                            px: 1,
+                            py: 0.5,
+                            fontSize: '0.75rem',
+                            fontWeight: 600,
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 0.5
+                        }}>
+                            <CheckIcon fontSize="small" />
+                            Completed
+                        </Box>
+                    )}
 
-                    <Box sx={{ mb: 2 }}>
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                            <Typography variant="caption">Progress</Typography>
-                            <Typography variant="caption" fontWeight={600}>
-                                {task.percentCompletion !== null ? `${task.percentCompletion}%` : 'Not set'}
+                    <CardHeader
+                        avatar={
+                            <Avatar sx={{
+                                bgcolor: isOverdue ? '#fee2e2' :
+                                    isCompleted ? '#d1fae5' : '#e0e7ff'
+                            }}>
+                                <TaskIcon sx={{
+                                    color: isOverdue ? '#dc3545' :
+                                        isCompleted ? '#10b981' : '#4361ee'
+                                }} />
+                            </Avatar>
+                        }
+                        title={
+                            <Typography variant="h6" fontWeight={600}>
+                                {task.title}
                             </Typography>
-                        </Box>
-                        <LinearProgress
-                            variant="determinate"
-                            value={task.percentCompletion || 0}
-                            sx={{ height: 8, borderRadius: 4 }}
-                        />
-                    </Box>
+                        }
+                        subheader={
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1, flexWrap: 'wrap' }}>
+                                <Chip label={task.projectType} size="small" />
+                                {task.priority && (
+                                    <Chip
+                                        label={task.priority}
+                                        size="small"
+                                        sx={{
+                                            bgcolor: getPriorityColor(task.priority),
+                                            color: 'white'
+                                        }}
+                                    />
+                                )}
+                                {isAssigned && (
+                                    <Chip
+                                        icon={<AssignmentIcon />}
+                                        label="Assigned"
+                                        size="small"
+                                        color="info"
+                                        variant="outlined"
+                                    />
+                                )}
+                            </Box>
+                        }
+                    />
+                    <CardContent>
+                        <Typography variant="body2" color="text.secondary" gutterBottom>
+                            Project: {task.projectTitle || task.projectCode}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                            {task.description || 'No description available'}
+                        </Typography>
 
-                    {isAssigned && assignedTask.assignments && assignedTask.assignments.length > 0 && (
                         <Box sx={{ mb: 2 }}>
-                            <Typography variant="caption" color="text.secondary" display="block">
-                                Assigned to: {assignedTask.assignments.map(a => a.role).join(', ')}
-                            </Typography>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                                <Typography variant="caption">Progress</Typography>
+                                <Typography variant="caption" fontWeight={600}>
+                                    {task.percentCompletion !== null ? `${task.percentCompletion}%` : 'Not set'}
+                                </Typography>
+                            </Box>
+                            <LinearProgress
+                                variant="determinate"
+                                value={task.percentCompletion || 0}
+                                sx={{ height: 8, borderRadius: 4 }}
+                            />
                         </Box>
-                    )}
 
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                            <AccessTimeIcon fontSize="small" />
-                            <Typography variant="caption">
-                                Due: {formatDate(task.plannedEndDate)}
-                            </Typography>
+                        {isAssigned && assignedTask.assignments && assignedTask.assignments.length > 0 && (
+                            <Box sx={{ mb: 2 }}>
+                                <Typography variant="caption" color="text.secondary" display="block">
+                                    Assigned to: {assignedTask.assignments.map(a => a.role).join(', ')}
+                                </Typography>
+                            </Box>
+                        )}
+
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                <AccessTimeIcon fontSize="small" />
+                                <Typography variant="caption">
+                                    Due: {formatDate(task.plannedEndDate)}
+                                </Typography>
+                            </Box>
+                            <Chip
+                                label={task.taskStage}
+                                size="small"
+                                color={getStatusColor(task.taskStage)}
+                            />
                         </Box>
-                        <Chip
-                            label={task.taskStage}
-                            size="small"
-                            color={getStatusColor(task.taskStage)}
-                        />
-                    </Box>
 
-                    {task.durationDays !== null && (
-                        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
-                            Duration: {task.durationDays} days
-                        </Typography>
-                    )}
+                        {task.durationDays !== null && (
+                            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
+                                Duration: {task.durationDays} days
+                            </Typography>
+                        )}
 
-                    {task.approvalStatus && (
-                        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
-                            Status: {task.approvalStatus}
-                        </Typography>
-                    )}
-                </CardContent>
-                <CardActions sx={{ justifyContent: 'space-between', p: 2, pt: 0 }}>
-                    <Button size="small" onClick={() => handleTaskClick(task)}>
-                        View Details
-                    </Button>
-                </CardActions>
-            </Card>
+                        {task.approvalStatus && (
+                            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
+                                Status: {task.approvalStatus}
+                            </Typography>
+                        )}
+                    </CardContent>
+                    <CardActions sx={{ justifyContent: 'space-between', p: 2, pt: 0 }}>
+                        <Button size="small" onClick={() => handleTaskClick(task)}>
+                            View Details
+                        </Button>
+                    </CardActions>
+                </Card>
+            </Link>
         );
     };
 
@@ -1674,80 +1676,82 @@ export default function PersonalDashboard() {
                                     viewMode === 'list' ? (
                                         <List sx={{ maxHeight: 600, overflow: 'auto' }}>
                                             {sortedTasks.map((task) => (
-                                                <ListItem
-                                                    key={task.wbsItemId}
-                                                    sx={{
-                                                        borderBottom: '1px solid #e2e8f0',
-                                                        cursor: 'pointer',
-                                                        '&:hover': { bgcolor: '#f1f5f9' }
-                                                    }}
-                                                    onClick={() => handleTaskClick(task)}
-                                                >
-                                                    <ListItemAvatar>
-                                                        <Avatar sx={{
-                                                            bgcolor: taskViewType === 'overdue' ? '#fee2e2' :
-                                                                taskViewType === 'completed' ? '#d1fae5' : '#e0e7ff'
-                                                        }}>
-                                                            <TaskIcon sx={{
-                                                                color: taskViewType === 'overdue' ? '#dc3545' :
-                                                                    taskViewType === 'completed' ? '#10b981' : '#4361ee'
-                                                            }} />
-                                                        </Avatar>
-                                                    </ListItemAvatar>
-                                                    <ListItemText
-                                                        primary={
-                                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
-                                                                <Typography fontWeight={600}>
-                                                                    {task.title}
-                                                                </Typography>
-                                                                {taskViewType === 'overdue' && (
-                                                                    <ErrorIcon fontSize="small" color="error" />
-                                                                )}
-                                                                {taskViewType === 'completed' && (
-                                                                    <CheckIcon fontSize="small" color="success" />
-                                                                )}
-                                                            </Box>
-                                                        }
-                                                        secondary={
-                                                            <>
-                                                                <Typography variant="body2" color="#64748b">
-                                                                    {task.projectTitle} • {task.projectType} • Due: {formatDate(task.plannedEndDate)}
-                                                                </Typography>
-                                                                <LinearProgress
-                                                                    variant="determinate"
-                                                                    value={task.percentCompletion || 0}
-                                                                    sx={{
-                                                                        height: 4,
-                                                                        borderRadius: 2,
-                                                                        width: "200px",
-                                                                        mt: 1,
-                                                                        bgcolor: taskViewType === 'completed' ? '#d1fae5' : '#e2e8f0'
-                                                                    }}
-                                                                />
-                                                            </>
-                                                        }
-                                                    />
-                                                    <ListItemSecondaryAction>
-                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
-                                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                                                <Box sx={{
-                                                                    width: 8,
-                                                                    height: 8,
-                                                                    borderRadius: '50%',
-                                                                    bgcolor: getPriorityColor(task.priority)
+                                                <Link href={`/project/${task.projectId}`} passHref key={task.wbsItemId}>
+                                                    <ListItem
+                                                        key={task.wbsItemId}
+                                                        sx={{
+                                                            borderBottom: '1px solid #e2e8f0',
+                                                            cursor: 'pointer',
+                                                            '&:hover': { bgcolor: '#f1f5f9' }
+                                                        }}
+                                                        onClick={() => handleTaskClick(task)}
+                                                    >
+                                                        <ListItemAvatar>
+                                                            <Avatar sx={{
+                                                                bgcolor: taskViewType === 'overdue' ? '#fee2e2' :
+                                                                    taskViewType === 'completed' ? '#d1fae5' : '#e0e7ff'
+                                                            }}>
+                                                                <TaskIcon sx={{
+                                                                    color: taskViewType === 'overdue' ? '#dc3545' :
+                                                                        taskViewType === 'completed' ? '#10b981' : '#4361ee'
                                                                 }} />
-                                                                <Typography variant="caption" color="#64748b">
-                                                                    {task.priority?.toUpperCase() || 'No priority'}
-                                                                </Typography>
+                                                            </Avatar>
+                                                        </ListItemAvatar>
+                                                        <ListItemText
+                                                            primary={
+                                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
+                                                                    <Typography fontWeight={600}>
+                                                                        {task.title}
+                                                                    </Typography>
+                                                                    {taskViewType === 'overdue' && (
+                                                                        <ErrorIcon fontSize="small" color="error" />
+                                                                    )}
+                                                                    {taskViewType === 'completed' && (
+                                                                        <CheckIcon fontSize="small" color="success" />
+                                                                    )}
+                                                                </Box>
+                                                            }
+                                                            secondary={
+                                                                <>
+                                                                    <Typography variant="body2" color="#64748b">
+                                                                        {task.projectTitle} • {task.projectType} • Due: {formatDate(task.plannedEndDate)}
+                                                                    </Typography>
+                                                                    <LinearProgress
+                                                                        variant="determinate"
+                                                                        value={task.percentCompletion || 0}
+                                                                        sx={{
+                                                                            height: 4,
+                                                                            borderRadius: 2,
+                                                                            width: "200px",
+                                                                            mt: 1,
+                                                                            bgcolor: taskViewType === 'completed' ? '#d1fae5' : '#e2e8f0'
+                                                                        }}
+                                                                    />
+                                                                </>
+                                                            }
+                                                        />
+                                                        <ListItemSecondaryAction>
+                                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
+                                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                                                    <Box sx={{
+                                                                        width: 8,
+                                                                        height: 8,
+                                                                        borderRadius: '50%',
+                                                                        bgcolor: getPriorityColor(task.priority)
+                                                                    }} />
+                                                                    <Typography variant="caption" color="#64748b">
+                                                                        {task.priority?.toUpperCase() || 'No priority'}
+                                                                    </Typography>
+                                                                </Box>
+                                                                <Chip
+                                                                    label={task.taskStage}
+                                                                    size="small"
+                                                                    color={getStatusColor(task.taskStage)}
+                                                                />
                                                             </Box>
-                                                            <Chip
-                                                                label={task.taskStage}
-                                                                size="small"
-                                                                color={getStatusColor(task.taskStage)}
-                                                            />
-                                                        </Box>
-                                                    </ListItemSecondaryAction>
-                                                </ListItem>
+                                                        </ListItemSecondaryAction>
+                                                    </ListItem>
+                                                </Link>
                                             ))}
                                         </List>
                                     ) : (
