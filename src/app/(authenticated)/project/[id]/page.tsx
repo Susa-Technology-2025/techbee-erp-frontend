@@ -58,9 +58,10 @@ export default function ProjectDetailPage() {
   const router = useRouter();
   const projectId = params.id as string;
 
-  const { data: projectData, isLoading, isError, error } = useDataQuery({
+  const { data: projectData, isLoading, isError, error, isFetching, isSuccess, } = useDataQuery({
     apiEndPoint: `https://project.api.techbee.et/api/projects/${projectId}`,
     enabled: !!projectId,
+
   });
 
   const handleBackToList = () => {
@@ -71,7 +72,7 @@ export default function ProjectDetailPage() {
     router.push(`/projects/${project.id}`);
   };
 
-  if (isLoading) {
+  if (isLoading || isFetching) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
         <CircularProgress />
@@ -97,65 +98,11 @@ export default function ProjectDetailPage() {
     );
   }
 
-  // The ProjectDetail component needs the project data in a specific format.
-  // Looking at the ProjectListAndDetail component, it passes the project object directly from the API.
-  // We need to ensure the project data has all the properties that ProjectDetail expects.
 
-  // Create a project object with all the expected properties
-  const projectForDetail = {
-    // Basic properties from API
-    ...projectData,
-
-    // Ensure these properties exist (they should from the API)
-    id: projectData?.id,
-    code: projectData?.code,
-    title: projectData?.title,
-    description: projectData?.description,
-    customerName: projectData?.customerName,
-    projectType: projectData?.projectType?.name || projectData?.projectType,
-    projectTypeCode: projectData?.projectType?.code || '',
-    projectStage: {
-      name: projectData?.projectStage?.name || 'Active',
-      color: projectData?.projectStage?.color || '#6c63ff',
-    },
-    totalPercentCompletion: projectData?.totalPercentCompletion || 0,
-    riskFlag: projectData?.riskFlag || false,
-    approvalStatus: projectData?.approvalStatus || 'Draft',
-    priority: projectData?.priority || null,
-    plannedStartDate: projectData?.plannedStartDate,
-    plannedEndDate: projectData?.plannedEndDate,
-    actualStartDate: projectData?.actualStartDate,
-    actualEndDate: projectData?.actualEndDate,
-    projectManagerEmployeeId: projectData?.projectManagerEmployeeId,
-    billingMethod: projectData?.billingMethod?.method || projectData?.billingMethod || 'FixedPrice',
-    assignments: projectData?.assignments || [],
-    wbsItems: projectData?.wbsItems || [], // CRITICAL: This is what shows the columns
-    taskStageSet: projectData?.taskStageSet, // Important for task stages
-
-    // Budget fields
-    budget: projectData?.totalBudget,
-    spentAmount: projectData?.actualCost,
-    remainingBudget: (projectData?.totalBudget || 0) - (projectData?.actualCost || 0),
-
-    // Ensure arrays exist
-    contracts: projectData?.contracts || [],
-
-    // Add any other fields that might be accessed
-    createdAt: projectData?.createdAt,
-    updatedAt: projectData?.updatedAt,
-    currency: projectData?.currency,
-    totalBudget: projectData?.totalBudget,
-    actualCost: projectData?.actualCost,
-
-    // Add fields that might be accessed by ProjectDetail but not in single-project API
-    projectStageId: projectData?.projectStageId,
-    projectTypeId: projectData?.projectTypeId,
-    billingMethodId: projectData?.billingMethodId,
-  };
 
   return (
     <ProjectDetail
-      project={projectForDetail}
+      project={projectData}
       allProjects={[]} // Pass empty array since we don't need all projects for this view
       onBackToList={handleBackToList}
       onProjectSelect={handleProjectSelect}

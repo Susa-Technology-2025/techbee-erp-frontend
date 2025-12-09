@@ -399,7 +399,7 @@ export default function PersonalDashboard() {
     const theme = useTheme();
     const [taskViewType, setTaskViewType] = useState<'all' | 'upcoming' | 'overdue' | 'completed'>('all');
     const [assignedTaskViewType, setAssignedTaskViewType] = useState<'all' | 'upcoming' | 'overdue' | 'completed' | 'active'>('all');
-    const { data, isLoading, isError, error } = useDataQuery<DashboardData>({
+    const { data, isLoading, isFetching, isError, error } = useDataQuery<DashboardData>({
         apiEndPoint: `https://project.api.techbee.et/api/projects/analytics/personal?userId=${session?.user?.id}`,
         enabled: Boolean(session?.user?.id)
     });
