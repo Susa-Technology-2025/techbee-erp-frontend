@@ -1,12 +1,8 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import "./TechBee.css";
 import Dialog from "@mui/material/Dialog";
-import DialogContent from "@mui/material/DialogContent";
-import DialogTitle from "@mui/material/DialogTitle";
 import IconButton from "@mui/material/IconButton";
-import ImageList from "@mui/material/ImageList";
-import ImageListItem from "@mui/material/ImageListItem";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
 import CloseIcon from "@mui/icons-material/Close";
@@ -924,43 +920,10 @@ const Footer = () => {
   );
 };
 export const BackgroundSection = () => {
-  const [activeBg, setActiveBg] = useState(0);
-  const [bgImage, setBgImage] = useState(
-    "https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=2072&q=80"
-  );
-  const { data, isLoading, isSuccess } = useDataQuery({
-    apiEndPoint: "https://api.techbee.et/api/core/landingPages?where[code]=erp",
-    tenantCode: "erp",
-    fetchWithoutRefresh: true,
-    noFilter: true,
-  });
-  console.log(bgImage);
-  useEffect(() => {
-    if (isSuccess) {
-      if (Array.isArray(data?.data) && data?.data[0]?.backgroundImage) {
-        setBgImage(data.data[0]?.backgroundImage);
-      }
-    }
-  }, [isSuccess, data]);
-  useEffect(() => {
-    const handleScroll = () => {
-      const sections = document.querySelectorAll("section");
-      const scrollPosition = window.scrollY + window.innerHeight / 2;
-      sections.forEach((section, index) => {
-        const sectionTop = section.offsetTop;
-        const sectionBottom = sectionTop + section.offsetHeight;
-        if (scrollPosition >= sectionTop && scrollPosition < sectionBottom) {
-          setActiveBg(index);
-        }
-      });
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
   return (
     <div
       style={{
-        backgroundImage: `url("${bgImage}")`,
+        backgroundImage: `url("images/techbeeLanding-bg.avif")`,
         position: "fixed",
         top: 0,
         left: 0,
@@ -977,22 +940,6 @@ export const BackgroundSection = () => {
   );
 };
 export const TechBeeLandingPage = () => {
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("active");
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
-    document.querySelectorAll(".section-content").forEach((el) => {
-      observer.observe(el);
-    });
-    return () => observer.disconnect();
-  }, []);
   return (
     <div
       className="font-inter h-screen overflow-auto"

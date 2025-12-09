@@ -57,11 +57,11 @@ export async function generateMetadata() {
 }
 
 async function ThemeProviderWrapper({ children }: { children: ReactNode }) {
-  "use cache: private";
+  // "use cache: private";
   const themeName = await getThemeFromCookie();
 
   return (
-    <CustomThemeProvider initialTheme={themeName || "red"}>
+    <CustomThemeProvider initialTheme={themeName || "purple"}>
       {children}
     </CustomThemeProvider>
   );
