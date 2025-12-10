@@ -15,7 +15,11 @@ export default function SessionProvider({ children }: { children: ReactNode }) {
     itemology.push("/super-admin/landing-page");
     itemology.push("/dashboard");
     itemology.push("/test");
+    // add case for like if the page is /project/:id
     if (itemology.includes(pathname)) {
+      setEnabled(true);
+    }
+    if (pathname.startsWith("/project/")) {
       setEnabled(true);
     }
   }, [pathname]);

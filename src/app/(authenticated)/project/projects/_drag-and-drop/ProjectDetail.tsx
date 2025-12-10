@@ -299,27 +299,28 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
   });
 
   // Add mutation for updating project assignments
-  const { mutate: updateProjectAssignments, isPending: isUpdating } = useDataMutation({
-    apiEndPoint: `https://project.api.techbee.et/api/projects/${project.id}`,
-    method: "PATCH",
-    // enabled: false,
-    onSuccess: () => {
-      setSnackbar({
-        open: true,
-        message: "Successfully assigned users to the project",
-        severity: "success",
-      });
-      handleCloseInviteDialog();
-      // You might want to refresh the project data here
-    },
-    onError: (error) => {
-      setSnackbar({
-        open: true,
-        message: "Failed to assign users. Please try again.",
-        severity: "error",
-      });
-    },
-  });
+  const { mutate: updateProjectAssignments, isPending: isUpdating } =
+    useDataMutation({
+      apiEndPoint: `https://project.api.techbee.et/api/projects/${project.id}`,
+      method: "PATCH",
+      // enabled: false,
+      onSuccess: () => {
+        setSnackbar({
+          open: true,
+          message: "Successfully assigned users to the project",
+          severity: "success",
+        });
+        handleCloseInviteDialog();
+        // You might want to refresh the project data here
+      },
+      onError: (error) => {
+        setSnackbar({
+          open: true,
+          message: "Failed to assign users. Please try again.",
+          severity: "error",
+        });
+      },
+    });
 
   const toggleSettings = () => {
     setSettingsOpen(!settingsOpen);
@@ -352,9 +353,9 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
         setUserRoles(newRoles);
       } else {
         // Set default role for new user
-        setUserRoles(prevRoles => ({
+        setUserRoles((prevRoles) => ({
           ...prevRoles,
-          [userId]: "Team Member"
+          [userId]: "Team Member",
         }));
       }
 
@@ -363,20 +364,20 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
   };
 
   const handleRoleChange = (userId: string, role: string) => {
-    setUserRoles(prev => ({
+    setUserRoles((prev) => ({
       ...prev,
-      [userId]: role
+      [userId]: role,
     }));
   };
 
   const prepareAssignmentsData = () => {
     // First, handle existing assignments (update to remove if needed, or keep)
     const existingAssignments = project.assignments || [];
-    const existingIds = existingAssignments.map(a => a.id).filter(Boolean);
+    const existingIds = existingAssignments.map((a) => a.id).filter(Boolean);
 
     // For simplicity, we'll create new assignments for selected users
     // You can modify this to handle updates/deletes as needed
-    const newAssignments = selectedUsers.map(userId => {
+    const newAssignments = selectedUsers.map((userId) => {
       const user = filteredUsers.find((u: any) => u.id === userId);
       const role = userRoles[userId] || "Team Member";
 
@@ -395,16 +396,17 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
 
     // Combine with existing assignments
     const allAssignments = [
-      ...existingAssignments.map(assignment => ({
+      ...existingAssignments.map((assignment) => ({
         ...assignment,
         // Keep existing assignments as-is
       })),
-      ...newAssignments
+      ...newAssignments,
     ];
 
     // Filter out duplicates based on employeeId
-    const uniqueAssignments = allAssignments.filter((assignment, index, self) =>
-      index === self.findIndex((a) => a.employeeId === assignment.employeeId)
+    const uniqueAssignments = allAssignments.filter(
+      (assignment, index, self) =>
+        index === self.findIndex((a) => a.employeeId === assignment.employeeId)
     );
 
     return uniqueAssignments;
@@ -418,17 +420,16 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
 
       // Transform using the utility function
       const transformedData = transformToPrismaInput({
-        assignments: assignments
+        assignments: assignments,
       });
 
       // Prepare the update payload
       const updatePayload = {
-        assignments: transformedData.assignments || { create: [] }
+        assignments: transformedData.assignments || { create: [] },
       };
 
       // Make the API call
       updateProjectAssignments(updatePayload);
-
     } catch (error) {
       console.error("Error assigning users:", error);
       setSnackbar({
@@ -507,8 +508,8 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
       internalResourceName: assignment.internalResourceName,
       color: generateRandomColor(
         assignment.employeeId ||
-        assignment.id ||
-        assignment.internalResourceName
+          assignment.id ||
+          assignment.internalResourceName
       ),
       rawAssignment: assignment,
     }));
@@ -520,7 +521,9 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
 
     // Filter out users already assigned to the project
     const assignedUserIds = new Set(
-      project.assignments?.map(assignment => assignment.employeeId).filter(Boolean) || []
+      project.assignments
+        ?.map((assignment) => assignment.employeeId)
+        .filter(Boolean) || []
     );
 
     return users.filter((user: any) => {
@@ -555,7 +558,7 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
   const progress = project?.totalPercentCompletion || 0;
 
   const handleCloseSnackbar = () => {
-    setSnackbar(prev => ({ ...prev, open: false }));
+    setSnackbar((prev) => ({ ...prev, open: false }));
   };
 
   return (
@@ -800,8 +803,8 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
                       mb: 2,
                       bgcolor: generateRandomColor(
                         selectedMember.employeeId ||
-                        selectedMember.id ||
-                        selectedMember.internalResourceName
+                          selectedMember.id ||
+                          selectedMember.internalResourceName
                       ),
                       border: selectedMember.isOwner
                         ? `3px solid ${theme.palette.warning.main}`
@@ -1040,17 +1043,27 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
               {selectedUsers.map((userId) => {
                 const user = filteredUsers.find((u: any) => u.id === userId);
                 return (
-                  <Box key={userId} display="flex" alignItems="center" gap={1} mb={1}>
+                  <Box
+                    key={userId}
+                    display="flex"
+                    alignItems="center"
+                    gap={1}
+                    mb={1}
+                  >
                     <Typography variant="body2" sx={{ flex: 1 }}>
                       {user?.name || user?.email}
                     </Typography>
                     <FormControl size="small" sx={{ width: 150 }}>
                       <Select
                         value={userRoles[userId] || "Team Member"}
-                        onChange={(e) => handleRoleChange(userId, e.target.value)}
+                        onChange={(e) =>
+                          handleRoleChange(userId, e.target.value)
+                        }
                       >
                         <MenuItem value="Team Member">Team Member</MenuItem>
-                        <MenuItem value="Project Manager">Project Manager</MenuItem>
+                        <MenuItem value="Project Manager">
+                          Project Manager
+                        </MenuItem>
                         <MenuItem value="Developer">Developer</MenuItem>
                         <MenuItem value="Designer">Designer</MenuItem>
                         <MenuItem value="Tester">Tester</MenuItem>
@@ -1074,7 +1087,9 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
           ) : filteredUsers.length === 0 ? (
             <Box display="flex" justifyContent="center" p={3}>
               <Typography color="textSecondary">
-                {searchTerm ? "No matching users found" : "No users available to assign"}
+                {searchTerm
+                  ? "No matching users found"
+                  : "No users available to assign"}
               </Typography>
             </Box>
           ) : (
@@ -1128,7 +1143,8 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
               }}
             >
               <Typography variant="body2">
-                Selected {selectedUsers.length} user{selectedUsers.length !== 1 ? "s" : ""}
+                Selected {selectedUsers.length} user
+                {selectedUsers.length !== 1 ? "s" : ""}
               </Typography>
             </Box>
           )}
@@ -1139,9 +1155,11 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
             onClick={handleAssignUsers}
             variant="contained"
             disabled={selectedUsers.length === 0 || loading || isUpdating}
-            startIcon={(loading || isUpdating) ? <CircularProgress size={20} /> : null}
+            startIcon={
+              loading || isUpdating ? <CircularProgress size={20} /> : null
+            }
           >
-            {(loading || isUpdating) ? "Assigning..." : "Assign Selected Users"}
+            {loading || isUpdating ? "Assigning..." : "Assign Selected Users"}
           </Button>
         </DialogActions>
       </Dialog>
@@ -1256,12 +1274,12 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
         open={snackbar.open}
         autoHideDuration={6000}
         onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
       >
         <Alert
           onClose={handleCloseSnackbar}
           severity={snackbar.severity}
-          sx={{ width: '100%' }}
+          sx={{ width: "100%" }}
         >
           {snackbar.message}
         </Alert>
