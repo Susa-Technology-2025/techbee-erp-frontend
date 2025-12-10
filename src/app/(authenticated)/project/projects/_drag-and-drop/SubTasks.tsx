@@ -22,7 +22,6 @@ const SubtaskMenuContent = ({ task }) => {
   const theme = useTheme();
   const [newTitle, setNewTitle] = useState("");
   const [newDescription, setNewDescription] = useState("");
-  const [newCode, setNewCode] = useState("");
   const [expanded, setExpanded] = useState(false);
   const [currentTaskToBeDeleted, setCurrentTaskToBeDeleted] = useState(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -38,7 +37,6 @@ const SubtaskMenuContent = ({ task }) => {
     refetch: refetchSubtasks,
   } = useDataQuery({
     apiEndPoint: `https://api.techbee.et/api/project/wbsItems?where[parent][id]=${task.id}`,
-    queryKey: ["subtasks", task.id],
   });
   const subtasks = subTasksData?.data || [];
   const { mutate: addSubtask, isPending: addingSubTask } = useDataMutation({
@@ -48,7 +46,6 @@ const SubtaskMenuContent = ({ task }) => {
       toast.success("Subtask created successfully");
       setNewTitle("");
       setNewDescription("");
-      setNewCode("");
       refetchSubtasks();
     },
     onError: (error) => toast.error(error?.message || "Error creating subtask"),
@@ -78,15 +75,16 @@ const SubtaskMenuContent = ({ task }) => {
     const payload = {
       title: newTitle.trim(),
       description: newDescription.trim(),
-      code: newCode.trim() || undefined,
       approvalRequired: false,
       approvalStatus: "Draft",
       notifyTaskAssignmentChanged: false,
       slaState: "Ok",
       type: "Subtask",
       project: { id: task.project?.id },
+      projectId: task.project?.id,
       parent: { id: task.id },
     };
+    console.log("payload", JSON.stringify(payload));
     addSubtask(payload);
   };
   const handleDeleteSubtask = (id) => {
@@ -262,15 +260,6 @@ const SubtaskMenuContent = ({ task }) => {
               p: 1,
             }}
           >
-            <TextField
-              label="Code"
-              variant="standard"
-              size="small"
-              required
-              value={newCode}
-              onChange={(e) => setNewCode(e.target.value)}
-              disabled={addingSubTask}
-            />
             <TextField
               label="Title"
               variant="standard"

@@ -9,12 +9,7 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import {
-  Box,
-  Snackbar,
-  Alert,
-  CircularProgress,
-} from "@mui/material";
+import { Box, Alert, CircularProgress } from "@mui/material";
 import { useBoardData } from "./useBoard";
 import { useDragHandlers } from "./useDraghandlers";
 import { TaskCard } from "./card";
@@ -30,7 +25,6 @@ export default function App({ project }: AppProps) {
       },
     })
   );
-  const [error, setError] = useState<string | null>(null);
   const {
     columns: initialColumns,
     tasks: initialTasks,
@@ -40,8 +34,6 @@ export default function App({ project }: AppProps) {
     isCardsLoading,
     isColumnsError,
     isCardsError,
-    isColumnMoving,
-    isCardMoving,
   } = useBoardData({ project });
   const [tasks, setTasks] = useState<WbsItem[]>([]);
   const [columns, setColumns] = useState<TaskStage[]>([]);
@@ -108,29 +100,21 @@ export default function App({ project }: AppProps) {
 
   return (
     <>
-      {(isColumnMoving || isCardMoving) && (
-        <Box position="fixed" top={16} right={16} zIndex={9999}>
-          <Alert severity="info">Moving...</Alert>
-        </Box>
-      )}
       <DndContext
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
         sensors={sensors}
       >
-        {}
         <Box
           sx={{
             gap: 3,
-            height: "70vh",
-            scrollbarWidth: "thin",
+            scrollbarWidth: "none",
             display: "flex",
             flexWrap: "noWrap",
             overflowY: "hidden",
             overflowX: "auto",
             p: 3,
             boxSizing: "border-box",
-            maxHeight: 500,
           }}
         >
           {columns.map((column) => {
@@ -149,24 +133,10 @@ export default function App({ project }: AppProps) {
           })}
           <AddColumn project={project} onAddColumn={handleAddColumn} />
         </Box>
-        {}
         <DragOverlay dropAnimation={null}>
           {activeTask ? <TaskCard task={activeTask} isOverlay /> : null}
         </DragOverlay>
       </DndContext>
-      <Snackbar
-        open={!!error}
-        autoHideDuration={6000}
-        onClose={() => setError(null)}
-      >
-        <Alert
-          onClose={() => setError(null)}
-          severity="error"
-          sx={{ width: "100%" }}
-        >
-          {error}
-        </Alert>
-      </Snackbar>
     </>
   );
 }

@@ -73,39 +73,6 @@ export const NameField = ({index}: any) => {
 
 
 
-export const CodeField = ({index}: any) => {
-  const { control: formControl } = useFormContext();
-  return (
-    <Controller
-      name={`code`}
-      control={formControl}
-      rules={{ required: false }}
-      render={({ field: controllerField, fieldState }) => (
-        <TextField
-          {...controllerField}
-          type="text" 
-          variant="standard"
-          label="Code"
-          placeholder="Enter performance record code"
-          helperText={fieldState.error ? "Code is required" : "The unique code for the performance record."}
-          error={!!fieldState.error}
-          disabled={false}
-          className=""
-           slotProps={{
-            inputLabel: { shrink: true },
-          }}
-          style={undefined}
-          sx={{}}
-          false
-          false
-        />
-      )}
-    />
-  );
-};
-
-
-
 export const StatusField = ({index}: any) => {
   const { control: formControl } = useFormContext();
   return (

@@ -1,5 +1,4 @@
 import {TitleField} from "./GeneralSectionFields"
-import {CodeField} from "./GeneralSectionFields"
 import { Box } from "@mui/material";
 
 
@@ -14,6 +13,5 @@ export const GeneralSection = () =>{
       }}
     >
       <TitleField/>
-<CodeField/>
       </Box>)
     }

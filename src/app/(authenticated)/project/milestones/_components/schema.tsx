@@ -2,7 +2,7 @@ import {z} from "zod"
 export const MilestoneFormSchema = z.object({
   id: z.string().optional().nullable(),
   title: z.string({ error: "Title is required" }),
-  code: z.string({ error: "Code is required" }),
+  code: z.string({ error: "Code is required" }).optional().nullable(),
   approvalStatus: z.enum(["Draft", "Pending", "Approved", "Rejected"], { error: "Approval status is required" }).default("Draft"),
   approvalRequired: z.boolean({ error: "Approval required is required" }).default(false),
   billable: z.boolean({ error: "Billable is required" }).default(true),

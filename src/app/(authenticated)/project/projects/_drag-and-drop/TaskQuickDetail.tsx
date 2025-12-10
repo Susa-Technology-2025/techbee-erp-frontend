@@ -572,9 +572,8 @@ const TaskDialogContent = ({ task }: any) => {
               <MDEditor
                 value={description}
                 onChange={setDescription}
-                height={200}
-                className="!bg-transparent !text-white !border-gray-700"
-                preview="edit"
+                height={"fit-content"}
+                preview="live"
               />
             </Box>
           </Box>

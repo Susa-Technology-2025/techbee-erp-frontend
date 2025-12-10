@@ -3,15 +3,16 @@ import { TaskCard } from "./card";
 import { AddCard } from "./add-card";
 import { Column as ColumnType, Task } from "./types";
 import {
-  Box,
-  IconButton,
-  useTheme,
   Paper,
   Typography,
   Stack,
   alpha,
+  IconButton,
+  Box,
+  useTheme,
+  Fade,
 } from "@mui/material";
-import { MoreVert } from "@mui/icons-material";
+import { MoreVert, DragIndicator } from "@mui/icons-material";
 import { useState } from "react";
 import { ColumnPopover } from "./column-popover";
 type ColumnProps = {
@@ -31,20 +32,16 @@ export function Column({ column, tasks, onAddCard, project }: ColumnProps) {
     setNodeRef: setDraggableNodeRef,
     transform,
     isDragging,
-    activeNodeRect,
-    activatorEvent,
-    active,
-    node,
-    over,
-    setActivatorNodeRef,
   } = useDraggable({
     id: `column-${column.id}`,
   });
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const [isHovered, setIsHovered] = useState(false);
   const style = transform
     ? {
-        transform: `translate(${transform.x}px, ${transform.y}px)`,
+        transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
         zIndex: 500,
+        rotate: transform.x !== 0 ? `${transform.x * 0.01}deg` : "0deg",
       }
     : undefined;
   const handleMoreClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -61,114 +58,140 @@ export function Column({ column, tasks, onAddCard, project }: ColumnProps) {
         ref={setDraggableNodeRef}
         {...listeners}
         {...attributes}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        className="relative transition-all duration-200 ease-out"
         sx={{
-          width: 320,
-          minWidth: 300,
-          maxHeight: 500,
-          m: 0,
-          // flexGrow: 1,
+          width: "288px",
+          minWidth: "288px",
+          height: "fit-content",
+          maxHeight: "calc(80vh - 160px)",
+          margin: 0,
           scrollbarWidth: "thin",
-          scrollBehavior: "smooth",
           overflowX: "hidden",
           overflowY: "auto",
           display: "flex",
           flexDirection: "column",
-          gap: 2,
-          position: isDragging ? "relative" : undefined,
-          bgcolor:
+          position: isDragging ? "relative" : "static",
+          backgroundColor:
             isOver || isDragging
-              ? alpha(theme.palette.section.main, 0.5)
-              : alpha(column?.color || theme.palette.section.main, 0.5),
+              ? alpha(column?.color || theme.palette.section.main, 0.08)
+              : alpha(theme.palette.background.paper, 0.98),
           cursor: isDragging ? "grabbing" : "grab",
-          transition: "all 0.2s ease-in-out",
-          "&:hover": {
-            boxShadow: theme.shadows[4],
-            borderColor: alpha(theme.palette.primary.main, 0.3),
-          },
-          // borderTop: `6px solid ${column.color}`,
+          transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
           ...style,
         }}
-        elevation={isDragging ? 8 : 2}
       >
+        {}
         <Box
+          className="flex items-center justify-between px-3 py-2.5"
           sx={{
-            display: "flex",
-            p: 2,
-            alignItems: "center",
-            justifyContent: "space-between",
-            borderBottom: `1px solid ${alpha(theme.palette.divider, 0.2)}`,
-            position: "relative",
-            // bgcolor: "background.paper",
+            borderBottom: `0.5px solid ${alpha(theme.palette.divider, 0.1)}`,
+            // backgroundColor: alpha(theme.palette.background.paper, 0.6),
+            backgroundColor: alpha(
+              column.color || theme.palette.primary.main,
+              0.6
+            ),
+            position: "sticky",
+            top: 0,
+            zIndex: 10,
           }}
         >
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: 1.5,
-            }}
-          >
+          <Box className="flex items-center gap-2 flex-1 min-w-0">
+            <Fade in={isHovered}>
+              <DragIndicator
+                // className="text-gray-400"
+                sx={{
+                  fontSize: "16px",
+                  opacity: 0.5,
+                  "&:hover": { opacity: 1 },
+                }}
+              />
+            </Fade>
             <Typography
-              variant="h6"
+              variant="subtitle2"
+              className="font-semibold truncate"
               sx={{
-                fontWeight: 700,
-                color: theme.palette.text.primary,
-                fontSize: "1.1rem",
+                fontSize: "0.875rem",
+                fontWeight: 600,
                 letterSpacing: "-0.01em",
-                background: `linear-gradient(135deg, ${
-                  theme.palette.text.primary
-                } 0%, ${alpha(theme.palette.text.primary, 0.8)} 100%)`,
-                backgroundClip: "text",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
+                color: theme.palette.text.primary,
+                flex: 1,
+                minWidth: 0,
               }}
             >
               {column.name}
             </Typography>
             <Box
+              className="flex items-center justify-center"
               sx={{
-                backgroundColor: alpha(theme.palette.primary.main, 0.1),
-                color: theme.palette.primary.main,
-                px: 1.5,
-                py: 0.5,
-                borderRadius: 12,
-                fontSize: "0.75rem",
-                fontWeight: 600,
-                minWidth: 24,
-                textAlign: "center",
-                border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
+                color: column.color || theme.palette.primary.main,
+                borderRadius: "8px",
+                padding: "2px 8px",
+                minWidth: "24px",
+                height: "20px",
+                border: `0.5px solid white`,
               }}
             >
-              {tasks.length} task{tasks.length > 1 ? "s" : ""}
+              <Typography
+                className="font-bold"
+                sx={{
+                  fontSize: "0.6875rem",
+                  fontWeight: 700,
+                  lineHeight: 1,
+                  color: "text.primary",
+                }}
+              >
+                {tasks.length} tasks
+              </Typography>
             </Box>
           </Box>
           <IconButton
             size="small"
-            onPointerDown={(e) => e.stopPropagation()}
             onClick={handleMoreClick}
+            onPointerDown={(e) => e.stopPropagation()}
+            className="ml-2"
             sx={{
-              color: theme.palette.text.secondary,
-              backgroundColor: alpha(theme.palette.background.paper, 0.8),
-              border: `1px solid ${alpha(theme.palette.divider, 0.2)}`,
+              padding: "4px",
+              backgroundColor: "transparent",
+              color: theme.palette.text.disabled,
+              border: `0.5px solid transparent`,
+              borderRadius: "6px",
+              transition: "all 0.15s ease",
               "&:hover": {
-                backgroundColor: alpha(theme.palette.primary.main, 0.1),
+                backgroundColor: alpha(theme.palette.primary.main, 0.08),
                 color: theme.palette.primary.main,
-                borderColor: alpha(theme.palette.primary.main, 0.3),
+                borderColor: alpha(theme.palette.primary.main, 0.2),
               },
-              transition: "all 0.2s ease-in-out",
             }}
           >
-            <MoreVert fontSize="small" />
+            <MoreVert sx={{ fontSize: "18px" }} />
           </IconButton>
         </Box>
+        {}
         <Box
           ref={setDroppableNodeRef}
+          className="flex-1 p-2"
           sx={{
-            p: 1,
-            flexGrow: 1,
+            minHeight: "120px",
+            backgroundColor: isOver
+              ? alpha(
+                  theme.palette.section.main || theme.palette.primary.main,
+                  0.03
+                )
+              : "transparent",
+            transition: "background-color 0.2s ease",
+            border: isOver
+              ? `1px dashed ${alpha(
+                  column.color || theme.palette.primary.main,
+                  0.3
+                )}`
+              : "1px dashed transparent",
+            borderRadius: "8px",
+            margin: "0 4px 4px",
           }}
         >
-          <Stack spacing={2.5}>
+          <Stack spacing={1.5} className="pb-1">
             {tasks.map((task) => (
               <TaskCard key={task.id} task={task} />
             ))}
@@ -180,6 +203,25 @@ export function Column({ column, tasks, onAddCard, project }: ColumnProps) {
             />
           </Stack>
         </Box>
+        {}
+        {isDragging && (
+          <Box
+            className="absolute inset-0"
+            sx={{
+              backgroundColor: alpha(
+                column.color || theme.palette.primary.main,
+                0.05
+              ),
+              backdropFilter: "blur(2px)",
+              border: `2px solid ${alpha(
+                column.color || theme.palette.primary.main,
+                0.2
+              )}`,
+              borderRadius: "12px",
+              pointerEvents: "none",
+            }}
+          />
+        )}
       </Paper>
       <ColumnPopover
         column={column}

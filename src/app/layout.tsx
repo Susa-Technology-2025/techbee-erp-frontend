@@ -10,6 +10,7 @@ import { getThemeFromCookie } from "@/theme/theme-cookie";
 import { Providers } from "@/lib/store/provider";
 import "./globals.css";
 import { headers } from "next/headers";
+import { Toaster } from "react-hot-toast";
 
 export async function generateMetadata() {
   "use cache: private";
@@ -80,6 +81,7 @@ export default async function Page({ children }: { children: ReactNode }) {
             overflow: "hidden",
           }}
         >
+          <Toaster />
           <Suspense>
             <ThemeProviderWrapper>
               <Providers>{children}</Providers>

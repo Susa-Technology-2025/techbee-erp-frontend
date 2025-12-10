@@ -70,36 +70,3 @@ export const TitleField = ({index}: any) => {
     />
   );
 };
-
-
-
-export const CodeField = ({index}: any) => {
-  const { control: formControl } = useFormContext();
-  return (
-    <Controller
-      name={`code`}
-      control={formControl}
-      rules={{ required: false }}
-      render={({ field: controllerField, fieldState }) => (
-        <TextField
-          {...controllerField}
-          type="text" 
-          variant="standard"
-          label="Code"
-          placeholder="Enter milestone code"
-          helperText={fieldState.error ? "Code is required" : "Unique code for the milestone."}
-          error={!!fieldState.error}
-          disabled={false}
-          className=""
-           slotProps={{
-            inputLabel: { shrink: true },
-          }}
-          style={undefined}
-          sx={{}}
-          false
-          false
-        />
-      )}
-    />
-  );
-};

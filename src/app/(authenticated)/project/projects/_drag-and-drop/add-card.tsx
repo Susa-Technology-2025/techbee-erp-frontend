@@ -13,55 +13,22 @@ import { Add, Close } from "@mui/icons-material";
 import { useState } from "react";
 import { Task } from "./types";
 import WbsItemForm from "../../wbsItems/_components/Form";
-
 type AddCardProps = {
   columnId: string;
   onAddCard: (task: Omit<Task, "id">) => void;
   column: any;
   project: any;
 };
-
-export function AddCard({
-  columnId,
-  onAddCard,
-  column,
-  project,
-}: AddCardProps) {
+export function AddCard({ column, project }: AddCardProps) {
   const theme = useTheme();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-
   const handleClick = (event: React.MouseEvent) => {
     event.stopPropagation();
     setIsModalOpen(true);
   };
-
   const handleClose = () => {
     setIsModalOpen(false);
-    setTitle("");
-    setDescription("");
   };
-
-  const handleSubmit = () => {
-    if (title.trim()) {
-      onAddCard({
-        title: title.trim(),
-        description: description.trim(),
-        status: columnId,
-        position: 0,
-      });
-      handleClose();
-    }
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && title.trim()) {
-      handleSubmit();
-    }
-  };
-
-  // Create modal content wrapped in a disabled DndContext
   const modalContent = (
     <Dialog
       open={isModalOpen}
@@ -98,14 +65,13 @@ export function AddCard({
       </DialogContent>
     </Dialog>
   );
-
   return (
     <>
       <Card
+        elevation={0}
         sx={{
           cursor: "pointer",
           p: 2,
-          backgroundColor: theme.palette.background.paper,
           "&:hover": {
             borderColor: theme.palette.primary.main,
             backgroundColor: theme.palette.action.hover,
@@ -138,12 +104,11 @@ export function AddCard({
               fontWeight: 500,
             }}
           >
-            Add Card
+            Add Task
           </Typography>
         </Box>
       </Card>
-
-      {/* Render modal outside of DnD context when open */}
+      {}
       {isModalOpen && modalContent}
     </>
   );

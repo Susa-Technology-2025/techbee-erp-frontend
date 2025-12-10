@@ -1,5 +1,4 @@
 import {NameField} from "./GeneralSectionFields"
-import {CodeField} from "./GeneralSectionFields"
 import {StatusField} from "./GeneralSectionFields"
 import {ResourceNameField} from "./GeneralSectionFields"
 import {TaskNameField} from "./GeneralSectionFields"
@@ -20,7 +19,6 @@ export const GeneralSection = () =>{
       }}
     >
       <NameField/>
-<CodeField/>
 <StatusField/>
 <ResourceNameField/>
 <TaskNameField/>
