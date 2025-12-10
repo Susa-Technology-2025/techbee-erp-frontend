@@ -11,6 +11,8 @@ import AutoFixHighIcon from "@mui/icons-material/AutoFixHigh";
 import ShieldIcon from "@mui/icons-material/Shield";
 import { Paper, Link } from "@mui/material";
 import DashActions from "@/components/dash-actions";
+import { useEffect } from "react";
+import { logErrorAction } from "@/lib/tanstack/logger";
 
 const ErrorPage = ({
   error,
@@ -19,6 +21,13 @@ const ErrorPage = ({
   error: Error & { digest?: string };
   reset: () => void;
 }) => {
+  useEffect(() => {
+    logErrorAction({
+      message: error.message,
+      stack: error.stack,
+      digest: error.digest,
+    });
+  }, [error]);
   return (
     <Box
       component={motion.div}
