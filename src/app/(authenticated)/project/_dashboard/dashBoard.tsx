@@ -38,7 +38,8 @@ import {
     DialogTitle,
     DialogContent,
     DialogActions,
-    Link as MuiLink
+    Link as MuiLink,
+    Tab
 } from '@mui/material';
 import {
     CalendarToday,
@@ -76,7 +77,8 @@ import {
     Money,
     MoreVert,
     Edit,
-    Delete
+    Delete,
+    Close
 } from '@mui/icons-material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LineChart, Line, BarChart as ReBarChart, Bar, PieChart as RePieChart, Pie, Cell, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, AreaChart, Area } from 'recharts';
@@ -1087,20 +1089,44 @@ export default function ProjectAnalyticsDashboard() {
                                                         borderColor: colors.error
                                                     }
                                                 }}>
-                                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
-                                                        <Box>
+                                                    {/* Top row with code, warning icon, and menu */}
+                                                    <Box sx={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'space-between',
+                                                        mb: 1
+                                                    }}>
+                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                            <Warning sx={{ color: colors.error, fontSize: 18 }} />
                                                             <Typography variant="subtitle2" sx={{ fontWeight: 600, color: colors.error }}>
                                                                 {project.code}
                                                             </Typography>
-                                                            <Typography variant="body2" sx={{ color: colors.gray }}>
-                                                                {project.title}
-                                                            </Typography>
                                                         </Box>
-                                                        <Warning sx={{ color: colors.error }} />
+
+                                                        <IconButton
+                                                            size="small"
+                                                            onClick={(e) => handleMenuClick(e, project)}
+                                                            sx={{
+                                                                '&:hover': {
+                                                                    bgcolor: alpha(theme.palette.action.hover, 0.1)
+                                                                }
+                                                            }}
+                                                        >
+                                                            <MoreVert fontSize="small" />
+                                                        </IconButton>
                                                     </Box>
-                                                    <Typography variant="caption" sx={{ color: colors.gray, display: 'block' }}>
+
+                                                    {/* Project title */}
+                                                    <Typography variant="body2" sx={{ color: colors.gray, mb: 1 }}>
+                                                        {project.title}
+                                                    </Typography>
+
+                                                    {/* Due date */}
+                                                    <Typography variant="caption" sx={{ color: colors.gray, display: 'block', mb: 1 }}>
                                                         Due: {formatDateTime(project.plannedEndDate)}
                                                     </Typography>
+
+                                                    {/* Progress bar */}
                                                     {project.totalPercentCompletion !== null && (
                                                         <ProgressBarWithLabel value={project.totalPercentCompletion} color={colors.error} />
                                                     )}
@@ -1128,32 +1154,107 @@ export default function ProjectAnalyticsDashboard() {
                                                     p: 2,
                                                     borderRadius: 2,
                                                     cursor: 'pointer',
+                                                    position: 'relative',
+                                                    overflow: 'hidden',
                                                     '&:hover': {
                                                         bgcolor: alpha(colors.warning, 0.05),
-                                                        borderColor: colors.warning
+                                                        '&::before': {
+                                                            content: '""',
+                                                            position: 'absolute',
+                                                            left: 0,
+                                                            top: 0,
+                                                            bottom: 0,
+                                                            width: 4,
+                                                            bgcolor: colors.warning
+                                                        }
                                                     }
                                                 }}>
-                                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
-                                                        <Box>
-                                                            <Typography variant="subtitle2" sx={{ fontWeight: 600, color: colors.warning }}>
-                                                                {project.code}
-                                                            </Typography>
-                                                            <Typography variant="body2" sx={{ color: colors.gray }}>
+                                                    {/* Top section */}
+                                                    <Box sx={{
+                                                        display: 'flex',
+                                                        justifyContent: 'space-between',
+                                                        alignItems: 'flex-start',
+                                                        mb: 1
+                                                    }}>
+                                                        <Box sx={{ flex: 1 }}>
+                                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                                                                {project.riskFlag && (
+                                                                    <Warning sx={{ color: colors.error, fontSize: 16 }} />
+                                                                )}
+                                                                <Typography variant="subtitle2" sx={{
+                                                                    fontWeight: 600,
+                                                                    color: colors.warning
+                                                                }}>
+                                                                    {project.code}
+                                                                </Typography>
+                                                                <Chip
+                                                                    label={`${project.daysOverdue} days`}
+                                                                    size="small"
+                                                                    sx={{
+                                                                        bgcolor: alpha(colors.warning, 0.1),
+                                                                        color: colors.warning,
+                                                                        height: 20,
+                                                                        fontSize: '0.7rem'
+                                                                    }}
+                                                                />
+                                                            </Box>
+
+                                                            <Typography variant="body2" sx={{
+                                                                color: colors.gray,
+                                                                mb: 1
+                                                            }}>
                                                                 {project.title}
                                                             </Typography>
                                                         </Box>
-                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                                            <Chip
-                                                                label={`${project.daysOverdue} days`}
-                                                                size="small"
-                                                                sx={{ bgcolor: alpha(colors.warning, 0.1), color: colors.warning }}
-                                                            />
-                                                            {project.riskFlag && <Warning sx={{ color: colors.error, fontSize: 16 }} />}
-                                                        </Box>
+
+                                                        <IconButton
+                                                            size="small"
+                                                            onClick={(e) => handleMenuClick(e, project)}
+                                                            sx={{
+                                                                '&:hover': {
+                                                                    bgcolor: alpha(theme.palette.action.hover, 0.1)
+                                                                }
+                                                            }}
+                                                        >
+                                                            <MoreVert fontSize="small" />
+                                                        </IconButton>
                                                     </Box>
-                                                    <Typography variant="caption" sx={{ color: colors.gray, display: 'block' }}>
-                                                        Due: {formatDateTime(project.plannedEndDate)}
-                                                    </Typography>
+
+                                                    {/* Bottom section */}
+                                                    <Box sx={{
+                                                        display: 'flex',
+                                                        justifyContent: 'space-between',
+                                                        alignItems: 'center'
+                                                    }}>
+                                                        <Typography variant="caption" sx={{ color: colors.gray }}>
+                                                            Due: {formatDateTime(project.plannedEndDate)}
+                                                        </Typography>
+
+                                                        {/* Progress indicator */}
+                                                        {project.totalPercentCompletion !== null && (
+                                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                                <Box sx={{
+                                                                    width: 60,
+                                                                    height: 6,
+                                                                    bgcolor: alpha(colors.warning, 0.2),
+                                                                    borderRadius: 3,
+                                                                    overflow: 'hidden'
+                                                                }}>
+                                                                    <Box sx={{
+                                                                        width: `${project.totalPercentCompletion}%`,
+                                                                        height: '100%',
+                                                                        bgcolor: colors.warning
+                                                                    }} />
+                                                                </Box>
+                                                                <Typography variant="caption" sx={{
+                                                                    fontWeight: 600,
+                                                                    color: colors.warning
+                                                                }}>
+                                                                    {project.totalPercentCompletion}%
+                                                                </Typography>
+                                                            </Box>
+                                                        )}
+                                                    </Box>
                                                 </Paper>
                                             </Link>
                                         ))}
@@ -1179,29 +1280,82 @@ export default function ProjectAnalyticsDashboard() {
                                                     p: 2,
                                                     borderRadius: 2,
                                                     cursor: 'pointer',
+                                                    transition: 'all 0.2s ease',
                                                     '&:hover': {
                                                         bgcolor: alpha(colors.success, 0.05),
-                                                        borderColor: colors.success
+                                                        borderColor: colors.success,
+                                                        transform: 'translateY(-2px)'
                                                     }
                                                 }}>
-                                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+                                                    {/* Header with menu */}
+                                                    <Box sx={{
+                                                        display: 'flex',
+                                                        justifyContent: 'space-between',
+                                                        alignItems: 'flex-start',
+                                                        mb: 1.5
+                                                    }}>
                                                         <Box>
-                                                            <Typography variant="subtitle2" sx={{ fontWeight: 600, color: colors.success }}>
-                                                                {project.code}
-                                                            </Typography>
-                                                            <Typography variant="body2" sx={{ color: colors.gray }}>
+                                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                                                                <Typography variant="subtitle2" sx={{
+                                                                    fontWeight: 600,
+                                                                    color: colors.success,
+                                                                    fontSize: '0.9rem'
+                                                                }}>
+                                                                    {project.code}
+                                                                </Typography>
+                                                                {project.riskFlag && (
+                                                                    <Tooltip title="High Risk">
+                                                                        <Warning sx={{ color: colors.error, fontSize: 16 }} />
+                                                                    </Tooltip>
+                                                                )}
+                                                            </Box>
+                                                            <Typography variant="body2" sx={{
+                                                                color: colors.gray,
+                                                                fontSize: '0.875rem',
+                                                                lineHeight: 1.3
+                                                            }}>
                                                                 {project.title}
                                                             </Typography>
                                                         </Box>
-                                                        {project.riskFlag && <Warning sx={{ color: colors.error }} />}
+
+                                                        <IconButton
+                                                            size="small"
+                                                            onClick={(e) => handleMenuClick(e, project)}
+                                                            sx={{
+                                                                mt: -0.5,
+                                                                '&:hover': {
+                                                                    bgcolor: alpha(theme.palette.action.hover, 0.1)
+                                                                }
+                                                            }}
+                                                        >
+                                                            <MoreVert fontSize="small" />
+                                                        </IconButton>
                                                     </Box>
-                                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1 }}>
+
+                                                    {/* Footer with details */}
+                                                    <Box sx={{
+                                                        display: 'flex',
+                                                        justifyContent: 'space-between',
+                                                        alignItems: 'center',
+                                                        mt: 2,
+                                                        pt: 1.5,
+                                                        // borderTop: `1px solid ${alpha(theme.palette.divider, 0.2)}`
+                                                    }}>
                                                         <Chip
                                                             label={project.approvalStatus}
                                                             size="small"
-                                                            variant="outlined"
+                                                            sx={{
+                                                                bgcolor: alpha(colors.success, 0.1),
+                                                                color: colors.success,
+                                                                fontWeight: 500,
+                                                                fontSize: '0.75rem',
+                                                                height: 24
+                                                            }}
                                                         />
-                                                        <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                                                        <Typography variant="body2" sx={{
+                                                            fontWeight: 600,
+                                                            fontSize: '0.875rem'
+                                                        }}>
                                                             {formatCurrency(project.totalBudget)}
                                                         </Typography>
                                                     </Box>
@@ -1228,27 +1382,93 @@ export default function ProjectAnalyticsDashboard() {
                                                         p: 1.5,
                                                         borderRadius: 2,
                                                         cursor: 'pointer',
+                                                        bgcolor: alpha(colors.warning, 0.03),
+                                                        border: `1px solid ${alpha(colors.warning, 0.2)}`,
                                                         '&:hover': {
-                                                            bgcolor: alpha(colors.warning, 0.05),
-                                                            borderColor: colors.warning
+                                                            bgcolor: alpha(colors.warning, 0.08),
+                                                            borderColor: colors.warning,
+                                                            boxShadow: `0 2px 8px ${alpha(colors.warning, 0.15)}`
                                                         }
                                                     }}>
-                                                        <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5, color: colors.warning }}>
-                                                            {project.code}
-                                                        </Typography>
                                                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                                            <Chip
-                                                                label={`${project.daysOverdue} days overdue`}
-                                                                size="small"
-                                                                sx={{
+                                                            {/* Left side: Warning icon and project info */}
+                                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1 }}>
+                                                                <Box sx={{
+                                                                    display: 'flex',
+                                                                    alignItems: 'center',
+                                                                    justifyContent: 'center',
+                                                                    width: 32,
+                                                                    height: 32,
+                                                                    borderRadius: '50%',
                                                                     bgcolor: alpha(colors.warning, 0.1),
-                                                                    color: colors.warning
+                                                                    flexShrink: 0
+                                                                }}>
+                                                                    <Warning sx={{ color: colors.warning, fontSize: 18 }} />
+                                                                </Box>
+
+                                                                <Box sx={{ minWidth: 0 }}>
+                                                                    <Typography variant="body2" sx={{
+                                                                        fontWeight: 600,
+                                                                        color: colors.warning,
+                                                                        fontSize: '0.85rem',
+                                                                        whiteSpace: 'nowrap',
+                                                                        overflow: 'hidden',
+                                                                        textOverflow: 'ellipsis'
+                                                                    }}>
+                                                                        {project.code}
+                                                                    </Typography>
+                                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.25 }}>
+                                                                        <Chip
+                                                                            label={`${project.daysOverdue}d`}
+                                                                            size="small"
+                                                                            sx={{
+                                                                                bgcolor: alpha(colors.warning, 0.2),
+                                                                                color: colors.warning,
+                                                                                height: 18,
+                                                                                fontSize: '0.65rem',
+                                                                                fontWeight: 700
+                                                                            }}
+                                                                        />
+                                                                        <Typography variant="caption" sx={{
+                                                                            color: colors.gray,
+                                                                            fontSize: '0.75rem'
+                                                                        }}>
+                                                                            {formatCurrency(project.totalBudget)}
+                                                                        </Typography>
+                                                                    </Box>
+                                                                </Box>
+                                                            </Box>
+
+                                                            {/* Right side: Menu button */}
+                                                            <IconButton
+                                                                size="small"
+                                                                onClick={(e) => handleMenuClick(e, project)}
+                                                                sx={{
+                                                                    ml: 1,
+                                                                    '&:hover': {
+                                                                        bgcolor: alpha(theme.palette.action.hover, 0.1)
+                                                                    }
                                                                 }}
-                                                            />
-                                                            <Typography variant="caption" sx={{ color: colors.gray }}>
-                                                                {formatCurrency(project.totalBudget)}
-                                                            </Typography>
+                                                            >
+                                                                <MoreVert fontSize="small" />
+                                                            </IconButton>
                                                         </Box>
+
+                                                        {/* Project title if available */}
+                                                        {project.title && (
+                                                            <Typography variant="caption" sx={{
+                                                                color: colors.gray,
+                                                                display: 'block',
+                                                                mt: 1,
+                                                                fontSize: '0.8rem',
+                                                                // fontStyle: 'italic',
+                                                                whiteSpace: 'nowrap',
+                                                                overflow: 'hidden',
+                                                                textOverflow: 'ellipsis'
+                                                            }}>
+                                                                {project.title}
+                                                            </Typography>
+                                                        )}
                                                     </Paper>
                                                 </Link>
                                             ))}
@@ -1959,6 +2179,9 @@ export default function ProjectAnalyticsDashboard() {
                                     <TableCell><Typography variant="subtitle2" sx={{ fontWeight: 600 }}>Budget</Typography></TableCell>
                                     <TableCell><Typography variant="subtitle2" sx={{ fontWeight: 600 }}>Status</Typography></TableCell>
                                     <TableCell><Typography variant="subtitle2" sx={{ fontWeight: 600 }}>Risk</Typography></TableCell>
+                                    <TableCell><Typography variant="subtitle2" sx={{ fontWeight: 600 }}>Action</Typography></TableCell>
+
+
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -2034,6 +2257,20 @@ export default function ProjectAnalyticsDashboard() {
                                                 <CheckCircle sx={{ color: colors.success }} />
                                             )}
                                         </TableCell>
+
+                                        <TableCell>
+                                            <IconButton
+                                                size="small"
+                                                onClick={(e) => handleMenuClick(e, project)}
+                                                sx={{
+                                                    '&:hover': {
+                                                        bgcolor: alpha(theme.palette.action.hover, 0.1)
+                                                    }
+                                                }}
+                                            >
+                                                <MoreVert fontSize="small" />
+                                            </IconButton>
+                                        </TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>
@@ -2097,7 +2334,8 @@ export default function ProjectAnalyticsDashboard() {
                 PaperProps={{
                     sx: {
                         borderRadius: 3,
-                        maxHeight: '90vh'
+                        maxHeight: '90vh',
+                        overflow: 'hidden'
                     }
                 }}
             >
@@ -2106,12 +2344,45 @@ export default function ProjectAnalyticsDashboard() {
                     borderBottom: `1px solid ${alpha(colors.primary, 0.1)}`,
                     display: 'flex',
                     alignItems: 'center',
-                    gap: 1
+                    justifyContent: 'space-between',
+                    pr: 2,
+                    py: 2
                 }}>
-                    <Edit sx={{ color: colors.primary }} />
-                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                        Edit Project: {selectedProject?.code}
-                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                        <Box sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            width: 36,
+                            height: 36,
+                            borderRadius: 1,
+                            bgcolor: alpha(colors.primary, 0.1)
+                        }}>
+                            <Edit sx={{ color: colors.primary }} />
+                        </Box>
+                        <Box>
+                            <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                                Edit Project
+                            </Typography>
+                            <Typography variant="body2" sx={{ color: colors.primary, fontWeight: 500 }}>
+                                {selectedProject?.code} - {selectedProject?.title}
+                            </Typography>
+                        </Box>
+                    </Box>
+
+                    <IconButton
+                        onClick={handleEditDialogClose}
+                        size="small"
+                        sx={{
+                            border: `1px solid ${alpha(theme.palette.divider, 0.5)}`,
+                            '&:hover': {
+                                bgcolor: alpha(theme.palette.action.hover, 0.1),
+                                borderColor: theme.palette.divider
+                            }
+                        }}
+                    >
+                        <Close />
+                    </IconButton>
                 </DialogTitle>
                 <DialogContent sx={{ p: 0 }}>
                     {selectedProject && (
