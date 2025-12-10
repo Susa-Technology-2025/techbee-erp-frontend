@@ -80,7 +80,7 @@ export default function ProjectDetailPage() {
     );
   }
 
-  if (isError || !projectData) {
+  if (isError) {
     return (
       <Box sx={{ p: 3 }}>
         <Alert severity="error" sx={{ mb: 3 }}>
