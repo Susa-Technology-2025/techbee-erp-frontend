@@ -4,15 +4,28 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store";
 import { sessionActions } from "./auth-slice";
 import { useDataQuery } from "@/lib/tanstack/useDataQuery";
+import { usePathname } from "next/navigation";
+import { navItems } from "@/components/nav-items/nav-links-index";
 export default function SessionProvider({ children }: { children: ReactNode }) {
   const session = useSelector((state: RootState) => state.session);
+  const [enabled, setEnabled] = useState(false);
+  const pathname = usePathname();
+  useEffect(() => {
+    const itemology = navItems.map((item) => item.link);
+    itemology.push("/super-admin/landing-page");
+    itemology.push("/dashboard");
+    itemology.push("/test");
+    if (itemology.includes(pathname)) {
+      setEnabled(true);
+    }
+  }, [pathname]);
   const dispatch = useDispatch();
-  const [code, setCode] = useState();
   useEffect(() => {
     const hostname = window.location.hostname;
     const derivedCode = hostname.split(".")[0];
-    setCode(session.tenantCode ? session.tenantCode : derivedCode);
-  }, [session]);
+    setCode(derivedCode);
+  }, []);
+  const [code, setCode] = useState();
   const {
     data: refreshResult,
     isSuccess,
@@ -25,7 +38,7 @@ export default function SessionProvider({ children }: { children: ReactNode }) {
     tenantCode: code,
     noFilter: true,
   });
-  console.log(error);
+
   useEffect(() => {
     if (isSuccess) {
       const data = refreshResult;
@@ -41,7 +54,7 @@ export default function SessionProvider({ children }: { children: ReactNode }) {
         );
       }
     }
-  }, [isSuccess]);
+  }, [isSuccess, isError]);
 
   return <>{children}</>;
 }
