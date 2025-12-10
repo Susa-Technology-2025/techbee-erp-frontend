@@ -337,7 +337,8 @@ const TaskDialogContent = ({ task }: any) => {
     isError: commentsError,
     refetch: refetchComments,
   } = useDataQuery({
-    apiEndPoint: `https://api.techbee.et/api/project/comments?where[wbsItem][id]=${task.id}&populate[0]=createdBy&populate[1]=replies&populate[2]=replies.createdBy`,
+    apiEndPoint: `https://api.techbee.et/api/project/comments?where[wbsItem][id]=${task.id}`,
+    noFilter: true,
   });
 
   const comments = commentsData?.data || [];

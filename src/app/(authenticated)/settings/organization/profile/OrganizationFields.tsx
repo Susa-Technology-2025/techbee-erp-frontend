@@ -51,13 +51,18 @@ export function OrganizationFields() {
         {/* ======================= 1. General Information ======================= */}
         <FieldSection title="General Information">
           <Grid size={{ xs: 12, md: 6 }}>
-            <TextField
-              label="Organization Code"
-              value={organizationCode || ""}
-              fullWidth
-              variant="standard"
-              disabled
-              helperText="This code is non-editable and unique to your organization."
+            <Controller
+              name="code"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label="Organization code"
+                  fullWidth
+                  variant="standard"
+                  helperText="This code is non-editable and unique to your organization."
+                />
+              )}
             />
           </Grid>
 

@@ -10,15 +10,17 @@ export interface Project {
 
 export const useColumnsData = (project: Project) => {
   return useDataQuery({
-    apiEndPoint: `https://api.techbee.et/api/project/taskStages?where[taskStageSet][id]=${project.taskStageSet?.id}`,
+    apiEndPoint: `https://api.techbee.et/api/project/taskStages?where[setField][id]=${project.taskStageSet?.id}`,
     enabled: Boolean(project.taskStageSet?.id),
+    // noFilter: true,
   });
 };
 
 export const useCardsData = (project: Project) => {
   return useDataQuery({
-    apiEndPoint: `https://api.techbee.et/api/project/wbsItems?where[taskStageSet][id]=${project.taskStageSet?.id}`,
+    apiEndPoint: `https://api.techbee.et/api/project/wbsItems?where[project][id]=${project.id}`,
     enabled: Boolean(project.taskStageSet?.id),
+    // noFilter: true,
   });
 };
 

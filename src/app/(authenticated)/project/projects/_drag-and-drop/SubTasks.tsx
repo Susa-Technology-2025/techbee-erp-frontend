@@ -37,6 +37,7 @@ const SubtaskMenuContent = ({ task }) => {
     refetch: refetchSubtasks,
   } = useDataQuery({
     apiEndPoint: `https://api.techbee.et/api/project/wbsItems?where[parent][id]=${task.id}`,
+    // noFilter: true,
   });
   const subtasks = subTasksData?.data || [];
   const { mutate: addSubtask, isPending: addingSubTask } = useDataMutation({
@@ -81,7 +82,6 @@ const SubtaskMenuContent = ({ task }) => {
       slaState: "Ok",
       type: "Subtask",
       project: { id: task.project?.id },
-      projectId: task.project?.id,
       parent: { id: task.id },
     };
     console.log("payload", JSON.stringify(payload));

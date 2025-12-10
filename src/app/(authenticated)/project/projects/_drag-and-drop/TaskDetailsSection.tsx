@@ -28,7 +28,7 @@ export function TaskDetailSection({ task }: TaskDetailSectionProps) {
       label: "Sub Tasks",
       component: (
         <WbsChildren
-          idString={"?where[wbsItem][id]=" + task.id}
+          idString={"?where[parent][id]=" + task.id}
           defaultValues={{
             wbsItem: { id: task.id },
           }}

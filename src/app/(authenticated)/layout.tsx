@@ -26,8 +26,6 @@ export default function Page({ children }: { children: ReactNode }) {
             display: "flex",
             flexDirection: "column",
             flex: 1,
-            minWidth: 0,
-            minHeight: 0,
             overflow: "hidden",
             p: 0,
             m: 0,

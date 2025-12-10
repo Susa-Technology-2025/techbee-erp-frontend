@@ -17,6 +17,7 @@ import { EmptyProfileState } from "./EmptyProfileState";
 
 const organizationProfileSchema = z.object({
   code: z.string().min(1, "Code is required"),
+  isActive: z.boolean().default(true),
   isSaaS: z.boolean().default(false),
   name: z.string().min(1, "Name is required").max(100, "Name too long"),
   logoUrl: z.string().optional().or(z.literal("")),
@@ -25,15 +26,16 @@ const organizationProfileSchema = z.object({
     phoneNumber: z.string().optional().or(z.literal("")),
     address: z.string().optional().or(z.literal("")),
   }),
-  tenantConfig: z.object({
-    allowOrgStructure: z.boolean().optional().nullable().default(true),
-    fiscalYearEnd: z.date().optional().nullable(),
-    fiscalYearStart: z.date().optional().nullable(),
-    locale: z.string().optional().nullable(),
-    maxEmployees: z.number().int().min(1).nullable().optional(),
-    requireCompanyNode: z.boolean().optional().nullable().default(true),
-    timezone: z.string().optional().nullable(),
-  }),
+  // tenantConfig: z.object({
+  //   id: z.string().optional().nullable(),
+  //   allowOrgStructure: z.boolean().optional().nullable().default(true),
+  //   fiscalYearEnd: z.date().optional().nullable(),
+  //   fiscalYearStart: z.date().optional().nullable(),
+  //   locale: z.string().optional().nullable(),
+  //   maxEmployees: z.number().int().min(1).nullable().optional(),
+  //   requireCompanyNode: z.boolean().optional().nullable().default(true),
+  //   timezone: z.string().optional().nullable(),
+  // }),
 });
 
 type OrganizationFormData = z.infer<typeof organizationProfileSchema>;
