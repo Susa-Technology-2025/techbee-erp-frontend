@@ -15,7 +15,7 @@ export default function SessionProvider({ children }: { children: ReactNode }) {
     itemology.push("/super-admin/landing-page");
     itemology.push("/dashboard");
     itemology.push("/test");
-    if (itemology.includes(pathname) || pathname.startsWith("/project/")) {
+    if (itemology.includes(pathname) || pathname.startsWith("/project")) {
       setEnabled(true);
     }
   }, [pathname]);

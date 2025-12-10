@@ -71,7 +71,6 @@ async function ThemeProviderWrapper({ children }: { children: ReactNode }) {
 export default async function Page({ children }: { children: ReactNode }) {
   return (
     <AppRouterCacheProvider options={{ enableCssLayer: true }}>
-      <Toaster />
       <html lang="en">
         <body
           style={{
@@ -84,6 +83,7 @@ export default async function Page({ children }: { children: ReactNode }) {
         >
           <Suspense>
             <ThemeProviderWrapper>
+              <Toaster />
               <Providers>{children}</Providers>
             </ThemeProviderWrapper>
           </Suspense>
