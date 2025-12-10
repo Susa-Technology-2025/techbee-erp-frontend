@@ -13,20 +13,21 @@ import TabContext from "@mui/lab/TabContext";
 import TabList from "@mui/lab/TabList";
 import TabPanel from "@mui/lab/TabPanel";
 import { useState, useEffect } from "react";
-import {GeneralSection} from "./GeneralSection"
-import {FinancialsSection} from "./FinancialsSection"
-import {ScheduleSection} from "./ScheduleSection"
-import {ProgressSection} from "./ProgressSection"
-import {RelationsSection} from "./RelationsSection"
+import { GeneralSection } from "./GeneralSection"
+import { FinancialsSection } from "./FinancialsSection"
+import { ScheduleSection } from "./ScheduleSection"
+import { ProgressSection } from "./ProgressSection"
+import { RelationsSection } from "./RelationsSection"
 import { useDataMutation } from "@/lib/tanstack/useDataQuery";
-import {  FormResolverErrors } from "./FormResolverErrors";
+import { FormResolverErrors } from "./FormResolverErrors";
 import { WbsItemCreateInputSchema } from "./schema";
 import { transformToPrismaInput } from "./transformToPrismaInput";
 import { zodResolver } from "@hookform/resolvers/zod";
-export default function WbsItemCreateInput ({
- formMode = "create",
+
+export default function WbsItemCreateInput({
+  formMode = "create",
   defaultValues = {},
-  invalidateQueryKey = ["data","https://api.techbee.et/api/project/wbsItems"]
+  invalidateQueryKey = ["data", "https://api.techbee.et/api/project/wbsItems"]
 }: {
   formMode: "create" | "edit";
   defaultValues: any;
@@ -34,7 +35,7 @@ export default function WbsItemCreateInput ({
 }) {
   const methods = useForm({
     defaultValues,
-     resolver: zodResolver(WbsItemCreateInputSchema)
+    resolver: zodResolver(WbsItemCreateInputSchema)
   });
   const { mutate, isPending } = useDataMutation({
     invalidateQueryKey,
@@ -49,9 +50,9 @@ export default function WbsItemCreateInput ({
     onSuccess: (message) => {
       toast.success(
         message.message ||
-          "Data " +
-            (formMode === "create" ? "created" : "updated") +
-            " successfully!"
+        "Data " +
+        (formMode === "create" ? "created" : "updated") +
+        " successfully!"
       );
     },
   });
@@ -59,9 +60,9 @@ export default function WbsItemCreateInput ({
   const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
     setTab(newValue);
   };
- 
- 
- const onSubmit = (data: any) => {
+
+
+  const onSubmit = (data: any) => {
     console.log(JSON.stringify(transformToPrismaInput(data)));
     mutate(transformToPrismaInput(data));
   };
@@ -72,11 +73,11 @@ export default function WbsItemCreateInput ({
         component={"form"}
         sx={{
           width: "100%",
-          height:  "100%",
+          height: "100%",
           mx: "auto",
           p: { xs: 2, sm: 3 },
-          boxShadow:  3,
-          borderRadius:  2,
+          boxShadow: 3,
+          borderRadius: 2,
           position: "relative",
           overflow: "hidden",
         }}
@@ -100,51 +101,51 @@ export default function WbsItemCreateInput ({
               }}
             >
               <Tab
-                  label="General"
-                  value="General"
-                  sx={{
-                    borderRadius: 1,
-                    "&.Mui-selected": {
-                      bgcolor: "action.selected",
-                    },
-                  }}
-                /> <Tab
-                  label="Financials"
-                  value="Financials"
-                  sx={{
-                    borderRadius: 1,
-                    "&.Mui-selected": {
-                      bgcolor: "action.selected",
-                    },
-                  }}
-                /> <Tab
-                  label="Schedule"
-                  value="Schedule"
-                  sx={{
-                    borderRadius: 1,
-                    "&.Mui-selected": {
-                      bgcolor: "action.selected",
-                    },
-                  }}
-                /> <Tab
-                  label="Progress"
-                  value="Progress"
-                  sx={{
-                    borderRadius: 1,
-                    "&.Mui-selected": {
-                      bgcolor: "action.selected",
-                    },
-                  }}
-                /> <Tab
-                  label="Relations"
-                  value="Relations"
-                  sx={{
-                    borderRadius: 1,
-                    "&.Mui-selected": {
-                      bgcolor: "action.selected",
-                    },
-                  }}
-                />
+                label="General"
+                value="General"
+                sx={{
+                  borderRadius: 1,
+                  "&.Mui-selected": {
+                    bgcolor: "action.selected",
+                  },
+                }}
+              /> <Tab
+                label="Financials"
+                value="Financials"
+                sx={{
+                  borderRadius: 1,
+                  "&.Mui-selected": {
+                    bgcolor: "action.selected",
+                  },
+                }}
+              /> <Tab
+                label="Schedule"
+                value="Schedule"
+                sx={{
+                  borderRadius: 1,
+                  "&.Mui-selected": {
+                    bgcolor: "action.selected",
+                  },
+                }}
+              /> <Tab
+                label="Progress"
+                value="Progress"
+                sx={{
+                  borderRadius: 1,
+                  "&.Mui-selected": {
+                    bgcolor: "action.selected",
+                  },
+                }}
+              /> <Tab
+                label="Relations"
+                value="Relations"
+                sx={{
+                  borderRadius: 1,
+                  "&.Mui-selected": {
+                    bgcolor: "action.selected",
+                  },
+                }}
+              />
             </TabList>
           </Box>
           <Box
@@ -154,107 +155,107 @@ export default function WbsItemCreateInput ({
               scrollbarWidth: "thin",
             }}
           >
-             <TabPanel
-                  value={"General"}
-                  sx={{
-                    p: 0,
-                    pt: 2,
-                    "& .MuiFormControl-root": {
-                      mb: 1.5,
-                    },
-                    "& .MuiInputBase-root": {
-                      fontSize: "0.875rem",
-                    },
-                    "& .MuiInputLabel-root": {
-                      fontSize: "0.875rem",
-                    },
-                    "& .MuiButton-root": {
-                      fontSize: "0.8125rem",
-                    },
-                  }}
-                >
-                  <GeneralSection />
-                </TabPanel> <TabPanel
-                  value={"Financials"}
-                  sx={{
-                    p: 0,
-                    pt: 2,
-                    "& .MuiFormControl-root": {
-                      mb: 1.5,
-                    },
-                    "& .MuiInputBase-root": {
-                      fontSize: "0.875rem",
-                    },
-                    "& .MuiInputLabel-root": {
-                      fontSize: "0.875rem",
-                    },
-                    "& .MuiButton-root": {
-                      fontSize: "0.8125rem",
-                    },
-                  }}
-                >
-                  <FinancialsSection />
-                </TabPanel> <TabPanel
-                  value={"Schedule"}
-                  sx={{
-                    p: 0,
-                    pt: 2,
-                    "& .MuiFormControl-root": {
-                      mb: 1.5,
-                    },
-                    "& .MuiInputBase-root": {
-                      fontSize: "0.875rem",
-                    },
-                    "& .MuiInputLabel-root": {
-                      fontSize: "0.875rem",
-                    },
-                    "& .MuiButton-root": {
-                      fontSize: "0.8125rem",
-                    },
-                  }}
-                >
-                  <ScheduleSection />
-                </TabPanel> <TabPanel
-                  value={"Progress"}
-                  sx={{
-                    p: 0,
-                    pt: 2,
-                    "& .MuiFormControl-root": {
-                      mb: 1.5,
-                    },
-                    "& .MuiInputBase-root": {
-                      fontSize: "0.875rem",
-                    },
-                    "& .MuiInputLabel-root": {
-                      fontSize: "0.875rem",
-                    },
-                    "& .MuiButton-root": {
-                      fontSize: "0.8125rem",
-                    },
-                  }}
-                >
-                  <ProgressSection />
-                </TabPanel> <TabPanel
-                  value={"Relations"}
-                  sx={{
-                    p: 0,
-                    pt: 2,
-                    "& .MuiFormControl-root": {
-                      mb: 1.5,
-                    },
-                    "& .MuiInputBase-root": {
-                      fontSize: "0.875rem",
-                    },
-                    "& .MuiInputLabel-root": {
-                      fontSize: "0.875rem",
-                    },
-                    "& .MuiButton-root": {
-                      fontSize: "0.8125rem",
-                    },
-                  }}
-                >
-                  <RelationsSection />
-                </TabPanel>
+            <TabPanel
+              value={"General"}
+              sx={{
+                p: 0,
+                pt: 2,
+                "& .MuiFormControl-root": {
+                  mb: 1.5,
+                },
+                "& .MuiInputBase-root": {
+                  fontSize: "0.875rem",
+                },
+                "& .MuiInputLabel-root": {
+                  fontSize: "0.875rem",
+                },
+                "& .MuiButton-root": {
+                  fontSize: "0.8125rem",
+                },
+              }}
+            >
+              <GeneralSection />
+            </TabPanel> <TabPanel
+              value={"Financials"}
+              sx={{
+                p: 0,
+                pt: 2,
+                "& .MuiFormControl-root": {
+                  mb: 1.5,
+                },
+                "& .MuiInputBase-root": {
+                  fontSize: "0.875rem",
+                },
+                "& .MuiInputLabel-root": {
+                  fontSize: "0.875rem",
+                },
+                "& .MuiButton-root": {
+                  fontSize: "0.8125rem",
+                },
+              }}
+            >
+              <FinancialsSection />
+            </TabPanel> <TabPanel
+              value={"Schedule"}
+              sx={{
+                p: 0,
+                pt: 2,
+                "& .MuiFormControl-root": {
+                  mb: 1.5,
+                },
+                "& .MuiInputBase-root": {
+                  fontSize: "0.875rem",
+                },
+                "& .MuiInputLabel-root": {
+                  fontSize: "0.875rem",
+                },
+                "& .MuiButton-root": {
+                  fontSize: "0.8125rem",
+                },
+              }}
+            >
+              <ScheduleSection />
+            </TabPanel> <TabPanel
+              value={"Progress"}
+              sx={{
+                p: 0,
+                pt: 2,
+                "& .MuiFormControl-root": {
+                  mb: 1.5,
+                },
+                "& .MuiInputBase-root": {
+                  fontSize: "0.875rem",
+                },
+                "& .MuiInputLabel-root": {
+                  fontSize: "0.875rem",
+                },
+                "& .MuiButton-root": {
+                  fontSize: "0.8125rem",
+                },
+              }}
+            >
+              <ProgressSection />
+            </TabPanel> <TabPanel
+              value={"Relations"}
+              sx={{
+                p: 0,
+                pt: 2,
+                "& .MuiFormControl-root": {
+                  mb: 1.5,
+                },
+                "& .MuiInputBase-root": {
+                  fontSize: "0.875rem",
+                },
+                "& .MuiInputLabel-root": {
+                  fontSize: "0.875rem",
+                },
+                "& .MuiButton-root": {
+                  fontSize: "0.8125rem",
+                },
+              }}
+            >
+              <RelationsSection />
+            </TabPanel>
           </Box>
         </TabContext>
         <Box

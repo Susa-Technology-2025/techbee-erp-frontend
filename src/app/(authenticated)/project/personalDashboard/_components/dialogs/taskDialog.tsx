@@ -1,6 +1,6 @@
 // components/TaskCreationDialog.tsx
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
-import WbsItemCreateInput from '../../wbsItems/_components/Form';
+import WbsItemCreateInput from '../../../wbsItems/_components/Form';
 
 interface TaskCreationDialogProps {
     open: boolean;
@@ -15,19 +15,19 @@ export default function TaskCreationDialog({ open, onClose, onSuccess }: TaskCre
     };
 
     return (
-        <Dialog 
-            open={open} 
-            onClose={onClose} 
-            maxWidth="md" 
+        <Dialog
+            open={open}
+            onClose={onClose}
+            maxWidth="md"
             fullWidth
         >
             <DialogTitle sx={{ color: '#4361ee', bgcolor: '#f8fafc' }}>
                 Create New Task
             </DialogTitle>
             <DialogContent sx={{ p: 0 }}>
-                <WbsItemCreateInput 
-                    formMode="create" 
-                    defaultValues={{}} 
+                <WbsItemCreateInput
+                    formMode="create"
+                    defaultValues={{}}
                 />
             </DialogContent>
             <DialogActions sx={{ p: 2, borderTop: 1, borderColor: 'divider' }}>

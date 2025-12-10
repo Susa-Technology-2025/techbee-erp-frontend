@@ -33,13 +33,8 @@ import {
     InputLabel,
     Select,
     MenuItem,
-    Menu,
     Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    Link as MuiLink,
-    Tab
+    Link as MuiLink
 } from '@mui/material';
 import {
     CalendarToday,
@@ -89,9 +84,10 @@ import Link from 'next/link';
 import toast from 'react-hot-toast';
 import ProjectCreateInputForm from '../projects/_components/Form';
 import ProjectMenuDialog from './ProjectMenuDialog';
-import { colors, formatCurrency, mainProjectAPI } from './consts';
+import { colors, formatCurrency, mainProjectAPI } from '../_utils/consts';
 import TaskMenuDialog from './TaskMenuDialog';
 import WbsItemCreateInput from '../wbsItems/_components/Form';
+
 // Types
 interface DashboardData {
     window: {
@@ -198,40 +194,34 @@ const formatDateTime = (dateString: string | null): string => {
     return format(parseISO(dateString), 'MMM dd, yyyy');
 };
 
-// const formatCurrency = (amount: number | null): string => {
-//     if (amount === null || amount === undefined) return 'N/A';
-//     if (amount >= 1000000) {
-//         return `ETB ${(amount / 1000000).toFixed(1)}M`;
-//     }
-//     if (amount >= 1000) {
-//         return `ETB ${(amount / 1000).toFixed(1)}K`;
-//     }
-//     return `ETB ${amount.toFixed(0)}`;
-// };
-
 const formatNumber = (num: number | null): string => {
     if (num === null || num === undefined) return 'N/A';
     return new Intl.NumberFormat('en-US').format(num);
 };
 
 const ProgressBarWithLabel = ({ value, color }: { value: number; color: string }) => (
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
         <Box sx={{ width: '100%' }}>
             <LinearProgress
                 variant="determinate"
                 value={Math.min(value, 100)}
                 sx={{
-                    height: 8,
-                    borderRadius: 4,
-                    backgroundColor: alpha(color, 0.2),
+                    height: 6,
+                    borderRadius: 3,
+                    backgroundColor: alpha(color, 0.15),
                     '& .MuiLinearProgress-bar': {
                         backgroundColor: color,
-                        borderRadius: 4,
+                        borderRadius: 3,
                     },
                 }}
             />
         </Box>
-        <Typography variant="body2" sx={{ color, fontWeight: 600, minWidth: 40 }}>
+        <Typography variant="body2" sx={{
+            color: color,
+            fontWeight: 600,
+            minWidth: 35,
+            fontSize: '0.75rem'
+        }}>
             {value}%
         </Typography>
     </Box>
@@ -255,51 +245,64 @@ const SummaryCard = ({
     <Card sx={{
         background: `linear-gradient(135deg, ${alpha(color, 0.1)} 0%, ${alpha(color, 0.05)} 100%)`,
         border: `1px solid ${alpha(color, 0.2)}`,
-        borderRadius: 3,
+        borderRadius: 2,
         height: '100%',
-        transition: 'all 0.3s ease',
+        transition: 'all 0.25s ease',
         '&:hover': {
-            transform: 'translateY(-4px)',
-            boxShadow: `0 8px 24px ${alpha(color, 0.15)}`,
+            transform: 'translateY(-3px)',
+            boxShadow: `0 6px 16px ${alpha(color, 0.12)}`,
         }
     }}>
-        <CardContent sx={{ p: 3 }}>
-            <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 2 }}>
+        <CardContent sx={{ p: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 1.5 }}>
                 <Box>
-                    <Typography variant="body2" sx={{ color: alpha('#000', 0.6), fontWeight: 500, mb: 0.5 }}>
+                    <Typography variant="body2" sx={{
+                        color: alpha('#000', 0.6),
+                        fontWeight: 500,
+                        mb: 0.25,
+                        fontSize: '0.8125rem'
+                    }}>
                         {title}
                     </Typography>
-                    <Typography variant="h4" sx={{ color: color, fontWeight: 700 }}>
+                    <Typography variant="h5" sx={{
+                        color: color,
+                        fontWeight: 700,
+                        fontSize: '1.5rem'
+                    }}>
                         {value}
                     </Typography>
                     {subtitle && (
-                        <Typography variant="caption" sx={{ color: alpha('#000', 0.5) }}>
+                        <Typography variant="caption" sx={{
+                            color: alpha('#000', 0.5),
+                            fontSize: '0.75rem'
+                        }}>
                             {subtitle}
                         </Typography>
                     )}
                 </Box>
                 <Box sx={{
-                    width: 48,
-                    height: 48,
-                    borderRadius: 2,
+                    width: 40,
+                    height: 40,
+                    borderRadius: 1.5,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     backgroundColor: alpha(color, 0.1),
                 }}>
-                    <Icon sx={{ color, fontSize: 24 }} />
+                    <Icon sx={{ color, fontSize: 20 }} />
                 </Box>
             </Box>
             {trend !== undefined && (
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 1 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25, mt: 0.75 }}>
                     {trend >= 0 ? (
-                        <TrendingUp sx={{ fontSize: 16, color: '#10B981' }} />
+                        <TrendingUp sx={{ fontSize: 14, color: '#10B981' }} />
                     ) : (
-                        <TrendingDown sx={{ fontSize: 16, color: '#EF4444' }} />
+                        <TrendingDown sx={{ fontSize: 14, color: '#EF4444' }} />
                     )}
                     <Typography variant="caption" sx={{
                         color: trend >= 0 ? '#10B981' : '#EF4444',
-                        fontWeight: 600
+                        fontWeight: 600,
+                        fontSize: '0.75rem'
                     }}>
                         {trend >= 0 ? '+' : ''}{trend}%
                     </Typography>
@@ -328,21 +331,25 @@ const DataCard = ({
 
     return (
         <Card sx={{
-            borderRadius: 3,
-            border: `1px solid ${alpha(color, 0.2)}`,
+            borderRadius: 2,
+            border: `1px solid ${alpha(color, 0.15)}`,
             overflow: 'hidden'
         }}>
             <Box sx={{
-                p: 2,
-                bgcolor: alpha(color, 0.05),
-                borderBottom: expanded ? `1px solid ${alpha(color, 0.1)}` : 'none',
+                p: 1.5,
+                bgcolor: alpha(color, 0.04),
+                borderBottom: expanded ? `1px solid ${alpha(color, 0.08)}` : 'none',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between'
             }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                    <Icon sx={{ color }} />
-                    <Typography variant="h6" sx={{ fontWeight: 600, color }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Icon sx={{ color, fontSize: 18 }} />
+                    <Typography variant="subtitle1" sx={{
+                        fontWeight: 600,
+                        color,
+                        fontSize: '0.9375rem'
+                    }}>
                         {title}
                     </Typography>
                 </Box>
@@ -350,14 +357,14 @@ const DataCard = ({
                     <IconButton
                         size="small"
                         onClick={() => setExpanded(!expanded)}
-                        sx={{ color }}
+                        sx={{ color, p: 0.25 }}
                     >
                         {expanded ? <ExpandLess /> : <ExpandMore />}
                     </IconButton>
                 )}
             </Box>
             <Collapse in={expanded}>
-                <CardContent sx={{ p: 3 }}>
+                <CardContent sx={{ p: 2 }}>
                     {children}
                 </CardContent>
             </Collapse>
@@ -367,13 +374,16 @@ const DataCard = ({
 
 const NoDataMessage = ({ message = "No data available" }: { message?: string }) => (
     <Box sx={{
-        py: 4,
+        py: 3,
         textAlign: 'center',
         bgcolor: alpha('#000', 0.02),
-        borderRadius: 2
+        borderRadius: 1.5
     }}>
-        <Description sx={{ fontSize: 48, color: alpha('#000', 0.2), mb: 2 }} />
-        <Typography variant="body1" sx={{ color: alpha('#000', 0.5) }}>
+        <Description sx={{ fontSize: 36, color: alpha('#000', 0.15), mb: 1 }} />
+        <Typography variant="body2" sx={{
+            color: alpha('#000', 0.4),
+            fontSize: '0.8125rem'
+        }}>
             {message}
         </Typography>
     </Box>
@@ -404,7 +414,6 @@ export default function ProjectAnalyticsDashboard() {
     const [statusFilter, setStatusFilter] = useState('all');
     const [riskFilter, setRiskFilter] = useState('all');
 
-    const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
     const [selectedProject, setSelectedProject] = useState<any>(null);
     const [openEditDialog, setOpenEditDialog] = useState(false);
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
@@ -419,7 +428,6 @@ export default function ProjectAnalyticsDashboard() {
         return `${baseUrl}?${params.toString()}`;
     };
 
-
     const apiUrl = buildApiUrl();
 
     const { data, isLoading, isFetching, isError, error, refetch } = useDataQuery({
@@ -432,45 +440,22 @@ export default function ProjectAnalyticsDashboard() {
     const deleteMutation = useDataMutation({
         apiEndPoint: `${mainProjectAPI}/:id`,
         method: 'DELETE',
-        invalidateQueryKey: ["dashboardData", apiUrl], // This will invalidate your dashboard query
+        invalidateQueryKey: ["dashboardData", apiUrl],
         onSuccess: (data) => {
             toast.success('Project deleted successfully');
             handleDeleteDialogClose();
-            refetch(); // Refresh the data
+            refetch();
         },
         onError: (error) => {
             toast.error(`Failed to delete project: ${error.message || 'Unknown error'}`);
         }
     });
+
     const dashboardData = data as DashboardData;
 
     const handleApply = () => {
         refetch();
         setShowPicker(false);
-    };
-
-    const handleMenuClick = (event: React.MouseEvent<HTMLElement>, project: any) => {
-        event.preventDefault();
-        event.stopPropagation();
-        setMenuAnchorEl(event.currentTarget);
-        setCurrentMenuProject(project);
-    };
-
-    const handleMenuClose = () => {
-        setMenuAnchorEl(null);
-        setCurrentMenuProject(null);
-    };
-
-    const handleEditClick = () => {
-        setSelectedProject(currentMenuProject);
-        handleMenuClose();
-        setOpenEditDialog(true);
-    };
-
-    const handleDeleteClick = () => {
-        setSelectedProject(currentMenuProject);
-        handleMenuClose();
-        setOpenDeleteDialog(true);
     };
 
     const handleEditDialogClose = () => {
@@ -483,7 +468,6 @@ export default function ProjectAnalyticsDashboard() {
         setSelectedProject(null);
     };
 
-
     const handleConfirmDelete = () => {
         if (selectedProject?.id) {
             deleteMutation.mutate({
@@ -491,7 +475,6 @@ export default function ProjectAnalyticsDashboard() {
             });
         }
     };
-
 
     const toggleSection = (section: string) => {
         setExpandedSections(prev => ({
@@ -566,13 +549,15 @@ export default function ProjectAnalyticsDashboard() {
         });
     }, [dashboardData, searchTerm, statusFilter, riskFilter]);
 
-    // Color palette
-
-
     if (isLoading || isFetching) {
         return (
-            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
-                <CircularProgress />
+            <Box sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                minHeight: '300px'
+            }}>
+                <CircularProgress size={28} />
             </Box>
         );
     }
@@ -592,53 +577,65 @@ export default function ProjectAnalyticsDashboard() {
             </Alert>
         );
     }
+
     const budget = dashboardData?.summary?.budgetUtilizationPercent;
 
     return (
-        <Box sx={{ p: 3 }}>
+        <Box sx={{ p: 2 }}>
             {/* Header with Date Picker */}
             <Box sx={{
-                mb: 4,
+                mb: 3,
                 display: 'flex',
                 flexDirection: { xs: 'column', sm: 'row' },
                 justifyContent: 'space-between',
                 alignItems: { xs: 'flex-start', sm: 'center' },
-                gap: 2
+                gap: 1.5
             }}>
                 <Box>
-                    <Typography variant="h4" sx={{ fontWeight: 700, color: theme.palette.text.primary, mb: 0.5 }}>
+                    <Typography variant="h5" sx={{
+                        fontWeight: 700,
+                        color: theme.palette.text.primary,
+                        mb: 0.25,
+                        fontSize: '1.5rem'
+                    }}>
                         Project Analytics Dashboard
                     </Typography>
-                    <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
+                    <Typography variant="body2" sx={{
+                        color: theme.palette.text.secondary,
+                        fontSize: '0.8125rem'
+                    }}>
                         {formatDateTime(dashboardData.window.from)} - {formatDateTime(dashboardData.window.to)}
                     </Typography>
                 </Box>
 
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                     {!showPicker ? (
                         <Box
                             sx={{
-                                bgcolor: alpha(colors.primary, 0.1),
-                                px: 2,
-                                py: 1,
-                                borderRadius: 5,
-                                fontSize: 14,
+                                bgcolor: alpha(colors.primary, 0.08),
+                                px: 1.5,
+                                py: 0.75,
+                                borderRadius: 3,
+                                fontSize: 13,
                                 cursor: 'pointer',
                                 display: 'flex',
                                 alignItems: 'center',
-                                gap: 1,
-                                border: `1px solid ${alpha(colors.primary, 0.2)}`,
+                                gap: 0.75,
+                                border: `1px solid ${alpha(colors.primary, 0.15)}`,
                                 transition: 'all 0.2s ease',
                                 '&:hover': {
-                                    bgcolor: alpha(colors.primary, 0.15),
-                                    borderColor: alpha(colors.primary, 0.3),
+                                    bgcolor: alpha(colors.primary, 0.12),
+                                    borderColor: alpha(colors.primary, 0.25),
                                 }
                             }}
                             onClick={() => setShowPicker(true)}
                         >
-                            <CalendarToday sx={{ fontSize: 16, color: colors.primary }} />
-                            <Typography variant="body2" sx={{ color: colors.primary, fontWeight: 500 }}>
+                            <CalendarToday sx={{ fontSize: 14, color: colors.primary }} />
+                            <Typography variant="body2" sx={{
+                                color: colors.primary,
+                                fontWeight: 500,
+                                fontSize: '0.8125rem'
+                            }}>
                                 {formatDate(fromDate)} - {formatDate(toDate)}
                             </Typography>
                         </Box>
@@ -652,9 +649,9 @@ export default function ProjectAnalyticsDashboard() {
                                     textField: {
                                         size: 'small',
                                         sx: {
-                                            width: 150,
+                                            width: 135,
                                             '& .MuiOutlinedInput-root': {
-                                                borderRadius: 2,
+                                                borderRadius: 1.5,
                                             }
                                         }
                                     }
@@ -668,9 +665,9 @@ export default function ProjectAnalyticsDashboard() {
                                     textField: {
                                         size: 'small',
                                         sx: {
-                                            width: 150,
+                                            width: 135,
                                             '& .MuiOutlinedInput-root': {
-                                                borderRadius: 2,
+                                                borderRadius: 1.5,
                                             }
                                         }
                                     }
@@ -681,8 +678,11 @@ export default function ProjectAnalyticsDashboard() {
                                 size="small"
                                 onClick={handleApply}
                                 sx={{
-                                    borderRadius: 2,
+                                    borderRadius: 1.5,
                                     bgcolor: colors.primary,
+                                    px: 1.5,
+                                    py: 0.5,
+                                    fontSize: '0.8125rem',
                                     '&:hover': { bgcolor: '#4F46E5' }
                                 }}
                             >
@@ -692,7 +692,12 @@ export default function ProjectAnalyticsDashboard() {
                                 variant="outlined"
                                 size="small"
                                 onClick={() => setShowPicker(false)}
-                                sx={{ borderRadius: 2 }}
+                                sx={{
+                                    borderRadius: 1.5,
+                                    px: 1.5,
+                                    py: 0.5,
+                                    fontSize: '0.8125rem'
+                                }}
                             >
                                 Cancel
                             </Button>
@@ -702,14 +707,18 @@ export default function ProjectAnalyticsDashboard() {
             </Box>
 
             {/* Summary Section */}
-            <Box sx={{ mb: 4 }}>
+            <Box sx={{ mb: 3 }}>
                 <Box sx={{
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    mb: 2,
+                    mb: 1.5,
                 }}>
-                    <Typography variant="h5" sx={{ fontWeight: 700, color: colors.primary }}>
+                    <Typography variant="h6" sx={{
+                        fontWeight: 700,
+                        color: colors.primary,
+                        fontSize: '1.125rem'
+                    }}>
                         Summary Overview
                     </Typography>
                 </Box>
@@ -717,9 +726,9 @@ export default function ProjectAnalyticsDashboard() {
                     <Box sx={{
                         display: 'flex',
                         flexWrap: 'wrap',
-                        gap: 3
+                        gap: 2
                     }}>
-                        <Box sx={{ flex: '1 1 300px' }}>
+                        <Box sx={{ flex: '1 1 240px', minWidth: 0 }}>
                             <SummaryCard
                                 title="Total Projects"
                                 value={dashboardData.summary.totalProjects}
@@ -728,7 +737,7 @@ export default function ProjectAnalyticsDashboard() {
                                 subtitle={`${dashboardData.summary.activeProjects} active, ${dashboardData.summary.closedProjects} closed`}
                             />
                         </Box>
-                        <Box sx={{ flex: '1 1 300px' }}>
+                        <Box sx={{ flex: '1 1 240px', minWidth: 0 }}>
                             <SummaryCard
                                 title="Planned Budget"
                                 value={formatCurrency(dashboardData.summary.totalPlannedBudget)}
@@ -737,7 +746,7 @@ export default function ProjectAnalyticsDashboard() {
                                 subtitle={`Actual: ${formatCurrency(dashboardData.summary.totalActualCost)}`}
                             />
                         </Box>
-                        <Box sx={{ flex: '1 1 300px' }}>
+                        <Box sx={{ flex: '1 1 240px', minWidth: 0 }}>
                             <SummaryCard
                                 title="Average Progress"
                                 value={
@@ -750,7 +759,7 @@ export default function ProjectAnalyticsDashboard() {
                                 subtitle="Across all projects"
                             />
                         </Box>
-                        <Box sx={{ flex: '1 1 300px' }}>
+                        <Box sx={{ flex: '1 1 240px', minWidth: 0 }}>
                             <SummaryCard
                                 title="Budget Utilization"
                                 value={
@@ -766,24 +775,31 @@ export default function ProjectAnalyticsDashboard() {
                                 }
                                 subtitle="Actual vs Planned"
                             />
-
                         </Box>
                     </Box>
 
                     {/* Approval Status Breakdown */}
-                    <Box sx={{ mt: 3 }}>
-                        <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2, color: colors.gray }}>
+                    <Box sx={{ mt: 2 }}>
+                        <Typography variant="subtitle2" sx={{
+                            fontWeight: 600,
+                            mb: 1.5,
+                            color: colors.gray,
+                            fontSize: '0.875rem'
+                        }}>
                             Approval Status
                         </Typography>
-                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
                             {Object.entries(dashboardData.summary.byApprovalStatus).map(([status, count], index) => (
                                 <Chip
                                     key={status}
                                     label={`${status}: ${count}`}
+                                    size="small"
                                     sx={{
-                                        bgcolor: alpha(colors.purple, 0.1),
+                                        bgcolor: alpha(colors.purple, 0.08),
                                         color: colors.purple,
-                                        fontWeight: 500
+                                        fontWeight: 500,
+                                        height: 24,
+                                        fontSize: '0.75rem'
                                     }}
                                 />
                             ))}
@@ -793,25 +809,29 @@ export default function ProjectAnalyticsDashboard() {
             </Box>
 
             {/* Projects Analytics Section */}
-            <Box sx={{ mb: 4 }}>
+            <Box sx={{ mb: 3 }}>
                 <Box sx={{
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    mb: 2,
+                    mb: 1.5,
                 }}>
-                    <Typography variant="h5" sx={{ fontWeight: 700, color: colors.indigo }}>
+                    <Typography variant="h6" sx={{
+                        fontWeight: 700,
+                        color: colors.indigo,
+                        fontSize: '1.125rem'
+                    }}>
                         Projects Analytics
                     </Typography>
                 </Box>
                 <Collapse in={expandedSections.projects}>
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2.5 }}>
                         {/* Projects by Stage */}
-                        <Box sx={{ flex: '1 1 400px' }}>
+                        <Box sx={{ flex: '1 1 320px', minWidth: 0 }}>
                             <DataCard title="Projects by Stage" icon={Category} color={colors.indigo}>
                                 {dashboardData.pipelineByStage.length > 0 ? (
                                     <>
-                                        <Box sx={{ height: 250, mb: 2 }}>
+                                        <Box sx={{ height: 200, mb: 1.5 }}>
                                             <ResponsiveContainer width="100%" height="100%">
                                                 <RePieChart>
                                                     <Pie
@@ -822,7 +842,7 @@ export default function ProjectAnalyticsDashboard() {
                                                         label={({ stageName, count }) =>
                                                             `${stageName || 'Unassigned'}: ${count}`
                                                         }
-                                                        outerRadius={70}
+                                                        outerRadius={60}
                                                         fill="#8884d8"
                                                         dataKey="count"
                                                     >
@@ -844,7 +864,7 @@ export default function ProjectAnalyticsDashboard() {
                                                 </RePieChart>
                                             </ResponsiveContainer>
                                         </Box>
-                                        <Stack spacing={1}>
+                                        <Stack spacing={0.75}>
                                             {dashboardData.pipelineByStage.map((stage, index) => (
                                                 <Box key={index} sx={{
                                                     display: 'flex',
@@ -852,18 +872,22 @@ export default function ProjectAnalyticsDashboard() {
                                                     alignItems: 'center',
                                                     p: 1,
                                                     borderRadius: 1,
-                                                    bgcolor: alpha(colors.indigo, 0.05)
+                                                    bgcolor: alpha(colors.indigo, 0.04)
                                                 }}>
-                                                    <Typography variant="body2">
+                                                    <Typography variant="body2" sx={{ fontSize: '0.8125rem' }}>
                                                         {stage.stageName || 'Unassigned'}
                                                     </Typography>
-                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                                         <Chip
                                                             label={`${stage.count} projects`}
                                                             size="small"
                                                             variant="outlined"
+                                                            sx={{ fontSize: '0.7rem', height: 20 }}
                                                         />
-                                                        <Typography variant="body2" sx={{ color: colors.gray }}>
+                                                        <Typography variant="body2" sx={{
+                                                            color: colors.gray,
+                                                            fontSize: '0.8125rem'
+                                                        }}>
                                                             {formatCurrency(stage.totalBudget)}
                                                         </Typography>
                                                     </Box>
@@ -878,26 +902,44 @@ export default function ProjectAnalyticsDashboard() {
                         </Box>
 
                         {/* Projects by Type */}
-                        <Box sx={{ flex: '1 1 400px' }}>
+                        <Box sx={{ flex: '1 1 320px', minWidth: 0 }}>
                             <DataCard title="Projects by Type" icon={Assignment} color={colors.purple}>
                                 {dashboardData.projectsByType.length > 0 ? (
-                                    <Stack spacing={2}>
+                                    <Stack spacing={1.5}>
                                         {dashboardData.projectsByType.map((type, index) => (
-                                            <Paper key={type.projectTypeId} sx={{ p: 2, borderRadius: 2 }}>
-                                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                                                    <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                                            <Paper key={type.projectTypeId} sx={{
+                                                p: 1.5,
+                                                borderRadius: 1.5,
+                                                border: `1px solid ${alpha(colors.purple, 0.1)}`
+                                            }}>
+                                                <Box sx={{
+                                                    display: 'flex',
+                                                    justifyContent: 'space-between',
+                                                    alignItems: 'center',
+                                                    mb: 0.75
+                                                }}>
+                                                    <Typography variant="subtitle2" sx={{
+                                                        fontWeight: 600,
+                                                        fontSize: '0.8125rem'
+                                                    }}>
                                                         {type.projectTypeName}
                                                     </Typography>
                                                     <Chip
                                                         label={`${type.count} projects`}
                                                         size="small"
                                                         color="primary"
+                                                        sx={{ fontSize: '0.7rem', height: 22 }}
                                                     />
                                                 </Box>
-                                                <Typography variant="caption" sx={{ color: colors.gray, display: 'block', mb: 1 }}>
+                                                <Typography variant="caption" sx={{
+                                                    color: colors.gray,
+                                                    display: 'block',
+                                                    mb: 0.75,
+                                                    fontSize: '0.75rem'
+                                                }}>
                                                     {type.projectTypeCode}
                                                 </Typography>
-                                                <Typography variant="body2">
+                                                <Typography variant="body2" sx={{ fontSize: '0.8125rem' }}>
                                                     Total Budget: {formatCurrency(type.totalBudget)}
                                                 </Typography>
                                             </Paper>
@@ -911,31 +953,36 @@ export default function ProjectAnalyticsDashboard() {
                     </Box>
 
                     {/* Billing Methods and Manager Workload */}
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3, mt: 3 }}>
-                        <Box sx={{ flex: '1 1 300px' }}>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2.5, mt: 2.5 }}>
+                        <Box sx={{ flex: '1 1 250px', minWidth: 0 }}>
                             <DataCard title="Billing Methods" icon={Receipt} color={colors.teal}>
                                 {dashboardData.projectsByBillingMethod.length > 0 ? (
-                                    <Stack spacing={1}>
+                                    <Stack spacing={0.75}>
                                         {dashboardData.projectsByBillingMethod.map((method, index) => (
                                             <Box key={index} sx={{
                                                 display: 'flex',
                                                 justifyContent: 'space-between',
                                                 alignItems: 'center',
-                                                p: 1.5,
-                                                borderRadius: 2,
-                                                border: `1px solid ${alpha(colors.teal, 0.2)}`,
-                                                bgcolor: alpha(colors.teal, 0.05)
+                                                p: 1,
+                                                borderRadius: 1.5,
+                                                border: `1px solid ${alpha(colors.teal, 0.15)}`,
+                                                bgcolor: alpha(colors.teal, 0.04)
                                             }}>
-                                                <Typography variant="body2">
+                                                <Typography variant="body2" sx={{ fontSize: '0.8125rem' }}>
                                                     {method.billingMethodName || 'Not Specified'}
                                                 </Typography>
-                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
                                                     <Chip
                                                         label={`${method.projectCount} projects`}
                                                         size="small"
                                                         variant="outlined"
+                                                        sx={{ fontSize: '0.7rem', height: 20 }}
                                                     />
-                                                    <Typography variant="body2" sx={{ fontWeight: 600, color: colors.teal }}>
+                                                    <Typography variant="body2" sx={{
+                                                        fontWeight: 600,
+                                                        color: colors.teal,
+                                                        fontSize: '0.8125rem'
+                                                    }}>
                                                         {formatCurrency(method.totalBudget)}
                                                     </Typography>
                                                 </Box>
@@ -948,20 +995,33 @@ export default function ProjectAnalyticsDashboard() {
                             </DataCard>
                         </Box>
 
-                        <Box sx={{ flex: '1 1 300px' }}>
+                        <Box sx={{ flex: '1 1 250px', minWidth: 0 }}>
                             <DataCard title="Manager Workload" icon={Group} color={colors.orange}>
                                 {dashboardData.managerWorkload.length > 0 ? (
-                                    <Stack spacing={2}>
+                                    <Stack spacing={1.5}>
                                         {dashboardData.managerWorkload.map((manager, index) => (
-                                            <Box key={manager.projectManagerEmployeeId} sx={{ p: 2, borderRadius: 2 }}>
-                                                <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
+                                            <Box key={manager.projectManagerEmployeeId} sx={{ p: 1.5, borderRadius: 1.5 }}>
+                                                <Typography variant="subtitle2" sx={{
+                                                    fontWeight: 600,
+                                                    mb: 0.75,
+                                                    fontSize: '0.8125rem'
+                                                }}>
                                                     Manager {manager.projectManagerEmployeeId.slice(0, 8)}...
                                                 </Typography>
-                                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                                                    <Typography variant="body2">
+                                                <Box sx={{
+                                                    display: 'flex',
+                                                    justifyContent: 'space-between',
+                                                    alignItems: 'center',
+                                                    mb: 0.75
+                                                }}>
+                                                    <Typography variant="body2" sx={{ fontSize: '0.8125rem' }}>
                                                         Projects: {manager.projectCount}
                                                     </Typography>
-                                                    <Typography variant="body2" sx={{ fontWeight: 600, color: colors.orange }}>
+                                                    <Typography variant="body2" sx={{
+                                                        fontWeight: 600,
+                                                        color: colors.orange,
+                                                        fontSize: '0.8125rem'
+                                                    }}>
                                                         {formatCurrency(manager.totalBudget)}
                                                     </Typography>
                                                 </Box>
@@ -978,22 +1038,39 @@ export default function ProjectAnalyticsDashboard() {
                             </DataCard>
                         </Box>
 
-                        <Box sx={{ flex: '1 1 300px' }}>
+                        <Box sx={{ flex: '1 1 250px', minWidth: 0 }}>
                             <DataCard title="Projects by Customer" icon={Business} color={colors.pink}>
                                 {dashboardData.projectsByCustomer.length > 0 ? (
-                                    <Stack spacing={1}>
+                                    <Stack spacing={0.75}>
                                         {dashboardData.projectsByCustomer.map((customer, index) => (
-                                            <Paper key={index} sx={{ p: 1.5, borderRadius: 2 }}>
-                                                <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 0.5 }}>
+                                            <Paper key={index} sx={{
+                                                p: 1.25,
+                                                borderRadius: 1.5,
+                                                border: `1px solid ${alpha(colors.pink, 0.1)}`
+                                            }}>
+                                                <Typography variant="subtitle2" sx={{
+                                                    fontWeight: 600,
+                                                    mb: 0.5,
+                                                    fontSize: '0.8125rem'
+                                                }}>
                                                     {customer.customerName}
                                                 </Typography>
-                                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                <Box sx={{
+                                                    display: 'flex',
+                                                    justifyContent: 'space-between',
+                                                    alignItems: 'center'
+                                                }}>
                                                     <Chip
                                                         label={`${customer.projectCount} projects`}
                                                         size="small"
                                                         variant="outlined"
+                                                        sx={{ fontSize: '0.7rem', height: 20 }}
                                                     />
-                                                    <Typography variant="body2" sx={{ fontWeight: 600, color: colors.pink }}>
+                                                    <Typography variant="body2" sx={{
+                                                        fontWeight: 600,
+                                                        color: colors.pink,
+                                                        fontSize: '0.8125rem'
+                                                    }}>
                                                         {formatCurrency(customer.totalBudget)}
                                                     </Typography>
                                                 </Box>
@@ -1010,57 +1087,81 @@ export default function ProjectAnalyticsDashboard() {
             </Box>
 
             {/* Risk & Deadlines Section */}
-            <Box sx={{ mb: 4 }}>
+            <Box sx={{ mb: 3 }}>
                 <Box sx={{
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    mb: 2,
+                    mb: 1.5,
                 }}>
-                    <Typography variant="h5" sx={{ fontWeight: 700, color: colors.error }}>
+                    <Typography variant="h6" sx={{
+                        fontWeight: 700,
+                        color: colors.error,
+                        fontSize: '1.125rem'
+                    }}>
                         Risk & Deadlines
                     </Typography>
                 </Box>
                 <Collapse in={expandedSections.risks}>
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2.5 }}>
                         {/* Risk Overview */}
-                        <Box sx={{ flex: '1 1 300px' }}>
+                        <Box sx={{ flex: '1 1 280px', minWidth: 0 }}>
                             <DataCard title="Risk Overview" icon={Warning} color={colors.error} defaultExpanded={true}>
-                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 3 }}>
+                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, mb: 2 }}>
                                     <Paper sx={{
                                         flex: 1,
-                                        p: 2,
+                                        p: 1.5,
                                         textAlign: 'center',
-                                        bgcolor: alpha(colors.error, 0.05),
-                                        border: `1px solid ${alpha(colors.error, 0.2)}`,
-                                        borderRadius: 2
+                                        bgcolor: alpha(colors.error, 0.04),
+                                        border: `1px solid ${alpha(colors.error, 0.15)}`,
+                                        borderRadius: 1.5,
+                                        minWidth: 120
                                     }}>
-                                        <Typography variant="h3" sx={{ color: colors.error, fontWeight: 700 }}>
+                                        <Typography variant="h4" sx={{
+                                            color: colors.error,
+                                            fontWeight: 700,
+                                            fontSize: '1.75rem'
+                                        }}>
                                             {dashboardData.riskAndDeadlines.atRiskCount}
                                         </Typography>
-                                        <Typography variant="body2" sx={{ color: colors.error }}>
+                                        <Typography variant="body2" sx={{
+                                            color: colors.error,
+                                            fontSize: '0.8125rem'
+                                        }}>
                                             At Risk
                                         </Typography>
                                     </Paper>
                                     <Paper sx={{
                                         flex: 1,
-                                        p: 2,
+                                        p: 1.5,
                                         textAlign: 'center',
-                                        bgcolor: alpha(colors.warning, 0.05),
-                                        border: `1px solid ${alpha(colors.warning, 0.2)}`,
-                                        borderRadius: 2
+                                        bgcolor: alpha(colors.warning, 0.04),
+                                        border: `1px solid ${alpha(colors.warning, 0.15)}`,
+                                        borderRadius: 1.5,
+                                        minWidth: 120
                                     }}>
-                                        <Typography variant="h3" sx={{ color: colors.warning, fontWeight: 700 }}>
+                                        <Typography variant="h4" sx={{
+                                            color: colors.warning,
+                                            fontWeight: 700,
+                                            fontSize: '1.75rem'
+                                        }}>
                                             {dashboardData.riskAndDeadlines.overdueCount}
                                         </Typography>
-                                        <Typography variant="body2" sx={{ color: colors.warning }}>
+                                        <Typography variant="body2" sx={{
+                                            color: colors.warning,
+                                            fontSize: '0.8125rem'
+                                        }}>
                                             Overdue
                                         </Typography>
                                     </Paper>
                                 </Box>
 
                                 {/* At Risk Projects */}
-                                <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>
+                                <Typography variant="subtitle2" sx={{
+                                    fontWeight: 600,
+                                    mb: 1.5,
+                                    fontSize: '0.875rem'
+                                }}>
                                     At Risk Projects
                                 </Typography>
                                 {dashboardData.riskAndDeadlines.atRiskProjects.length > 0 ? (
@@ -1072,11 +1173,12 @@ export default function ProjectAnalyticsDashboard() {
                                                 style={{ textDecoration: 'none' }}
                                             >
                                                 <Paper sx={{
-                                                    p: 2,
-                                                    borderRadius: 2,
+                                                    p: 1.5,
+                                                    borderRadius: 1.5,
                                                     cursor: 'pointer',
+                                                    border: `1px solid ${alpha(colors.error, 0.2)}`,
                                                     '&:hover': {
-                                                        bgcolor: alpha(colors.error, 0.05),
+                                                        bgcolor: alpha(colors.error, 0.04),
                                                         borderColor: colors.error
                                                     }
                                                 }}>
@@ -1087,14 +1189,17 @@ export default function ProjectAnalyticsDashboard() {
                                                         justifyContent: 'space-between',
                                                         mb: 1
                                                     }}>
-                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                            <Warning sx={{ color: colors.error, fontSize: 18 }} />
-                                                            <Typography variant="subtitle2" sx={{ fontWeight: 600, color: colors.error }}>
+                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+                                                            <Warning sx={{ color: colors.error, fontSize: 16 }} />
+                                                            <Typography variant="subtitle2" sx={{
+                                                                fontWeight: 600,
+                                                                color: colors.error,
+                                                                fontSize: '0.8125rem'
+                                                            }}>
                                                                 {project.code}
                                                             </Typography>
                                                         </Box>
                                                         <div onClick={(e) => e.stopPropagation()}>
-
                                                             <ProjectMenuDialog
                                                                 project={project}
                                                                 colors={colors}
@@ -1107,12 +1212,21 @@ export default function ProjectAnalyticsDashboard() {
                                                     </Box>
 
                                                     {/* Project title */}
-                                                    <Typography variant="body2" sx={{ color: colors.gray, mb: 1 }}>
+                                                    <Typography variant="body2" sx={{
+                                                        color: colors.gray,
+                                                        mb: 0.75,
+                                                        fontSize: '0.8125rem'
+                                                    }}>
                                                         {project.title}
                                                     </Typography>
 
                                                     {/* Due date */}
-                                                    <Typography variant="caption" sx={{ color: colors.gray, display: 'block', mb: 1 }}>
+                                                    <Typography variant="caption" sx={{
+                                                        color: colors.gray,
+                                                        display: 'block',
+                                                        mb: 0.75,
+                                                        fontSize: '0.75rem'
+                                                    }}>
                                                         Due: {formatDateTime(project.plannedEndDate)}
                                                     </Typography>
 
@@ -1129,7 +1243,12 @@ export default function ProjectAnalyticsDashboard() {
                                 )}
 
                                 {/* Overdue Projects */}
-                                <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2, mt: 3 }}>
+                                <Typography variant="subtitle2" sx={{
+                                    fontWeight: 600,
+                                    mb: 1.5,
+                                    mt: 2.5,
+                                    fontSize: '0.875rem'
+                                }}>
                                     Overdue Projects
                                 </Typography>
                                 {dashboardData.riskAndDeadlines.overdueProjects.length > 0 ? (
@@ -1141,20 +1260,21 @@ export default function ProjectAnalyticsDashboard() {
                                                 style={{ textDecoration: 'none' }}
                                             >
                                                 <Paper sx={{
-                                                    p: 2,
-                                                    borderRadius: 2,
+                                                    p: 1.5,
+                                                    borderRadius: 1.5,
                                                     cursor: 'pointer',
                                                     position: 'relative',
                                                     overflow: 'hidden',
+                                                    border: `1px solid ${alpha(colors.warning, 0.2)}`,
                                                     '&:hover': {
-                                                        bgcolor: alpha(colors.warning, 0.05),
+                                                        bgcolor: alpha(colors.warning, 0.04),
                                                         '&::before': {
                                                             content: '""',
                                                             position: 'absolute',
                                                             left: 0,
                                                             top: 0,
                                                             bottom: 0,
-                                                            width: 4,
+                                                            width: 3,
                                                             bgcolor: colors.warning
                                                         }
                                                     }
@@ -1164,16 +1284,22 @@ export default function ProjectAnalyticsDashboard() {
                                                         display: 'flex',
                                                         justifyContent: 'space-between',
                                                         alignItems: 'flex-start',
-                                                        mb: 1
+                                                        mb: 0.75
                                                     }}>
                                                         <Box sx={{ flex: 1 }}>
-                                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                                                            <Box sx={{
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                gap: 0.75,
+                                                                mb: 0.25
+                                                            }}>
                                                                 {project.riskFlag && (
-                                                                    <Warning sx={{ color: colors.error, fontSize: 16 }} />
+                                                                    <Warning sx={{ color: colors.error, fontSize: 14 }} />
                                                                 )}
                                                                 <Typography variant="subtitle2" sx={{
                                                                     fontWeight: 600,
-                                                                    color: colors.warning
+                                                                    color: colors.warning,
+                                                                    fontSize: '0.8125rem'
                                                                 }}>
                                                                     {project.code}
                                                                 </Typography>
@@ -1183,15 +1309,16 @@ export default function ProjectAnalyticsDashboard() {
                                                                     sx={{
                                                                         bgcolor: alpha(colors.warning, 0.1),
                                                                         color: colors.warning,
-                                                                        height: 20,
-                                                                        fontSize: '0.7rem'
+                                                                        height: 18,
+                                                                        fontSize: '0.65rem'
                                                                     }}
                                                                 />
                                                             </Box>
 
                                                             <Typography variant="body2" sx={{
                                                                 color: colors.gray,
-                                                                mb: 1
+                                                                mb: 0.75,
+                                                                fontSize: '0.8125rem'
                                                             }}>
                                                                 {project.title}
                                                             </Typography>
@@ -1214,18 +1341,21 @@ export default function ProjectAnalyticsDashboard() {
                                                         justifyContent: 'space-between',
                                                         alignItems: 'center'
                                                     }}>
-                                                        <Typography variant="caption" sx={{ color: colors.gray }}>
+                                                        <Typography variant="caption" sx={{
+                                                            color: colors.gray,
+                                                            fontSize: '0.75rem'
+                                                        }}>
                                                             Due: {formatDateTime(project.plannedEndDate)}
                                                         </Typography>
 
                                                         {/* Progress indicator */}
                                                         {project.totalPercentCompletion !== null && (
-                                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
                                                                 <Box sx={{
-                                                                    width: 60,
-                                                                    height: 6,
-                                                                    bgcolor: alpha(colors.warning, 0.2),
-                                                                    borderRadius: 3,
+                                                                    width: 50,
+                                                                    height: 5,
+                                                                    bgcolor: alpha(colors.warning, 0.15),
+                                                                    borderRadius: 2.5,
                                                                     overflow: 'hidden'
                                                                 }}>
                                                                     <Box sx={{
@@ -1236,7 +1366,8 @@ export default function ProjectAnalyticsDashboard() {
                                                                 </Box>
                                                                 <Typography variant="caption" sx={{
                                                                     fontWeight: 600,
-                                                                    color: colors.warning
+                                                                    color: colors.warning,
+                                                                    fontSize: '0.75rem'
                                                                 }}>
                                                                     {project.totalPercentCompletion}%
                                                                 </Typography>
@@ -1254,10 +1385,10 @@ export default function ProjectAnalyticsDashboard() {
                         </Box>
 
                         {/* Top Projects & Top Risk Projects */}
-                        <Box sx={{ flex: '1 1 300px' }}>
+                        <Box sx={{ flex: '1 1 280px', minWidth: 0 }}>
                             <DataCard title="Top Projects" icon={TrendingUp} color={colors.success} defaultExpanded={true}>
                                 {dashboardData.topProjects.length > 0 ? (
-                                    <Stack spacing={2}>
+                                    <Stack spacing={1.5}>
                                         {dashboardData.topProjects.map((project, index) => (
                                             <Link
                                                 key={project.id}
@@ -1265,14 +1396,15 @@ export default function ProjectAnalyticsDashboard() {
                                                 style={{ textDecoration: 'none' }}
                                             >
                                                 <Paper sx={{
-                                                    p: 2,
-                                                    borderRadius: 2,
+                                                    p: 1.5,
+                                                    borderRadius: 1.5,
                                                     cursor: 'pointer',
                                                     transition: 'all 0.2s ease',
+                                                    border: `1px solid ${alpha(colors.success, 0.15)}`,
                                                     '&:hover': {
-                                                        bgcolor: alpha(colors.success, 0.05),
+                                                        bgcolor: alpha(colors.success, 0.04),
                                                         borderColor: colors.success,
-                                                        transform: 'translateY(-2px)'
+                                                        transform: 'translateY(-1px)'
                                                     }
                                                 }}>
                                                     {/* Header with menu */}
@@ -1280,26 +1412,31 @@ export default function ProjectAnalyticsDashboard() {
                                                         display: 'flex',
                                                         justifyContent: 'space-between',
                                                         alignItems: 'flex-start',
-                                                        mb: 1.5
+                                                        mb: 1
                                                     }}>
                                                         <Box>
-                                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                                                            <Box sx={{
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                gap: 0.75,
+                                                                mb: 0.25
+                                                            }}>
                                                                 <Typography variant="subtitle2" sx={{
                                                                     fontWeight: 600,
                                                                     color: colors.success,
-                                                                    fontSize: '0.9rem'
+                                                                    fontSize: '0.8125rem'
                                                                 }}>
                                                                     {project.code}
                                                                 </Typography>
                                                                 {project.riskFlag && (
                                                                     <Tooltip title="High Risk">
-                                                                        <Warning sx={{ color: colors.error, fontSize: 16 }} />
+                                                                        <Warning sx={{ color: colors.error, fontSize: 14 }} />
                                                                     </Tooltip>
                                                                 )}
                                                             </Box>
                                                             <Typography variant="body2" sx={{
                                                                 color: colors.gray,
-                                                                fontSize: '0.875rem',
+                                                                fontSize: '0.8125rem',
                                                                 lineHeight: 1.3
                                                             }}>
                                                                 {project.title}
@@ -1322,9 +1459,9 @@ export default function ProjectAnalyticsDashboard() {
                                                         display: 'flex',
                                                         justifyContent: 'space-between',
                                                         alignItems: 'center',
-                                                        mt: 2,
-                                                        pt: 1.5,
-                                                        // borderTop: `1px solid ${alpha(theme.palette.divider, 0.2)}`
+                                                        mt: 1.5,
+                                                        pt: 1,
+                                                        borderTop: `1px solid ${alpha(theme.palette.divider, 0.15)}`
                                                     }}>
                                                         <Chip
                                                             label={project.approvalStatus}
@@ -1333,13 +1470,13 @@ export default function ProjectAnalyticsDashboard() {
                                                                 bgcolor: alpha(colors.success, 0.1),
                                                                 color: colors.success,
                                                                 fontWeight: 500,
-                                                                fontSize: '0.75rem',
-                                                                height: 24
+                                                                fontSize: '0.7rem',
+                                                                height: 22
                                                             }}
                                                         />
                                                         <Typography variant="body2" sx={{
                                                             fontWeight: 600,
-                                                            fontSize: '0.875rem'
+                                                            fontSize: '0.8125rem'
                                                         }}>
                                                             {formatCurrency(project.totalBudget)}
                                                         </Typography>
@@ -1353,7 +1490,7 @@ export default function ProjectAnalyticsDashboard() {
                                 )}
                             </DataCard>
 
-                            <Box sx={{ mt: 3 }}>
+                            <Box sx={{ mt: 2.5 }}>
                                 <DataCard title="Top Risk Projects" icon={RiskManagementIcon} color={colors.warning} defaultExpanded={true}>
                                     {dashboardData.topRiskProjects.length > 0 ? (
                                         <Stack spacing={1}>
@@ -1364,52 +1501,66 @@ export default function ProjectAnalyticsDashboard() {
                                                     style={{ textDecoration: 'none' }}
                                                 >
                                                     <Paper sx={{
-                                                        p: 1.5,
-                                                        borderRadius: 2,
+                                                        p: 1.25,
+                                                        borderRadius: 1.5,
                                                         cursor: 'pointer',
                                                         bgcolor: alpha(colors.warning, 0.03),
-                                                        border: `1px solid ${alpha(colors.warning, 0.2)}`,
+                                                        border: `1px solid ${alpha(colors.warning, 0.15)}`,
                                                         '&:hover': {
-                                                            bgcolor: alpha(colors.warning, 0.08),
+                                                            bgcolor: alpha(colors.warning, 0.07),
                                                             borderColor: colors.warning,
-                                                            boxShadow: `0 2px 8px ${alpha(colors.warning, 0.15)}`
+                                                            boxShadow: `0 1px 4px ${alpha(colors.warning, 0.12)}`
                                                         }
                                                     }}>
-                                                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                        <Box sx={{
+                                                            display: 'flex',
+                                                            justifyContent: 'space-between',
+                                                            alignItems: 'center'
+                                                        }}>
                                                             {/* Left side: Warning icon and project info */}
-                                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1 }}>
+                                                            <Box sx={{
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                gap: 0.75,
+                                                                flex: 1
+                                                            }}>
                                                                 <Box sx={{
                                                                     display: 'flex',
                                                                     alignItems: 'center',
                                                                     justifyContent: 'center',
-                                                                    width: 32,
-                                                                    height: 32,
+                                                                    width: 28,
+                                                                    height: 28,
                                                                     borderRadius: '50%',
                                                                     bgcolor: alpha(colors.warning, 0.1),
                                                                     flexShrink: 0
                                                                 }}>
-                                                                    <Warning sx={{ color: colors.warning, fontSize: 18 }} />
+                                                                    <Warning sx={{ color: colors.warning, fontSize: 16 }} />
                                                                 </Box>
 
                                                                 <Box sx={{ minWidth: 0 }}>
                                                                     <Typography variant="body2" sx={{
                                                                         fontWeight: 600,
                                                                         color: colors.warning,
-                                                                        fontSize: '0.85rem',
+                                                                        fontSize: '0.8125rem',
                                                                         whiteSpace: 'nowrap',
                                                                         overflow: 'hidden',
                                                                         textOverflow: 'ellipsis'
                                                                     }}>
                                                                         {project.code}
                                                                     </Typography>
-                                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.25 }}>
+                                                                    <Box sx={{
+                                                                        display: 'flex',
+                                                                        alignItems: 'center',
+                                                                        gap: 0.75,
+                                                                        mt: 0.25
+                                                                    }}>
                                                                         <Chip
                                                                             label={`${project.daysOverdue}d`}
                                                                             size="small"
                                                                             sx={{
-                                                                                bgcolor: alpha(colors.warning, 0.2),
+                                                                                bgcolor: alpha(colors.warning, 0.15),
                                                                                 color: colors.warning,
-                                                                                height: 18,
+                                                                                height: 16,
                                                                                 fontSize: '0.65rem',
                                                                                 fontWeight: 700
                                                                             }}
@@ -1442,9 +1593,8 @@ export default function ProjectAnalyticsDashboard() {
                                                             <Typography variant="caption" sx={{
                                                                 color: colors.gray,
                                                                 display: 'block',
-                                                                mt: 1,
-                                                                fontSize: '0.8rem',
-                                                                // fontStyle: 'italic',
+                                                                mt: 0.75,
+                                                                fontSize: '0.75rem',
                                                                 whiteSpace: 'nowrap',
                                                                 overflow: 'hidden',
                                                                 textOverflow: 'ellipsis'
@@ -1464,50 +1614,74 @@ export default function ProjectAnalyticsDashboard() {
                         </Box>
 
                         {/* Timesheets */}
-                        <Box sx={{ flex: '1 1 300px' }}>
+                        <Box sx={{ flex: '1 1 280px', minWidth: 0 }}>
                             <DataCard title="Timesheets" icon={AccessTime} color={colors.info} defaultExpanded={true}>
-                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 3 }}>
+                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, mb: 2 }}>
                                     <Paper sx={{
                                         flex: 1,
-                                        p: 2,
+                                        p: 1.5,
                                         textAlign: 'center',
-                                        bgcolor: alpha(colors.info, 0.05),
-                                        border: `1px solid ${alpha(colors.info, 0.2)}`,
-                                        borderRadius: 2
+                                        bgcolor: alpha(colors.info, 0.04),
+                                        border: `1px solid ${alpha(colors.info, 0.15)}`,
+                                        borderRadius: 1.5,
+                                        minWidth: 120
                                     }}>
-                                        <Typography variant="h4" sx={{ color: colors.info, fontWeight: 700 }}>
+                                        <Typography variant="h4" sx={{
+                                            color: colors.info,
+                                            fontWeight: 700,
+                                            fontSize: '1.75rem'
+                                        }}>
                                             {dashboardData.timesheets.totalTrackedHours}
                                         </Typography>
-                                        <Typography variant="body2" sx={{ color: colors.info }}>
+                                        <Typography variant="body2" sx={{
+                                            color: colors.info,
+                                            fontSize: '0.8125rem'
+                                        }}>
                                             Tracked Hours
                                         </Typography>
                                     </Paper>
                                     <Paper sx={{
                                         flex: 1,
-                                        p: 2,
+                                        p: 1.5,
                                         textAlign: 'center',
-                                        bgcolor: alpha(colors.success, 0.05),
-                                        border: `1px solid ${alpha(colors.success, 0.2)}`,
-                                        borderRadius: 2
+                                        bgcolor: alpha(colors.success, 0.04),
+                                        border: `1px solid ${alpha(colors.success, 0.15)}`,
+                                        borderRadius: 1.5,
+                                        minWidth: 120
                                     }}>
-                                        <Typography variant="h4" sx={{ color: colors.success, fontWeight: 700 }}>
+                                        <Typography variant="h4" sx={{
+                                            color: colors.success,
+                                            fontWeight: 700,
+                                            fontSize: '1.75rem'
+                                        }}>
                                             {dashboardData.timesheets.totalBillableHours}
                                         </Typography>
-                                        <Typography variant="body2" sx={{ color: colors.success }}>
+                                        <Typography variant="body2" sx={{
+                                            color: colors.success,
+                                            fontSize: '0.8125rem'
+                                        }}>
                                             Billable Hours
                                         </Typography>
                                     </Paper>
                                 </Box>
-                                <Typography variant="body2" sx={{ color: colors.gray }}>
+                                <Typography variant="body2" sx={{
+                                    color: colors.gray,
+                                    fontSize: '0.8125rem',
+                                    mb: 1.5
+                                }}>
                                     Projects with time entries: {dashboardData.timesheets.projectsWithTimeEntries}
                                 </Typography>
 
                                 {dashboardData.timesheets.byProject.length > 0 ? (
-                                    <Box sx={{ mt: 2 }}>
-                                        <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
+                                    <Box sx={{ mt: 1.5 }}>
+                                        <Typography variant="subtitle2" sx={{
+                                            fontWeight: 600,
+                                            mb: 1,
+                                            fontSize: '0.875rem'
+                                        }}>
                                             By Project
                                         </Typography>
-                                        <Stack spacing={1}>
+                                        <Stack spacing={0.75}>
                                             {dashboardData.timesheets.byProject.slice(0, 5).map((project, index) => (
                                                 <Link
                                                     key={index}
@@ -1520,16 +1694,20 @@ export default function ProjectAnalyticsDashboard() {
                                                         alignItems: 'center',
                                                         p: 1,
                                                         borderRadius: 1,
-                                                        bgcolor: alpha(colors.info, 0.05),
+                                                        bgcolor: alpha(colors.info, 0.04),
                                                         cursor: 'pointer',
                                                         '&:hover': {
-                                                            bgcolor: alpha(colors.info, 0.1)
+                                                            bgcolor: alpha(colors.info, 0.08)
                                                         }
                                                     }}>
-                                                        <Typography variant="body2">
+                                                        <Typography variant="body2" sx={{ fontSize: '0.8125rem' }}>
                                                             Project {index + 1}
                                                         </Typography>
-                                                        <Typography variant="body2" sx={{ fontWeight: 600, color: colors.info }}>
+                                                        <Typography variant="body2" sx={{
+                                                            fontWeight: 600,
+                                                            color: colors.info,
+                                                            fontSize: '0.8125rem'
+                                                        }}>
                                                             {project.hours || 0} hrs
                                                         </Typography>
                                                     </Box>
@@ -1544,123 +1722,156 @@ export default function ProjectAnalyticsDashboard() {
                         </Box>
                     </Box>
                 </Collapse>
-            </Box >
+            </Box>
 
             {/* Tasks & Milestones Section */}
-            < Box sx={{ mb: 4 }
-            }>
+            <Box sx={{ mb: 3 }}>
                 <Box sx={{
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    mb: 2,
+                    mb: 1.5,
                 }}>
-                    <Typography variant="h5" sx={{ fontWeight: 700, color: colors.teal }}>
+                    <Typography variant="h6" sx={{
+                        fontWeight: 700,
+                        color: colors.teal,
+                        fontSize: '1.125rem'
+                    }}>
                         Tasks & Milestones
                     </Typography>
                 </Box>
                 <Collapse in={expandedSections.tasks}>
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2.5 }}>
                         {/* Task Summary */}
-                        <Box sx={{ flex: '1 1 400px' }}>
+                        <Box sx={{ flex: '1 1 320px', minWidth: 0 }}>
                             <DataCard title="Task Summary" icon={Task} color={colors.teal} defaultExpanded={true}>
-                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 3 }}>
+                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, mb: 2 }}>
                                     <Paper sx={{
                                         flex: 1,
-                                        p: 2,
+                                        p: 1.5,
                                         textAlign: 'center',
-                                        minWidth: 120,
-                                        bgcolor: alpha(colors.teal, 0.05),
-                                        border: `1px solid ${alpha(colors.teal, 0.2)}`,
-                                        borderRadius: 2
+                                        minWidth: 100,
+                                        bgcolor: alpha(colors.teal, 0.04),
+                                        border: `1px solid ${alpha(colors.teal, 0.15)}`,
+                                        borderRadius: 1.5
                                     }}>
-                                        <Typography variant="h4" sx={{ color: colors.teal, fontWeight: 700 }}>
+                                        <Typography variant="h4" sx={{
+                                            color: colors.teal,
+                                            fontWeight: 700,
+                                            fontSize: '1.75rem'
+                                        }}>
                                             {dashboardData.tasksAndMilestones.taskSummary.totalTasks}
                                         </Typography>
-                                        <Typography variant="body2" sx={{ color: colors.teal }}>
+                                        <Typography variant="body2" sx={{
+                                            color: colors.teal,
+                                            fontSize: '0.8125rem'
+                                        }}>
                                             Total Tasks
                                         </Typography>
                                     </Paper>
                                     <Paper sx={{
                                         flex: 1,
-                                        p: 2,
+                                        p: 1.5,
                                         textAlign: 'center',
-                                        minWidth: 120,
-                                        bgcolor: alpha(colors.success, 0.05),
-                                        border: `1px solid ${alpha(colors.success, 0.2)}`,
-                                        borderRadius: 2
+                                        minWidth: 100,
+                                        bgcolor: alpha(colors.success, 0.04),
+                                        border: `1px solid ${alpha(colors.success, 0.15)}`,
+                                        borderRadius: 1.5
                                     }}>
-                                        <Typography variant="h4" sx={{ color: colors.success, fontWeight: 700 }}>
+                                        <Typography variant="h4" sx={{
+                                            color: colors.success,
+                                            fontWeight: 700,
+                                            fontSize: '1.75rem'
+                                        }}>
                                             {dashboardData.tasksAndMilestones.taskSummary.completedTasks}
                                         </Typography>
-                                        <Typography variant="body2" sx={{ color: colors.success }}>
+                                        <Typography variant="body2" sx={{
+                                            color: colors.success,
+                                            fontSize: '0.8125rem'
+                                        }}>
                                             Completed
                                         </Typography>
                                     </Paper>
                                     <Paper sx={{
                                         flex: 1,
-                                        p: 2,
+                                        p: 1.5,
                                         textAlign: 'center',
-                                        minWidth: 120,
-                                        bgcolor: alpha(colors.error, 0.05),
-                                        border: `1px solid ${alpha(colors.error, 0.2)}`,
-                                        borderRadius: 2
+                                        minWidth: 100,
+                                        bgcolor: alpha(colors.error, 0.04),
+                                        border: `1px solid ${alpha(colors.error, 0.15)}`,
+                                        borderRadius: 1.5
                                     }}>
-                                        <Typography variant="h4" sx={{ color: colors.error, fontWeight: 700 }}>
+                                        <Typography variant="h4" sx={{
+                                            color: colors.error,
+                                            fontWeight: 700,
+                                            fontSize: '1.75rem'
+                                        }}>
                                             {dashboardData.tasksAndMilestones.taskSummary.overdueTasks}
                                         </Typography>
-                                        <Typography variant="body2" sx={{ color: colors.error }}>
+                                        <Typography variant="body2" sx={{
+                                            color: colors.error,
+                                            fontSize: '0.8125rem'
+                                        }}>
                                             Overdue
                                         </Typography>
                                     </Paper>
                                 </Box>
 
                                 {/* Task Filter Chips */}
-                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 3 }}>
+                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
                                     <Chip
-                                        icon={<AccessTimeIcon />}
+                                        icon={<AccessTimeIcon sx={{ fontSize: 14 }} />}
                                         label={`All: ${dashboardData.tasksAndMilestones.taskSummary.totalTasks}`}
                                         variant={taskFilter === 'all' ? 'filled' : 'outlined'}
                                         color={taskFilter === 'all' ? 'primary' : 'default'}
                                         onClick={() => setTaskFilter('all')}
                                         clickable
+                                        size="small"
                                         sx={{
                                             borderColor: colors.primary,
                                             color: taskFilter === 'all' ? 'white' : colors.primary,
-                                            bgcolor: taskFilter === 'all' ? colors.primary : 'transparent'
+                                            bgcolor: taskFilter === 'all' ? colors.primary : 'transparent',
+                                            fontSize: '0.75rem',
+                                            height: 24
                                         }}
                                     />
                                     <Chip
-                                        icon={<CheckCircleIcon />}
+                                        icon={<CheckCircleIcon sx={{ fontSize: 14 }} />}
                                         label={`Completed: ${dashboardData.tasksAndMilestones.taskSummary.completedTasks}`}
                                         variant={taskFilter === 'completed' ? 'filled' : 'outlined'}
                                         color={taskFilter === 'completed' ? 'success' : 'default'}
                                         onClick={() => setTaskFilter('completed')}
                                         clickable
+                                        size="small"
                                         sx={{
                                             borderColor: colors.success,
                                             color: taskFilter === 'completed' ? 'white' : colors.success,
-                                            bgcolor: taskFilter === 'completed' ? colors.success : 'transparent'
+                                            bgcolor: taskFilter === 'completed' ? colors.success : 'transparent',
+                                            fontSize: '0.75rem',
+                                            height: 24
                                         }}
                                     />
                                     <Chip
-                                        icon={<ErrorIcon />}
+                                        icon={<ErrorIcon sx={{ fontSize: 14 }} />}
                                         label={`Overdue: ${dashboardData.tasksAndMilestones.taskSummary.overdueTasks}`}
                                         variant={taskFilter === 'overdue' ? 'filled' : 'outlined'}
                                         color={taskFilter === 'overdue' ? 'error' : 'default'}
                                         onClick={() => setTaskFilter('overdue')}
                                         clickable
+                                        size="small"
                                         sx={{
                                             borderColor: colors.error,
                                             color: taskFilter === 'overdue' ? 'white' : colors.error,
-                                            bgcolor: taskFilter === 'overdue' ? colors.error : 'transparent'
+                                            bgcolor: taskFilter === 'overdue' ? colors.error : 'transparent',
+                                            fontSize: '0.75rem',
+                                            height: 24
                                         }}
                                     />
                                 </Box>
 
                                 {/* Filtered Tasks */}
                                 {filteredTasks.length > 0 ? (
-                                    <Stack spacing={2}>
+                                    <Stack spacing={1.5}>
                                         {filteredTasks.map((task) => (
                                             <Box key={task.id} sx={{ position: 'relative' }}>
                                                 <Link
@@ -1668,12 +1879,13 @@ export default function ProjectAnalyticsDashboard() {
                                                     style={{ textDecoration: 'none' }}
                                                 >
                                                     <Paper sx={{
-                                                        p: 2,
-                                                        borderRadius: 2,
+                                                        p: 1.5,
+                                                        borderRadius: 1.5,
                                                         cursor: 'pointer',
                                                         position: 'relative',
+                                                        border: `1px solid ${alpha(colors.teal, 0.15)}`,
                                                         '&:hover': {
-                                                            bgcolor: alpha(colors.teal, 0.05),
+                                                            bgcolor: alpha(colors.teal, 0.04),
                                                             borderColor: colors.teal
                                                         }
                                                     }}>
@@ -1685,7 +1897,11 @@ export default function ProjectAnalyticsDashboard() {
                                                             mb: 1
                                                         }}>
                                                             <Box sx={{ flex: 1, pr: 1 }}>
-                                                                <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 0.5 }}>
+                                                                <Typography variant="subtitle2" sx={{
+                                                                    fontWeight: 600,
+                                                                    mb: 0.5,
+                                                                    fontSize: '0.8125rem'
+                                                                }}>
                                                                     {task.title}
                                                                 </Typography>
                                                             </Box>
@@ -1703,24 +1919,37 @@ export default function ProjectAnalyticsDashboard() {
                                                                 <TaskMenuDialog
                                                                     task={task}
                                                                     colors={colors}
-                                                                    refetch={refetch} // or refetchTasks if you have separate refetch
-                                                                    apiUrl={apiUrl} // or tasksApiUrl
+                                                                    refetch={refetch}
+                                                                    apiUrl={apiUrl}
                                                                     TaskCreateInputForm={WbsItemCreateInput}
                                                                 />
                                                             </Box>
                                                         </Box>
 
-                                                        <Typography variant="caption" sx={{ color: colors.gray, display: 'block', mb: 1 }}>
+                                                        <Typography variant="caption" sx={{
+                                                            color: colors.gray,
+                                                            display: 'block',
+                                                            mb: 0.75,
+                                                            fontSize: '0.75rem'
+                                                        }}>
                                                             Project: {task.projectTitle}
                                                         </Typography>
-                                                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                                            <Typography variant="caption" sx={{ color: colors.gray }}>
+                                                        <Box sx={{
+                                                            display: 'flex',
+                                                            justifyContent: 'space-between',
+                                                            alignItems: 'center'
+                                                        }}>
+                                                            <Typography variant="caption" sx={{
+                                                                color: colors.gray,
+                                                                fontSize: '0.75rem'
+                                                            }}>
                                                                 {task.code}
                                                             </Typography>
                                                             <Chip
                                                                 label={`Due: ${formatDateTime(task.plannedEndDate)}`}
                                                                 size="small"
                                                                 variant="outlined"
+                                                                sx={{ fontSize: '0.7rem', height: 20 }}
                                                             />
                                                         </Box>
                                                     </Paper>
@@ -1733,73 +1962,102 @@ export default function ProjectAnalyticsDashboard() {
                                 )}
 
                                 {/* Due Date Chips */}
-                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mt: 3 }}>
+                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 2 }}>
                                     <Chip
-                                        icon={<Schedule />}
+                                        icon={<Schedule sx={{ fontSize: 14 }} />}
                                         label={`Due in 7 days: ${dashboardData.tasksAndMilestones.taskSummary.tasksDueIn7Days}`}
                                         variant="outlined"
-                                        sx={{ borderColor: colors.warning, color: colors.warning }}
+                                        size="small"
+                                        sx={{
+                                            borderColor: colors.warning,
+                                            color: colors.warning,
+                                            fontSize: '0.75rem',
+                                            height: 24
+                                        }}
                                     />
                                     <Chip
-                                        icon={<Schedule />}
+                                        icon={<Schedule sx={{ fontSize: 14 }} />}
                                         label={`Due in 30 days: ${dashboardData.tasksAndMilestones.taskSummary.tasksDueIn30Days}`}
                                         variant="outlined"
-                                        sx={{ borderColor: colors.info, color: colors.info }}
+                                        size="small"
+                                        sx={{
+                                            borderColor: colors.info,
+                                            color: colors.info,
+                                            fontSize: '0.75rem',
+                                            height: 24
+                                        }}
                                     />
                                 </Box>
                             </DataCard>
                         </Box>
 
                         {/* Milestone Summary */}
-                        <Box sx={{ flex: '1 1 400px' }}>
+                        <Box sx={{ flex: '1 1 320px', minWidth: 0 }}>
                             <DataCard title="Milestone Summary" icon={CheckCircle} color={colors.purple} defaultExpanded={true}>
-                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 3 }}>
+                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, mb: 2 }}>
                                     <Paper sx={{
                                         flex: 1,
-                                        p: 2,
+                                        p: 1.5,
                                         textAlign: 'center',
-                                        minWidth: 120,
-                                        bgcolor: alpha(colors.purple, 0.05),
-                                        border: `1px solid ${alpha(colors.purple, 0.2)}`,
-                                        borderRadius: 2
+                                        minWidth: 100,
+                                        bgcolor: alpha(colors.purple, 0.04),
+                                        border: `1px solid ${alpha(colors.purple, 0.15)}`,
+                                        borderRadius: 1.5
                                     }}>
-                                        <Typography variant="h4" sx={{ color: colors.purple, fontWeight: 700 }}>
+                                        <Typography variant="h4" sx={{
+                                            color: colors.purple,
+                                            fontWeight: 700,
+                                            fontSize: '1.75rem'
+                                        }}>
                                             {dashboardData.tasksAndMilestones.milestoneSummary.totalMilestones}
                                         </Typography>
-                                        <Typography variant="body2" sx={{ color: colors.purple }}>
+                                        <Typography variant="body2" sx={{
+                                            color: colors.purple,
+                                            fontSize: '0.8125rem'
+                                        }}>
                                             Total Milestones
                                         </Typography>
                                     </Paper>
                                     <Paper sx={{
                                         flex: 1,
-                                        p: 2,
+                                        p: 1.5,
                                         textAlign: 'center',
-                                        minWidth: 120,
-                                        bgcolor: alpha(colors.success, 0.05),
-                                        border: `1px solid ${alpha(colors.success, 0.2)}`,
-                                        borderRadius: 2
+                                        minWidth: 100,
+                                        bgcolor: alpha(colors.success, 0.04),
+                                        border: `1px solid ${alpha(colors.success, 0.15)}`,
+                                        borderRadius: 1.5
                                     }}>
-                                        <Typography variant="h4" sx={{ color: colors.success, fontWeight: 700 }}>
+                                        <Typography variant="h4" sx={{
+                                            color: colors.success,
+                                            fontWeight: 700,
+                                            fontSize: '1.75rem'
+                                        }}>
                                             {dashboardData.tasksAndMilestones.milestoneSummary.completedMilestones}
                                         </Typography>
-                                        <Typography variant="body2" sx={{ color: colors.success }}>
+                                        <Typography variant="body2" sx={{
+                                            color: colors.success,
+                                            fontSize: '0.8125rem'
+                                        }}>
                                             Completed
                                         </Typography>
                                     </Paper>
                                 </Box>
 
                                 {/* Milestone Filter Chips */}
-                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 3 }}>
+                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
                                     <Chip
                                         label={`All: ${dashboardData.tasksAndMilestones.milestoneSummary.totalMilestones}`}
                                         variant={milestoneFilter === 'all' ? 'filled' : 'outlined'}
                                         color={milestoneFilter === 'all' ? 'primary' : 'default'}
                                         onClick={() => setMilestoneFilter('all')}
                                         clickable
+                                        size="small"
                                         sx={{
                                             borderColor: colors.purple,
                                             color: milestoneFilter === 'all' ? 'white' : colors.purple,
-                                            bgcolor: milestoneFilter === 'all' ? colors.purple : 'transparent'
+                                            bgcolor: milestoneFilter === 'all' ? colors.purple : 'transparent',
+                                            fontSize: '0.75rem',
+                                            height: 24
                                         }}
                                     />
                                     <Chip
@@ -1808,10 +2066,13 @@ export default function ProjectAnalyticsDashboard() {
                                         color={milestoneFilter === 'completed' ? 'success' : 'default'}
                                         onClick={() => setMilestoneFilter('completed')}
                                         clickable
+                                        size="small"
                                         sx={{
                                             borderColor: colors.success,
                                             color: milestoneFilter === 'completed' ? 'white' : colors.success,
-                                            bgcolor: milestoneFilter === 'completed' ? colors.success : 'transparent'
+                                            bgcolor: milestoneFilter === 'completed' ? colors.success : 'transparent',
+                                            fontSize: '0.75rem',
+                                            height: 24
                                         }}
                                     />
                                     <Chip
@@ -1820,17 +2081,20 @@ export default function ProjectAnalyticsDashboard() {
                                         color={milestoneFilter === 'overdue' ? 'error' : 'default'}
                                         onClick={() => setMilestoneFilter('overdue')}
                                         clickable
+                                        size="small"
                                         sx={{
                                             borderColor: colors.error,
                                             color: milestoneFilter === 'overdue' ? 'white' : colors.error,
-                                            bgcolor: milestoneFilter === 'overdue' ? colors.error : 'transparent'
+                                            bgcolor: milestoneFilter === 'overdue' ? colors.error : 'transparent',
+                                            fontSize: '0.75rem',
+                                            height: 24
                                         }}
                                     />
                                 </Box>
 
                                 {/* Filtered Milestones */}
                                 {filteredMilestones.length > 0 ? (
-                                    <Stack spacing={2}>
+                                    <Stack spacing={1.5}>
                                         {filteredMilestones.map((milestone, index) => (
                                             <Link
                                                 key={milestone.id}
@@ -1838,15 +2102,19 @@ export default function ProjectAnalyticsDashboard() {
                                                 style={{ textDecoration: 'none' }}
                                             >
                                                 <Paper sx={{
-                                                    p: 2,
-                                                    borderRadius: 2,
+                                                    p: 1.5,
+                                                    borderRadius: 1.5,
                                                     cursor: 'pointer',
+                                                    border: `1px solid ${alpha(colors.purple, 0.15)}`,
                                                     '&:hover': {
-                                                        bgcolor: alpha(colors.purple, 0.05),
+                                                        bgcolor: alpha(colors.purple, 0.04),
                                                         borderColor: colors.purple
                                                     }
                                                 }}>
-                                                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                                                    <Typography variant="body2" sx={{
+                                                        fontWeight: 600,
+                                                        fontSize: '0.8125rem'
+                                                    }}>
                                                         {milestone.title || `Milestone ${index + 1}`}
                                                     </Typography>
                                                 </Paper>
@@ -1858,68 +2126,85 @@ export default function ProjectAnalyticsDashboard() {
                                 )}
 
                                 {/* Due Date Chips */}
-                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mt: 3 }}>
+                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 2 }}>
                                     <Chip
                                         label={`Due in 7 days: ${dashboardData.tasksAndMilestones.milestoneSummary.milestonesDueIn7Days}`}
                                         variant="outlined"
-                                        sx={{ borderColor: colors.warning, color: colors.warning }}
+                                        size="small"
+                                        sx={{
+                                            borderColor: colors.warning,
+                                            color: colors.warning,
+                                            fontSize: '0.75rem',
+                                            height: 24
+                                        }}
                                     />
                                     <Chip
                                         label={`Due in 30 days: ${dashboardData.tasksAndMilestones.milestoneSummary.milestonesDueIn30Days}`}
                                         variant="outlined"
-                                        sx={{ borderColor: colors.info, color: colors.info }}
+                                        size="small"
+                                        sx={{
+                                            borderColor: colors.info,
+                                            color: colors.info,
+                                            fontSize: '0.75rem',
+                                            height: 24
+                                        }}
                                     />
                                 </Box>
                             </DataCard>
                         </Box>
                     </Box>
                 </Collapse>
-            </Box >
+            </Box>
 
             {/* Monthly Trends Section */}
-            < Box sx={{ mb: 4 }}>
+            <Box sx={{ mb: 3 }}>
                 <Box sx={{
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    mb: 2,
+                    mb: 1.5,
                 }}>
-                    <Typography variant="h5" sx={{ fontWeight: 700, color: colors.primary }}>
+                    <Typography variant="h6" sx={{
+                        fontWeight: 700,
+                        color: colors.primary,
+                        fontSize: '1.125rem'
+                    }}>
                         Analytics & Trends
                     </Typography>
                 </Box>
                 <Collapse in={expandedSections.analytics}>
                     <DataCard title="Monthly Trends" icon={TrendingFlat} color={colors.primary} defaultExpanded={true}>
                         {dashboardData.monthlyTrends.length > 0 ? (
-                            <Box sx={{ height: 300 }}>
+                            <Box sx={{ height: 250 }}>
                                 <ResponsiveContainer width="100%" height="100%">
                                     <AreaChart data={dashboardData.monthlyTrends}>
-                                        <CartesianGrid strokeDasharray="3 3" stroke={alpha('#000', 0.1)} />
+                                        <CartesianGrid strokeDasharray="2 2" stroke={alpha('#000', 0.08)} />
                                         <XAxis
                                             dataKey="month"
                                             tickFormatter={(value) => format(parseISO(value + '-01'), 'MMM yy')}
+                                            fontSize={11}
                                         />
-                                        <YAxis />
+                                        <YAxis fontSize={11} />
                                         <RechartsTooltip
                                             formatter={(value: any) => [value, '']}
                                             labelFormatter={(label) => format(parseISO(label + '-01'), 'MMM yyyy')}
                                         />
-                                        <Legend />
+                                        <Legend wrapperStyle={{ fontSize: '0.75rem' }} />
                                         <Area
                                             type="monotone"
                                             dataKey="newProjectsCount"
                                             name="New Projects"
                                             stroke={colors.primary}
-                                            fill={alpha(colors.primary, 0.3)}
-                                            strokeWidth={2}
+                                            fill={alpha(colors.primary, 0.25)}
+                                            strokeWidth={1.5}
                                         />
                                         <Area
                                             type="monotone"
                                             dataKey="totalBudget"
                                             name="Total Budget"
                                             stroke={colors.success}
-                                            fill={alpha(colors.success, 0.3)}
-                                            strokeWidth={2}
+                                            fill={alpha(colors.success, 0.25)}
+                                            strokeWidth={1.5}
                                         />
                                     </AreaChart>
                                 </ResponsiveContainer>
@@ -1929,17 +2214,21 @@ export default function ProjectAnalyticsDashboard() {
                         )}
                     </DataCard>
                 </Collapse>
-            </Box >
+            </Box>
 
             {/* All Projects Section with Filters */}
-            < Box >
+            <Box>
                 <Box sx={{
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    mb: 2
+                    mb: 1.5
                 }}>
-                    <Typography variant="h5" sx={{ fontWeight: 700, color: theme.palette.text.primary }}>
+                    <Typography variant="h6" sx={{
+                        fontWeight: 700,
+                        color: theme.palette.text.primary,
+                        fontSize: '1.125rem'
+                    }}>
                         All Projects ({filteredProjects.length})
                     </Typography>
                     <ToggleButtonGroup
@@ -1948,27 +2237,27 @@ export default function ProjectAnalyticsDashboard() {
                         onChange={(e, newMode) => newMode && setViewMode(newMode)}
                         size="small"
                     >
-                        <ToggleButton value="card">
-                            <ViewModule sx={{ fontSize: 18 }} />
+                        <ToggleButton value="card" size="small" sx={{ p: 0.75 }}>
+                            <ViewModule sx={{ fontSize: 16 }} />
                         </ToggleButton>
-                        <ToggleButton value="list">
-                            <ViewList sx={{ fontSize: 18 }} />
+                        <ToggleButton value="list" size="small" sx={{ p: 0.75 }}>
+                            <ViewList sx={{ fontSize: 16 }} />
                         </ToggleButton>
                     </ToggleButtonGroup>
                 </Box>
 
                 {/* Filter and Search Bar */}
                 <Box sx={{
-                    mb: 3,
+                    mb: 2.5,
                     display: 'flex',
                     flexWrap: 'wrap',
-                    gap: 2,
+                    gap: 1.5,
                     alignItems: 'center',
                     justifyContent: 'flex-end',
-                    p: 2,
+                    p: 1.5,
                     bgcolor: alpha(colors.primary, 0.03),
-                    borderRadius: 2,
-                    border: `1px solid ${alpha(colors.primary, 0.1)}`
+                    borderRadius: 1.5,
+                    border: `1px solid ${alpha(colors.primary, 0.08)}`
                 }}>
                     <TextField
                         placeholder="Search projects..."
@@ -1978,48 +2267,33 @@ export default function ProjectAnalyticsDashboard() {
                         onChange={(e) => setSearchTerm(e.target.value)}
                         sx={{
                             flexGrow: 1,
-                            minWidth: 200,
-                            maxWidth: 500,
+                            minWidth: 180,
+                            maxWidth: 400,
                             '& .MuiOutlinedInput-root': {
-                                borderRadius: 2
+                                borderRadius: 1.5,
+                                fontSize: '0.8125rem'
                             }
                         }}
                         InputProps={{
                             startAdornment: (
                                 <InputAdornment position="start">
-                                    <Search sx={{ color: colors.gray }} />
+                                    <Search sx={{ color: colors.gray, fontSize: 18 }} />
                                 </InputAdornment>
                             ),
                         }}
                     />
 
-                    {/* <FormControl size="small" sx={{ minWidth: 150 }}>
-                        <InputLabel>Status</InputLabel>
-                        <Select
-                            value={statusFilter}
-                            label="Status"
-                            onChange={(e) => setStatusFilter(e.target.value)}
-                            sx={{ borderRadius: 2 }}
-                        >
-                            <MenuItem value="all">All Status</MenuItem>
-                            <MenuItem value="Draft">Draft</MenuItem>
-                            <MenuItem value="Active">Active</MenuItem>
-                            <MenuItem value="Closed">Closed</MenuItem>
-                            <MenuItem value="Cancelled">Cancelled</MenuItem>
-                        </Select>
-                    </FormControl> */}
-
                     <FormControl size="small" sx={{ minWidth: 120 }}>
-                        <InputLabel>Risk</InputLabel>
+                        <InputLabel sx={{ fontSize: '0.8125rem' }}>Risk</InputLabel>
                         <Select
                             value={riskFilter}
                             label="Risk"
                             onChange={(e) => setRiskFilter(e.target.value)}
-                            sx={{ borderRadius: 2 }}
+                            sx={{ borderRadius: 1.5, fontSize: '0.8125rem' }}
                         >
-                            <MenuItem value="all">All Risk</MenuItem>
-                            <MenuItem value="risky">At Risk</MenuItem>
-                            <MenuItem value="safe">Safe</MenuItem>
+                            <MenuItem value="all" sx={{ fontSize: '0.8125rem' }}>All Risk</MenuItem>
+                            <MenuItem value="risky" sx={{ fontSize: '0.8125rem' }}>At Risk</MenuItem>
+                            <MenuItem value="safe" sx={{ fontSize: '0.8125rem' }}>Safe</MenuItem>
                         </Select>
                     </FormControl>
 
@@ -2031,205 +2305,121 @@ export default function ProjectAnalyticsDashboard() {
                             setStatusFilter('all');
                             setRiskFilter('all');
                         }}
-                        startIcon={<FilterList />}
-                        sx={{ borderRadius: 2 }}
+                        startIcon={<FilterList sx={{ fontSize: 16 }} />}
+                        sx={{
+                            borderRadius: 1.5,
+                            px: 1.5,
+                            py: 0.5,
+                            fontSize: '0.8125rem'
+                        }}
                     >
                         Clear Filters
                     </Button>
                 </Box>
 
-                {
-                    viewMode === 'card' ? (
-                        <Box sx={{
-                            display: 'flex',
-                            flexWrap: 'wrap',
-                            gap: 3
-                        }}>
-                            {filteredProjects.map((project) => (
-                                <Box key={project.id} sx={{ flex: '1 1 350px', maxWidth: '100%' }}>
-                                    <Link
-                                        href={`/project/${project.id}`}
-                                        style={{ textDecoration: 'none' }}
-                                    >
-                                        <Card sx={{
-                                            borderRadius: 3,
-                                            border: `1px solid ${project.riskFlag
-                                                ? alpha(colors.error, 0.3)
-                                                : alpha(theme.palette.divider, 0.5)
+                {viewMode === 'card' ? (
+                    <Box sx={{
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        gap: 2
+                    }}>
+                        {filteredProjects.map((project) => (
+                            <Box key={project.id} sx={{
+                                flex: '1 1 280px',
+                                maxWidth: '100%',
+                                minWidth: 0
+                            }}>
+                                <Link
+                                    href={`/project/${project.id}`}
+                                    style={{ textDecoration: 'none' }}
+                                >
+                                    <Card sx={{
+                                        borderRadius: 2,
+                                        border: `1px solid ${project.riskFlag
+                                            ? alpha(colors.error, 0.2)
+                                            : alpha(theme.palette.divider, 0.4)
+                                            }`,
+                                        transition: 'all 0.25s ease',
+                                        '&:hover': {
+                                            transform: 'translateY(-2px)',
+                                            boxShadow: `0 4px 12px ${project.riskFlag
+                                                ? alpha(colors.error, 0.12)
+                                                : alpha(colors.primary, 0.12)
                                                 }`,
-                                            transition: 'all 0.3s ease',
-                                            '&:hover': {
-                                                transform: 'translateY(-4px)',
-                                                boxShadow: `0 8px 24px ${project.riskFlag
-                                                    ? alpha(colors.error, 0.15)
-                                                    : alpha(colors.primary, 0.15)
-                                                    }`,
-                                            },
-                                            height: '100%',
-                                            position: 'relative' // Added for better icon positioning
-                                        }}>
-                                            <CardContent sx={{ p: 3 }}>
-                                                {/* Top section with icon, risk flag, and project code */}
-                                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-                                                    <Box>
-                                                        <Chip
-                                                            label={project.code}
-                                                            size="small"
-                                                            sx={{
-                                                                mb: 1,
-                                                                bgcolor: alpha(colors.primary, 0.1),
-                                                                color: colors.primary,
-                                                                fontWeight: 600
-                                                            }}
-                                                        />
-                                                        <Typography variant="h6" sx={{ fontWeight: 600, color: theme.palette.text.primary, mb: 1 }}>
-                                                            {project.title}
-                                                        </Typography>
-                                                    </Box>
-
-                                                    <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
-                                                        {project.riskFlag && (
-                                                            <Warning sx={{ color: colors.error, mt: 0.5 }} />
-                                                        )}
-                                                        <div onClick={(e) => e.stopPropagation()}>
-                                                            <ProjectMenuDialog
-                                                                project={project}
-                                                                colors={colors}
-                                                                refetch={refetch}
-                                                                apiUrl={"https://project.api.techbee.et/api/projects"}
-                                                                formatCurrency={formatCurrency}
-                                                                ProjectCreateInputForm={ProjectCreateInputForm}
-                                                            />
-                                                        </div>
-
-                                                    </Box>
-                                                </Box>
-
-                                                <Typography variant="body2" sx={{ color: theme.palette.text.secondary, mb: 2 }}>
-                                                    Customer: {project.customerName || 'N/A'}
-                                                </Typography>
-
-                                                <Box sx={{ mb: 2 }}>
-                                                    <Typography variant="caption" sx={{ color: theme.palette.text.secondary, display: 'block', mb: 0.5 }}>
-                                                        Progress
+                                        },
+                                        height: '100%',
+                                        position: 'relative'
+                                    }}>
+                                        <CardContent sx={{ p: 2 }}>
+                                            {/* Top section with icon, risk flag, and project code */}
+                                            <Box sx={{
+                                                display: 'flex',
+                                                justifyContent: 'space-between',
+                                                alignItems: 'flex-start',
+                                                mb: 1.5
+                                            }}>
+                                                <Box>
+                                                    <Chip
+                                                        label={project.code}
+                                                        size="small"
+                                                        sx={{
+                                                            mb: 0.75,
+                                                            bgcolor: alpha(colors.primary, 0.1),
+                                                            color: colors.primary,
+                                                            fontWeight: 600,
+                                                            fontSize: '0.75rem',
+                                                            height: 22
+                                                        }}
+                                                    />
+                                                    <Typography variant="subtitle1" sx={{
+                                                        fontWeight: 600,
+                                                        color: theme.palette.text.primary,
+                                                        mb: 0.75,
+                                                        fontSize: '0.9375rem',
+                                                        lineHeight: 1.3
+                                                    }}>
+                                                        {project.title}
                                                     </Typography>
-                                                    {project.totalPercentCompletion !== null ? (
-                                                        <ProgressBarWithLabel
-                                                            value={project.totalPercentCompletion}
-                                                            color={
-                                                                project.totalPercentCompletion >= 75 ? colors.success :
-                                                                    project.totalPercentCompletion >= 50 ? colors.warning :
-                                                                        colors.error
-                                                            }
-                                                        />
-                                                    ) : (
-                                                        <Typography variant="caption" sx={{ color: theme.palette.text.disabled }}>
-                                                            No progress data
-                                                        </Typography>
-                                                    )}
                                                 </Box>
 
-                                                <Divider sx={{ my: 2 }} />
-
-                                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
-                                                    <Box sx={{ flex: 1, minWidth: 120 }}>
-                                                        <Typography variant="caption" sx={{ color: theme.palette.text.secondary, display: 'block' }}>
-                                                            Budget
-                                                        </Typography>
-                                                        <Typography variant="body2" sx={{ fontWeight: 600, color: theme.palette.text.primary }}>
-                                                            {formatCurrency(project.totalBudget)}
-                                                        </Typography>
-                                                    </Box>
-                                                    <Box sx={{ flex: 1, minWidth: 120 }}>
-                                                        <Typography variant="caption" sx={{ color: theme.palette.text.secondary, display: 'block' }}>
-                                                            Status
-                                                        </Typography>
-                                                        <Chip
-                                                            label={project.approvalStatus}
-                                                            size="small"
-                                                            sx={{
-                                                                bgcolor: alpha(
-                                                                    project.approvalStatus === 'Draft' ? colors.warning :
-                                                                        project.approvalStatus === 'Active' ? colors.success :
-                                                                            colors.info, 0.1
-                                                                ),
-                                                                color: project.approvalStatus === 'Draft' ? colors.warning :
-                                                                    project.approvalStatus === 'Active' ? colors.success :
-                                                                        colors.info,
-                                                                fontWeight: 500
-                                                            }}
-                                                        />
-                                                    </Box>
-                                                </Box>
-
-                                                <Box sx={{ mt: 2, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                                                    {project.projectStageName && (
-                                                        <Chip
-                                                            label={project.projectStageName}
-                                                            size="small"
-                                                            variant="outlined"
-                                                        />
+                                                <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 0.5 }}>
+                                                    {project.riskFlag && (
+                                                        <Warning sx={{
+                                                            color: colors.error,
+                                                            mt: 0.25,
+                                                            fontSize: 18
+                                                        }} />
                                                     )}
-                                                    {project.projectTypeName && (
-                                                        <Chip
-                                                            label={project.projectTypeName}
-                                                            size="small"
-                                                            variant="outlined"
+                                                    <div onClick={(e) => e.stopPropagation()}>
+                                                        <ProjectMenuDialog
+                                                            project={project}
+                                                            colors={colors}
+                                                            refetch={refetch}
+                                                            apiUrl={"https://project.api.techbee.et/api/projects"}
+                                                            formatCurrency={formatCurrency}
+                                                            ProjectCreateInputForm={ProjectCreateInputForm}
                                                         />
-                                                    )}
+                                                    </div>
                                                 </Box>
-                                            </CardContent>
-                                        </Card>
-                                    </Link>
-                                </Box>
-                            ))}
-                        </Box>
-                    ) : (
-                        <TableContainer component={Paper} sx={{ borderRadius: 3 }}>
-                            <Table>
-                                <TableHead>
-                                    <TableRow sx={{ bgcolor: alpha(colors.primary, 0.05) }}>
-                                        <TableCell><Typography variant="subtitle2" sx={{ fontWeight: 600 }}>Project Code</Typography></TableCell>
-                                        <TableCell><Typography variant="subtitle2" sx={{ fontWeight: 600 }}>Title</Typography></TableCell>
-                                        <TableCell><Typography variant="subtitle2" sx={{ fontWeight: 600 }}>Customer</Typography></TableCell>
-                                        <TableCell><Typography variant="subtitle2" sx={{ fontWeight: 600 }}>Progress</Typography></TableCell>
-                                        <TableCell><Typography variant="subtitle2" sx={{ fontWeight: 600 }}>Budget</Typography></TableCell>
-                                        <TableCell><Typography variant="subtitle2" sx={{ fontWeight: 600 }}>Status</Typography></TableCell>
-                                        <TableCell><Typography variant="subtitle2" sx={{ fontWeight: 600 }}>Risk</Typography></TableCell>
-                                        <TableCell><Typography variant="subtitle2" sx={{ fontWeight: 600 }}>Action</Typography></TableCell>
+                                            </Box>
 
+                                            <Typography variant="body2" sx={{
+                                                color: theme.palette.text.secondary,
+                                                mb: 1.5,
+                                                fontSize: '0.8125rem'
+                                            }}>
+                                                Customer: {project.customerName || 'N/A'}
+                                            </Typography>
 
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {filteredProjects.map((project) => (
-                                        <TableRow
-                                            key={project.id}
-                                            sx={{
-                                                '&:hover': {
-                                                    backgroundColor: alpha(theme.palette.primary.main, 0.04),
-                                                    cursor: 'pointer'
-                                                },
-                                                borderBottom: `1px solid ${alpha(theme.palette.divider, 0.5)}`
-                                            }}
-                                            onClick={() => window.location.href = `/project/${project.id}`}
-                                        >
-                                            <TableCell>
-                                                <Typography variant="body2" sx={{ fontWeight: 600, color: colors.primary }}>
-                                                    {project.code}
+                                            <Box sx={{ mb: 1.5 }}>
+                                                <Typography variant="caption" sx={{
+                                                    color: theme.palette.text.secondary,
+                                                    display: 'block',
+                                                    mb: 0.5,
+                                                    fontSize: '0.75rem'
+                                                }}>
+                                                    Progress
                                                 </Typography>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Typography variant="body2">
-                                                    {project.title}
-                                                </Typography>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
-                                                    {project.customerName || '-'}
-                                                </Typography>
-                                            </TableCell>
-                                            <TableCell>
                                                 {project.totalPercentCompletion !== null ? (
                                                     <ProgressBarWithLabel
                                                         value={project.totalPercentCompletion}
@@ -2240,84 +2430,276 @@ export default function ProjectAnalyticsDashboard() {
                                                         }
                                                     />
                                                 ) : (
-                                                    <Typography variant="caption" sx={{ color: theme.palette.text.disabled }}>
-                                                        N/A
+                                                    <Typography variant="caption" sx={{
+                                                        color: theme.palette.text.disabled,
+                                                        fontSize: '0.75rem'
+                                                    }}>
+                                                        No progress data
                                                     </Typography>
                                                 )}
-                                            </TableCell>
-                                            <TableCell>
-                                                <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                                                    {formatCurrency(project.totalBudget)}
-                                                </Typography>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Chip
-                                                    label={project.approvalStatus}
-                                                    size="small"
-                                                    sx={{
-                                                        bgcolor: alpha(
-                                                            project.approvalStatus === 'Draft' ? colors.warning :
+                                            </Box>
+
+                                            <Divider sx={{ my: 1.5 }} />
+
+                                            <Box sx={{
+                                                display: 'flex',
+                                                flexWrap: 'wrap',
+                                                gap: 1.5
+                                            }}>
+                                                <Box sx={{ flex: 1, minWidth: 100 }}>
+                                                    <Typography variant="caption" sx={{
+                                                        color: theme.palette.text.secondary,
+                                                        display: 'block',
+                                                        fontSize: '0.75rem'
+                                                    }}>
+                                                        Budget
+                                                    </Typography>
+                                                    <Typography variant="body2" sx={{
+                                                        fontWeight: 600,
+                                                        color: theme.palette.text.primary,
+                                                        fontSize: '0.8125rem'
+                                                    }}>
+                                                        {formatCurrency(project.totalBudget)}
+                                                    </Typography>
+                                                </Box>
+                                                <Box sx={{ flex: 1, minWidth: 100 }}>
+                                                    <Typography variant="caption" sx={{
+                                                        color: theme.palette.text.secondary,
+                                                        display: 'block',
+                                                        fontSize: '0.75rem'
+                                                    }}>
+                                                        Status
+                                                    </Typography>
+                                                    <Chip
+                                                        label={project.approvalStatus}
+                                                        size="small"
+                                                        sx={{
+                                                            bgcolor: alpha(
+                                                                project.approvalStatus === 'Draft' ? colors.warning :
+                                                                    project.approvalStatus === 'Active' ? colors.success :
+                                                                        colors.info, 0.1
+                                                            ),
+                                                            color: project.approvalStatus === 'Draft' ? colors.warning :
                                                                 project.approvalStatus === 'Active' ? colors.success :
-                                                                    colors.info, 0.1
-                                                        ),
-                                                        color: project.approvalStatus === 'Draft' ? colors.warning :
-                                                            project.approvalStatus === 'Active' ? colors.success :
-                                                                colors.info,
-                                                        fontWeight: 500
-                                                    }}
-                                                />
-                                            </TableCell>
-                                            <TableCell>
-                                                {project.riskFlag ? (
-                                                    <Warning sx={{ color: colors.error }} />
-                                                ) : (
-                                                    <CheckCircle sx={{ color: colors.success }} />
-                                                )}
-                                            </TableCell>
-
-                                            <TableCell>
-                                                <div onClick={(e) => e.stopPropagation()}>
-
-                                                    <ProjectMenuDialog
-                                                        project={project}
-                                                        colors={colors}
-                                                        refetch={refetch}
-                                                        apiUrl={mainProjectAPI}
-                                                        formatCurrency={formatCurrency}
-                                                        ProjectCreateInputForm={ProjectCreateInputForm}
+                                                                    colors.info,
+                                                            fontWeight: 500,
+                                                            fontSize: '0.75rem',
+                                                            height: 22
+                                                        }}
                                                     />
-                                                </div>
-                                            </TableCell>
+                                                </Box>
+                                            </Box>
 
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </TableContainer>
-                    )
-                }
+                                            <Box sx={{
+                                                mt: 1.5,
+                                                display: 'flex',
+                                                flexWrap: 'wrap',
+                                                gap: 0.75
+                                            }}>
+                                                {project.projectStageName && (
+                                                    <Chip
+                                                        label={project.projectStageName}
+                                                        size="small"
+                                                        variant="outlined"
+                                                        sx={{ fontSize: '0.7rem', height: 20 }}
+                                                    />
+                                                )}
+                                                {project.projectTypeName && (
+                                                    <Chip
+                                                        label={project.projectTypeName}
+                                                        size="small"
+                                                        variant="outlined"
+                                                        sx={{ fontSize: '0.7rem', height: 20 }}
+                                                    />
+                                                )}
+                                            </Box>
+                                        </CardContent>
+                                    </Card>
+                                </Link>
+                            </Box>
+                        ))}
+                    </Box>
+                ) : (
+                    <TableContainer component={Paper} sx={{ borderRadius: 2 }}>
+                        <Table>
+                            <TableHead>
+                                <TableRow sx={{ bgcolor: alpha(colors.primary, 0.04) }}>
+                                    <TableCell sx={{ py: 1 }}><Typography variant="subtitle2" sx={{
+                                        fontWeight: 600,
+                                        fontSize: '0.8125rem'
+                                    }}>Project Code</Typography></TableCell>
+                                    <TableCell sx={{ py: 1 }}><Typography variant="subtitle2" sx={{
+                                        fontWeight: 600,
+                                        fontSize: '0.8125rem'
+                                    }}>Title</Typography></TableCell>
+                                    <TableCell sx={{ py: 1 }}><Typography variant="subtitle2" sx={{
+                                        fontWeight: 600,
+                                        fontSize: '0.8125rem'
+                                    }}>Customer</Typography></TableCell>
+                                    <TableCell sx={{ py: 1 }}><Typography variant="subtitle2" sx={{
+                                        fontWeight: 600,
+                                        fontSize: '0.8125rem'
+                                    }}>Progress</Typography></TableCell>
+                                    <TableCell sx={{ py: 1 }}><Typography variant="subtitle2" sx={{
+                                        fontWeight: 600,
+                                        fontSize: '0.8125rem'
+                                    }}>Budget</Typography></TableCell>
+                                    <TableCell sx={{ py: 1 }}><Typography variant="subtitle2" sx={{
+                                        fontWeight: 600,
+                                        fontSize: '0.8125rem'
+                                    }}>Status</Typography></TableCell>
+                                    <TableCell sx={{ py: 1 }}><Typography variant="subtitle2" sx={{
+                                        fontWeight: 600,
+                                        fontSize: '0.8125rem'
+                                    }}>Risk</Typography></TableCell>
+                                    <TableCell sx={{ py: 1 }}><Typography variant="subtitle2" sx={{
+                                        fontWeight: 600,
+                                        fontSize: '0.8125rem'
+                                    }}>Action</Typography></TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {filteredProjects.map((project) => (
+                                    <TableRow
+                                        key={project.id}
+                                        sx={{
+                                            '&:hover': {
+                                                backgroundColor: alpha(theme.palette.primary.main, 0.03),
+                                                cursor: 'pointer'
+                                            },
+                                            borderBottom: `1px solid ${alpha(theme.palette.divider, 0.4)}`
+                                        }}
+                                        onClick={() => window.location.href = `/project/${project.id}`}
+                                    >
+                                        <TableCell sx={{ py: 1.25 }}>
+                                            <Typography variant="body2" sx={{
+                                                fontWeight: 600,
+                                                color: colors.primary,
+                                                fontSize: '0.8125rem'
+                                            }}>
+                                                {project.code}
+                                            </Typography>
+                                        </TableCell>
+                                        <TableCell sx={{ py: 1.25 }}>
+                                            <Typography variant="body2" sx={{ fontSize: '0.8125rem' }}>
+                                                {project.title}
+                                            </Typography>
+                                        </TableCell>
+                                        <TableCell sx={{ py: 1.25 }}>
+                                            <Typography variant="body2" sx={{
+                                                color: theme.palette.text.secondary,
+                                                fontSize: '0.8125rem'
+                                            }}>
+                                                {project.customerName || '-'}
+                                            </Typography>
+                                        </TableCell>
+                                        <TableCell sx={{ py: 1.25 }}>
+                                            {project.totalPercentCompletion !== null ? (
+                                                <ProgressBarWithLabel
+                                                    value={project.totalPercentCompletion}
+                                                    color={
+                                                        project.totalPercentCompletion >= 75 ? colors.success :
+                                                            project.totalPercentCompletion >= 50 ? colors.warning :
+                                                                colors.error
+                                                    }
+                                                />
+                                            ) : (
+                                                <Typography variant="caption" sx={{
+                                                    color: theme.palette.text.disabled,
+                                                    fontSize: '0.75rem'
+                                                }}>
+                                                    N/A
+                                                </Typography>
+                                            )}
+                                        </TableCell>
+                                        <TableCell sx={{ py: 1.25 }}>
+                                            <Typography variant="body2" sx={{
+                                                fontWeight: 600,
+                                                fontSize: '0.8125rem'
+                                            }}>
+                                                {formatCurrency(project.totalBudget)}
+                                            </Typography>
+                                        </TableCell>
+                                        <TableCell sx={{ py: 1.25 }}>
+                                            <Chip
+                                                label={project.approvalStatus}
+                                                size="small"
+                                                sx={{
+                                                    bgcolor: alpha(
+                                                        project.approvalStatus === 'Draft' ? colors.warning :
+                                                            project.approvalStatus === 'Active' ? colors.success :
+                                                                colors.info, 0.1
+                                                    ),
+                                                    color: project.approvalStatus === 'Draft' ? colors.warning :
+                                                        project.approvalStatus === 'Active' ? colors.success :
+                                                            colors.info,
+                                                    fontWeight: 500,
+                                                    fontSize: '0.75rem',
+                                                    height: 22
+                                                }}
+                                            />
+                                        </TableCell>
+                                        <TableCell sx={{ py: 1.25 }}>
+                                            {project.riskFlag ? (
+                                                <Warning sx={{
+                                                    color: colors.error,
+                                                    fontSize: 18
+                                                }} />
+                                            ) : (
+                                                <CheckCircle sx={{
+                                                    color: colors.success,
+                                                    fontSize: 18
+                                                }} />
+                                            )}
+                                        </TableCell>
 
-                {
-                    filteredProjects.length === 0 && (
-                        <Box sx={{
-                            py: 8,
-                            textAlign: 'center',
-                            bgcolor: alpha(theme.palette.background.default, 0.5),
-                            borderRadius: 2
+                                        <TableCell sx={{ py: 1.25 }}>
+                                            <div onClick={(e) => e.stopPropagation()}>
+                                                <ProjectMenuDialog
+                                                    project={project}
+                                                    colors={colors}
+                                                    refetch={refetch}
+                                                    apiUrl={mainProjectAPI}
+                                                    formatCurrency={formatCurrency}
+                                                    ProjectCreateInputForm={ProjectCreateInputForm}
+                                                />
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                )}
+
+                {filteredProjects.length === 0 && (
+                    <Box sx={{
+                        py: 6,
+                        textAlign: 'center',
+                        bgcolor: alpha(theme.palette.background.default, 0.5),
+                        borderRadius: 1.5
+                    }}>
+                        <Folder sx={{
+                            fontSize: 36,
+                            color: theme.palette.text.disabled,
+                            mb: 1.5
+                        }} />
+                        <Typography variant="h6" sx={{
+                            color: theme.palette.text.secondary,
+                            mb: 0.75,
+                            fontSize: '1rem'
                         }}>
-                            <Folder sx={{ fontSize: 48, color: theme.palette.text.disabled, mb: 2 }} />
-                            <Typography variant="h6" sx={{ color: theme.palette.text.secondary, mb: 1 }}>
-                                No Projects Found
-                            </Typography>
-                            <Typography variant="body2" sx={{ color: theme.palette.text.disabled }}>
-                                Try adjusting your filters or search term
-                            </Typography>
-                        </Box>
-                    )
-                }
-            </Box >
-
-
-        </Box >
+                            No Projects Found
+                        </Typography>
+                        <Typography variant="body2" sx={{
+                            color: theme.palette.text.disabled,
+                            fontSize: '0.8125rem'
+                        }}>
+                            Try adjusting your filters or search term
+                        </Typography>
+                    </Box>
+                )}
+            </Box>
+        </Box>
     );
 }
