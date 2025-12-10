@@ -106,7 +106,9 @@ import { useSelector } from 'react-redux';
 import { RootState } from "@/lib/store/store";
 import { Close, MoreVert } from '@mui/icons-material';
 import Form from "../projects/_components/Form";
-
+import ProjectMenuDialog from '../_dashboard/ProjectMenuDialog';
+import {colors, formatCurrency, mainAPI} from '../_dashboard/consts'
+import ProjectCreateInputForm from '../projects/_components/Form';
 // ========== TYPES ==========
 interface Project {
     projectId: string;
@@ -399,7 +401,7 @@ export default function PersonalDashboard() {
     const theme = useTheme();
     const [taskViewType, setTaskViewType] = useState<'all' | 'upcoming' | 'overdue' | 'completed'>('all');
     const [assignedTaskViewType, setAssignedTaskViewType] = useState<'all' | 'upcoming' | 'overdue' | 'completed' | 'active'>('all');
-    const { data, isLoading, isFetching, isError, error } = useDataQuery<DashboardData>({
+    const { data, isLoading, isFetching, isError, error, refetch} = useDataQuery<DashboardData>({
         apiEndPoint: `https://project.api.techbee.et/api/projects/analytics/personal?userId=${session?.user?.id}`,
         enabled: Boolean(session?.user?.id)
     });
@@ -795,9 +797,17 @@ export default function PersonalDashboard() {
                         </Box>
                     }
                     action={
-                        <IconButton size="small">
-                            <MoreVert fontSize="small" />
-                        </IconButton>
+                        <div onClick={(e) => e.stopPropagation()}>
+
+                            <ProjectMenuDialog
+                                project={project}
+                                colors={colors}
+                                refetch={refetch}
+                                apiUrl={mainAPI}
+                                formatCurrency={formatCurrency}
+                                ProjectCreateInputForm={ProjectCreateInputForm}
+                            />
+                        </div>
                     }
                 />
                 <CardContent>

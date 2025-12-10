@@ -88,6 +88,8 @@ import dayjs, { Dayjs } from 'dayjs';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import ProjectCreateInputForm from '../projects/_components/Form';
+import ProjectMenuDialog from './ProjectMenuDialog';
+import { colors, formatCurrency, mainAPI } from './consts';
 // Types
 interface DashboardData {
     window: {
@@ -194,16 +196,16 @@ const formatDateTime = (dateString: string | null): string => {
     return format(parseISO(dateString), 'MMM dd, yyyy');
 };
 
-const formatCurrency = (amount: number | null): string => {
-    if (amount === null || amount === undefined) return 'N/A';
-    if (amount >= 1000000) {
-        return `ETB ${(amount / 1000000).toFixed(1)}M`;
-    }
-    if (amount >= 1000) {
-        return `ETB ${(amount / 1000).toFixed(1)}K`;
-    }
-    return `ETB ${amount.toFixed(0)}`;
-};
+// const formatCurrency = (amount: number | null): string => {
+//     if (amount === null || amount === undefined) return 'N/A';
+//     if (amount >= 1000000) {
+//         return `ETB ${(amount / 1000000).toFixed(1)}M`;
+//     }
+//     if (amount >= 1000) {
+//         return `ETB ${(amount / 1000).toFixed(1)}K`;
+//     }
+//     return `ETB ${amount.toFixed(0)}`;
+// };
 
 const formatNumber = (num: number | null): string => {
     if (num === null || num === undefined) return 'N/A';
@@ -406,9 +408,8 @@ export default function ProjectAnalyticsDashboard() {
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
     const [currentMenuProject, setCurrentMenuProject] = useState<any>(null);
 
-
     const buildApiUrl = () => {
-        const baseUrl = 'https://project.api.techbee.et/api/projects/analytics/overview';
+        const baseUrl = `${mainAPI}/analytics/overview`;
         const params = new URLSearchParams({
             from: formatDate(fromDate),
             to: formatDate(toDate)
@@ -427,7 +428,7 @@ export default function ProjectAnalyticsDashboard() {
     });
 
     const deleteMutation = useDataMutation({
-        apiEndPoint: `https://project.api.techbee.et/api/projects/:id`,
+        apiEndPoint: `${mainAPI}/:id`,
         method: 'DELETE',
         invalidateQueryKey: ["dashboardData", apiUrl], // This will invalidate your dashboard query
         onSuccess: (data) => {
@@ -564,19 +565,7 @@ export default function ProjectAnalyticsDashboard() {
     }, [dashboardData, searchTerm, statusFilter, riskFilter]);
 
     // Color palette
-    const colors = {
-        primary: '#6366F1',
-        success: '#10B981',
-        warning: '#F59E0B',
-        error: '#EF4444',
-        info: '#3B82F6',
-        purple: '#8B5CF6',
-        pink: '#EC4899',
-        teal: '#14B8A6',
-        indigo: '#4F46E5',
-        orange: '#F97316',
-        gray: '#6B7280'
-    };
+
 
     if (isLoading) {
         return (
@@ -1102,18 +1091,17 @@ export default function ProjectAnalyticsDashboard() {
                                                                 {project.code}
                                                             </Typography>
                                                         </Box>
+                                                        <div onClick={(e) => e.stopPropagation()}>
 
-                                                        <IconButton
-                                                            size="small"
-                                                            onClick={(e) => handleMenuClick(e, project)}
-                                                            sx={{
-                                                                '&:hover': {
-                                                                    bgcolor: alpha(theme.palette.action.hover, 0.1)
-                                                                }
-                                                            }}
-                                                        >
-                                                            <MoreVert fontSize="small" />
-                                                        </IconButton>
+                                                            <ProjectMenuDialog
+                                                                project={project}
+                                                                colors={colors}
+                                                                refetch={refetch}
+                                                                apiUrl={mainAPI}
+                                                                formatCurrency={formatCurrency}
+                                                                ProjectCreateInputForm={ProjectCreateInputForm}
+                                                            />
+                                                        </div>
                                                     </Box>
 
                                                     {/* Project title */}
@@ -1206,18 +1194,16 @@ export default function ProjectAnalyticsDashboard() {
                                                                 {project.title}
                                                             </Typography>
                                                         </Box>
-
-                                                        <IconButton
-                                                            size="small"
-                                                            onClick={(e) => handleMenuClick(e, project)}
-                                                            sx={{
-                                                                '&:hover': {
-                                                                    bgcolor: alpha(theme.palette.action.hover, 0.1)
-                                                                }
-                                                            }}
-                                                        >
-                                                            <MoreVert fontSize="small" />
-                                                        </IconButton>
+                                                        <div onClick={(e) => e.stopPropagation()}>
+                                                            <ProjectMenuDialog
+                                                                project={project}
+                                                                colors={colors}
+                                                                refetch={refetch}
+                                                                apiUrl={"https://project.api.techbee.et/api/projects"}
+                                                                formatCurrency={formatCurrency}
+                                                                ProjectCreateInputForm={ProjectCreateInputForm}
+                                                            />
+                                                        </div>
                                                     </Box>
 
                                                     {/* Bottom section */}
@@ -1317,19 +1303,16 @@ export default function ProjectAnalyticsDashboard() {
                                                                 {project.title}
                                                             </Typography>
                                                         </Box>
-
-                                                        <IconButton
-                                                            size="small"
-                                                            onClick={(e) => handleMenuClick(e, project)}
-                                                            sx={{
-                                                                mt: -0.5,
-                                                                '&:hover': {
-                                                                    bgcolor: alpha(theme.palette.action.hover, 0.1)
-                                                                }
-                                                            }}
-                                                        >
-                                                            <MoreVert fontSize="small" />
-                                                        </IconButton>
+                                                        <div onClick={(e) => e.stopPropagation()}>
+                                                            <ProjectMenuDialog
+                                                                project={project}
+                                                                colors={colors}
+                                                                refetch={refetch}
+                                                                apiUrl={"https://project.api.techbee.et/api/projects"}
+                                                                formatCurrency={formatCurrency}
+                                                                ProjectCreateInputForm={ProjectCreateInputForm}
+                                                            />
+                                                        </div>
                                                     </Box>
 
                                                     {/* Footer with details */}
@@ -1440,18 +1423,16 @@ export default function ProjectAnalyticsDashboard() {
                                                             </Box>
 
                                                             {/* Right side: Menu button */}
-                                                            <IconButton
-                                                                size="small"
-                                                                onClick={(e) => handleMenuClick(e, project)}
-                                                                sx={{
-                                                                    ml: 1,
-                                                                    '&:hover': {
-                                                                        bgcolor: alpha(theme.palette.action.hover, 0.1)
-                                                                    }
-                                                                }}
-                                                            >
-                                                                <MoreVert fontSize="small" />
-                                                            </IconButton>
+                                                            <div onClick={(e) => e.stopPropagation()}>
+                                                                <ProjectMenuDialog
+                                                                    project={project}
+                                                                    colors={colors}
+                                                                    refetch={refetch}
+                                                                    apiUrl={"https://project.api.techbee.et/api/projects"}
+                                                                    formatCurrency={formatCurrency}
+                                                                    ProjectCreateInputForm={ProjectCreateInputForm}
+                                                                />
+                                                            </div>
                                                         </Box>
 
                                                         {/* Project title if available */}
@@ -1561,10 +1542,11 @@ export default function ProjectAnalyticsDashboard() {
                         </Box>
                     </Box>
                 </Collapse>
-            </Box>
+            </Box >
 
             {/* Tasks & Milestones Section */}
-            <Box sx={{ mb: 4 }}>
+            < Box sx={{ mb: 4 }
+            }>
                 <Box sx={{
                     display: 'flex',
                     alignItems: 'center',
@@ -1858,10 +1840,10 @@ export default function ProjectAnalyticsDashboard() {
                         </Box>
                     </Box>
                 </Collapse>
-            </Box>
+            </Box >
 
             {/* Monthly Trends Section */}
-            <Box sx={{ mb: 4 }}>
+            < Box sx={{ mb: 4 }}>
                 <Box sx={{
                     display: 'flex',
                     alignItems: 'center',
@@ -1913,10 +1895,10 @@ export default function ProjectAnalyticsDashboard() {
                         )}
                     </DataCard>
                 </Collapse>
-            </Box>
+            </Box >
 
             {/* All Projects Section with Filters */}
-            <Box>
+            < Box >
                 <Box sx={{
                     display: 'flex',
                     alignItems: 'center',
@@ -2022,80 +2004,198 @@ export default function ProjectAnalyticsDashboard() {
                     </Button>
                 </Box>
 
-                {viewMode === 'card' ? (
-                    <Box sx={{
-                        display: 'flex',
-                        flexWrap: 'wrap',
-                        gap: 3
-                    }}>
-                        {filteredProjects.map((project) => (
-                            <Box key={project.id} sx={{ flex: '1 1 350px', maxWidth: '100%' }}>
-                                <Link
-                                    href={`/project/${project.id}`}
-                                    style={{ textDecoration: 'none' }}
-                                >
-                                    <Card sx={{
-                                        borderRadius: 3,
-                                        border: `1px solid ${project.riskFlag
-                                            ? alpha(colors.error, 0.3)
-                                            : alpha(theme.palette.divider, 0.5)
-                                            }`,
-                                        transition: 'all 0.3s ease',
-                                        '&:hover': {
-                                            transform: 'translateY(-4px)',
-                                            boxShadow: `0 8px 24px ${project.riskFlag
-                                                ? alpha(colors.error, 0.15)
-                                                : alpha(colors.primary, 0.15)
+                {
+                    viewMode === 'card' ? (
+                        <Box sx={{
+                            display: 'flex',
+                            flexWrap: 'wrap',
+                            gap: 3
+                        }}>
+                            {filteredProjects.map((project) => (
+                                <Box key={project.id} sx={{ flex: '1 1 350px', maxWidth: '100%' }}>
+                                    <Link
+                                        href={`/project/${project.id}`}
+                                        style={{ textDecoration: 'none' }}
+                                    >
+                                        <Card sx={{
+                                            borderRadius: 3,
+                                            border: `1px solid ${project.riskFlag
+                                                ? alpha(colors.error, 0.3)
+                                                : alpha(theme.palette.divider, 0.5)
                                                 }`,
-                                        },
-                                        height: '100%',
-                                        position: 'relative' // Added for better icon positioning
-                                    }}>
-                                        <CardContent sx={{ p: 3 }}>
-                                            {/* Top section with icon, risk flag, and project code */}
-                                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-                                                <Box>
-                                                    <Chip
-                                                        label={project.code}
-                                                        size="small"
-                                                        sx={{
-                                                            mb: 1,
-                                                            bgcolor: alpha(colors.primary, 0.1),
-                                                            color: colors.primary,
-                                                            fontWeight: 600
-                                                        }}
-                                                    />
-                                                    <Typography variant="h6" sx={{ fontWeight: 600, color: theme.palette.text.primary, mb: 1 }}>
-                                                        {project.title}
-                                                    </Typography>
+                                            transition: 'all 0.3s ease',
+                                            '&:hover': {
+                                                transform: 'translateY(-4px)',
+                                                boxShadow: `0 8px 24px ${project.riskFlag
+                                                    ? alpha(colors.error, 0.15)
+                                                    : alpha(colors.primary, 0.15)
+                                                    }`,
+                                            },
+                                            height: '100%',
+                                            position: 'relative' // Added for better icon positioning
+                                        }}>
+                                            <CardContent sx={{ p: 3 }}>
+                                                {/* Top section with icon, risk flag, and project code */}
+                                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+                                                    <Box>
+                                                        <Chip
+                                                            label={project.code}
+                                                            size="small"
+                                                            sx={{
+                                                                mb: 1,
+                                                                bgcolor: alpha(colors.primary, 0.1),
+                                                                color: colors.primary,
+                                                                fontWeight: 600
+                                                            }}
+                                                        />
+                                                        <Typography variant="h6" sx={{ fontWeight: 600, color: theme.palette.text.primary, mb: 1 }}>
+                                                            {project.title}
+                                                        </Typography>
+                                                    </Box>
+
+                                                    <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
+                                                        {project.riskFlag && (
+                                                            <Warning sx={{ color: colors.error, mt: 0.5 }} />
+                                                        )}
+                                                        <div onClick={(e) => e.stopPropagation()}>
+                                                            <ProjectMenuDialog
+                                                                project={project}
+                                                                colors={colors}
+                                                                refetch={refetch}
+                                                                apiUrl={"https://project.api.techbee.et/api/projects"}
+                                                                formatCurrency={formatCurrency}
+                                                                ProjectCreateInputForm={ProjectCreateInputForm}
+                                                            />
+                                                        </div>
+
+                                                    </Box>
                                                 </Box>
 
-                                                <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
-                                                    {project.riskFlag && (
-                                                        <Warning sx={{ color: colors.error, mt: 0.5 }} />
-                                                    )}
-                                                    <IconButton
-                                                        size="small"
-                                                        onClick={(e) => handleMenuClick(e, project)}
-                                                        sx={{
-                                                            '&:hover': {
-                                                                bgcolor: alpha(theme.palette.action.hover, 0.1)
-                                                            }
-                                                        }}
-                                                    >
-                                                        <MoreVert fontSize="small" />
-                                                    </IconButton>
-                                                </Box>
-                                            </Box>
-
-                                            <Typography variant="body2" sx={{ color: theme.palette.text.secondary, mb: 2 }}>
-                                                Customer: {project.customerName || 'N/A'}
-                                            </Typography>
-
-                                            <Box sx={{ mb: 2 }}>
-                                                <Typography variant="caption" sx={{ color: theme.palette.text.secondary, display: 'block', mb: 0.5 }}>
-                                                    Progress
+                                                <Typography variant="body2" sx={{ color: theme.palette.text.secondary, mb: 2 }}>
+                                                    Customer: {project.customerName || 'N/A'}
                                                 </Typography>
+
+                                                <Box sx={{ mb: 2 }}>
+                                                    <Typography variant="caption" sx={{ color: theme.palette.text.secondary, display: 'block', mb: 0.5 }}>
+                                                        Progress
+                                                    </Typography>
+                                                    {project.totalPercentCompletion !== null ? (
+                                                        <ProgressBarWithLabel
+                                                            value={project.totalPercentCompletion}
+                                                            color={
+                                                                project.totalPercentCompletion >= 75 ? colors.success :
+                                                                    project.totalPercentCompletion >= 50 ? colors.warning :
+                                                                        colors.error
+                                                            }
+                                                        />
+                                                    ) : (
+                                                        <Typography variant="caption" sx={{ color: theme.palette.text.disabled }}>
+                                                            No progress data
+                                                        </Typography>
+                                                    )}
+                                                </Box>
+
+                                                <Divider sx={{ my: 2 }} />
+
+                                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+                                                    <Box sx={{ flex: 1, minWidth: 120 }}>
+                                                        <Typography variant="caption" sx={{ color: theme.palette.text.secondary, display: 'block' }}>
+                                                            Budget
+                                                        </Typography>
+                                                        <Typography variant="body2" sx={{ fontWeight: 600, color: theme.palette.text.primary }}>
+                                                            {formatCurrency(project.totalBudget)}
+                                                        </Typography>
+                                                    </Box>
+                                                    <Box sx={{ flex: 1, minWidth: 120 }}>
+                                                        <Typography variant="caption" sx={{ color: theme.palette.text.secondary, display: 'block' }}>
+                                                            Status
+                                                        </Typography>
+                                                        <Chip
+                                                            label={project.approvalStatus}
+                                                            size="small"
+                                                            sx={{
+                                                                bgcolor: alpha(
+                                                                    project.approvalStatus === 'Draft' ? colors.warning :
+                                                                        project.approvalStatus === 'Active' ? colors.success :
+                                                                            colors.info, 0.1
+                                                                ),
+                                                                color: project.approvalStatus === 'Draft' ? colors.warning :
+                                                                    project.approvalStatus === 'Active' ? colors.success :
+                                                                        colors.info,
+                                                                fontWeight: 500
+                                                            }}
+                                                        />
+                                                    </Box>
+                                                </Box>
+
+                                                <Box sx={{ mt: 2, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                                                    {project.projectStageName && (
+                                                        <Chip
+                                                            label={project.projectStageName}
+                                                            size="small"
+                                                            variant="outlined"
+                                                        />
+                                                    )}
+                                                    {project.projectTypeName && (
+                                                        <Chip
+                                                            label={project.projectTypeName}
+                                                            size="small"
+                                                            variant="outlined"
+                                                        />
+                                                    )}
+                                                </Box>
+                                            </CardContent>
+                                        </Card>
+                                    </Link>
+                                </Box>
+                            ))}
+                        </Box>
+                    ) : (
+                        <TableContainer component={Paper} sx={{ borderRadius: 3 }}>
+                            <Table>
+                                <TableHead>
+                                    <TableRow sx={{ bgcolor: alpha(colors.primary, 0.05) }}>
+                                        <TableCell><Typography variant="subtitle2" sx={{ fontWeight: 600 }}>Project Code</Typography></TableCell>
+                                        <TableCell><Typography variant="subtitle2" sx={{ fontWeight: 600 }}>Title</Typography></TableCell>
+                                        <TableCell><Typography variant="subtitle2" sx={{ fontWeight: 600 }}>Customer</Typography></TableCell>
+                                        <TableCell><Typography variant="subtitle2" sx={{ fontWeight: 600 }}>Progress</Typography></TableCell>
+                                        <TableCell><Typography variant="subtitle2" sx={{ fontWeight: 600 }}>Budget</Typography></TableCell>
+                                        <TableCell><Typography variant="subtitle2" sx={{ fontWeight: 600 }}>Status</Typography></TableCell>
+                                        <TableCell><Typography variant="subtitle2" sx={{ fontWeight: 600 }}>Risk</Typography></TableCell>
+                                        <TableCell><Typography variant="subtitle2" sx={{ fontWeight: 600 }}>Action</Typography></TableCell>
+
+
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {filteredProjects.map((project) => (
+                                        <TableRow
+                                            key={project.id}
+                                            sx={{
+                                                '&:hover': {
+                                                    backgroundColor: alpha(theme.palette.primary.main, 0.04),
+                                                    cursor: 'pointer'
+                                                },
+                                                borderBottom: `1px solid ${alpha(theme.palette.divider, 0.5)}`
+                                            }}
+                                            onClick={() => window.location.href = `/project/${project.id}`}
+                                        >
+                                            <TableCell>
+                                                <Typography variant="body2" sx={{ fontWeight: 600, color: colors.primary }}>
+                                                    {project.code}
+                                                </Typography>
+                                            </TableCell>
+                                            <TableCell>
+                                                <Typography variant="body2">
+                                                    {project.title}
+                                                </Typography>
+                                            </TableCell>
+                                            <TableCell>
+                                                <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
+                                                    {project.customerName || '-'}
+                                                </Typography>
+                                            </TableCell>
+                                            <TableCell>
                                                 {project.totalPercentCompletion !== null ? (
                                                     <ProgressBarWithLabel
                                                         value={project.totalPercentCompletion}
@@ -2107,353 +2207,83 @@ export default function ProjectAnalyticsDashboard() {
                                                     />
                                                 ) : (
                                                     <Typography variant="caption" sx={{ color: theme.palette.text.disabled }}>
-                                                        No progress data
+                                                        N/A
                                                     </Typography>
                                                 )}
-                                            </Box>
-
-                                            <Divider sx={{ my: 2 }} />
-
-                                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
-                                                <Box sx={{ flex: 1, minWidth: 120 }}>
-                                                    <Typography variant="caption" sx={{ color: theme.palette.text.secondary, display: 'block' }}>
-                                                        Budget
-                                                    </Typography>
-                                                    <Typography variant="body2" sx={{ fontWeight: 600, color: theme.palette.text.primary }}>
-                                                        {formatCurrency(project.totalBudget)}
-                                                    </Typography>
-                                                </Box>
-                                                <Box sx={{ flex: 1, minWidth: 120 }}>
-                                                    <Typography variant="caption" sx={{ color: theme.palette.text.secondary, display: 'block' }}>
-                                                        Status
-                                                    </Typography>
-                                                    <Chip
-                                                        label={project.approvalStatus}
-                                                        size="small"
-                                                        sx={{
-                                                            bgcolor: alpha(
-                                                                project.approvalStatus === 'Draft' ? colors.warning :
-                                                                    project.approvalStatus === 'Active' ? colors.success :
-                                                                        colors.info, 0.1
-                                                            ),
-                                                            color: project.approvalStatus === 'Draft' ? colors.warning :
-                                                                project.approvalStatus === 'Active' ? colors.success :
-                                                                    colors.info,
-                                                            fontWeight: 500
-                                                        }}
-                                                    />
-                                                </Box>
-                                            </Box>
-
-                                            <Box sx={{ mt: 2, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                                                {project.projectStageName && (
-                                                    <Chip
-                                                        label={project.projectStageName}
-                                                        size="small"
-                                                        variant="outlined"
-                                                    />
-                                                )}
-                                                {project.projectTypeName && (
-                                                    <Chip
-                                                        label={project.projectTypeName}
-                                                        size="small"
-                                                        variant="outlined"
-                                                    />
-                                                )}
-                                            </Box>
-                                        </CardContent>
-                                    </Card>
-                                </Link>
-                            </Box>
-                        ))}
-                    </Box>
-                ) : (
-                    <TableContainer component={Paper} sx={{ borderRadius: 3 }}>
-                        <Table>
-                            <TableHead>
-                                <TableRow sx={{ bgcolor: alpha(colors.primary, 0.05) }}>
-                                    <TableCell><Typography variant="subtitle2" sx={{ fontWeight: 600 }}>Project Code</Typography></TableCell>
-                                    <TableCell><Typography variant="subtitle2" sx={{ fontWeight: 600 }}>Title</Typography></TableCell>
-                                    <TableCell><Typography variant="subtitle2" sx={{ fontWeight: 600 }}>Customer</Typography></TableCell>
-                                    <TableCell><Typography variant="subtitle2" sx={{ fontWeight: 600 }}>Progress</Typography></TableCell>
-                                    <TableCell><Typography variant="subtitle2" sx={{ fontWeight: 600 }}>Budget</Typography></TableCell>
-                                    <TableCell><Typography variant="subtitle2" sx={{ fontWeight: 600 }}>Status</Typography></TableCell>
-                                    <TableCell><Typography variant="subtitle2" sx={{ fontWeight: 600 }}>Risk</Typography></TableCell>
-                                    <TableCell><Typography variant="subtitle2" sx={{ fontWeight: 600 }}>Action</Typography></TableCell>
-
-
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {filteredProjects.map((project) => (
-                                    <TableRow
-                                        key={project.id}
-                                        sx={{
-                                            '&:hover': {
-                                                backgroundColor: alpha(theme.palette.primary.main, 0.04),
-                                                cursor: 'pointer'
-                                            },
-                                            borderBottom: `1px solid ${alpha(theme.palette.divider, 0.5)}`
-                                        }}
-                                        onClick={() => window.location.href = `/project/${project.id}`}
-                                    >
-                                        <TableCell>
-                                            <Typography variant="body2" sx={{ fontWeight: 600, color: colors.primary }}>
-                                                {project.code}
-                                            </Typography>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Typography variant="body2">
-                                                {project.title}
-                                            </Typography>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>
-                                                {project.customerName || '-'}
-                                            </Typography>
-                                        </TableCell>
-                                        <TableCell>
-                                            {project.totalPercentCompletion !== null ? (
-                                                <ProgressBarWithLabel
-                                                    value={project.totalPercentCompletion}
-                                                    color={
-                                                        project.totalPercentCompletion >= 75 ? colors.success :
-                                                            project.totalPercentCompletion >= 50 ? colors.warning :
-                                                                colors.error
-                                                    }
-                                                />
-                                            ) : (
-                                                <Typography variant="caption" sx={{ color: theme.palette.text.disabled }}>
-                                                    N/A
+                                            </TableCell>
+                                            <TableCell>
+                                                <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                                                    {formatCurrency(project.totalBudget)}
                                                 </Typography>
-                                            )}
-                                        </TableCell>
-                                        <TableCell>
-                                            <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                                                {formatCurrency(project.totalBudget)}
-                                            </Typography>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Chip
-                                                label={project.approvalStatus}
-                                                size="small"
-                                                sx={{
-                                                    bgcolor: alpha(
-                                                        project.approvalStatus === 'Draft' ? colors.warning :
+                                            </TableCell>
+                                            <TableCell>
+                                                <Chip
+                                                    label={project.approvalStatus}
+                                                    size="small"
+                                                    sx={{
+                                                        bgcolor: alpha(
+                                                            project.approvalStatus === 'Draft' ? colors.warning :
+                                                                project.approvalStatus === 'Active' ? colors.success :
+                                                                    colors.info, 0.1
+                                                        ),
+                                                        color: project.approvalStatus === 'Draft' ? colors.warning :
                                                             project.approvalStatus === 'Active' ? colors.success :
-                                                                colors.info, 0.1
-                                                    ),
-                                                    color: project.approvalStatus === 'Draft' ? colors.warning :
-                                                        project.approvalStatus === 'Active' ? colors.success :
-                                                            colors.info,
-                                                    fontWeight: 500
-                                                }}
-                                            />
-                                        </TableCell>
-                                        <TableCell>
-                                            {project.riskFlag ? (
-                                                <Warning sx={{ color: colors.error }} />
-                                            ) : (
-                                                <CheckCircle sx={{ color: colors.success }} />
-                                            )}
-                                        </TableCell>
+                                                                colors.info,
+                                                        fontWeight: 500
+                                                    }}
+                                                />
+                                            </TableCell>
+                                            <TableCell>
+                                                {project.riskFlag ? (
+                                                    <Warning sx={{ color: colors.error }} />
+                                                ) : (
+                                                    <CheckCircle sx={{ color: colors.success }} />
+                                                )}
+                                            </TableCell>
 
-                                        <TableCell>
-                                            <IconButton
-                                                size="small"
-                                                onClick={(e) => handleMenuClick(e, project)}
-                                                sx={{
-                                                    '&:hover': {
-                                                        bgcolor: alpha(theme.palette.action.hover, 0.1)
-                                                    }
-                                                }}
-                                            >
-                                                <MoreVert fontSize="small" />
-                                            </IconButton>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
-                )}
+                                            <TableCell>
+                                                <div onClick={(e) => e.stopPropagation()}>
 
-                {filteredProjects.length === 0 && (
-                    <Box sx={{
-                        py: 8,
-                        textAlign: 'center',
-                        bgcolor: alpha(theme.palette.background.default, 0.5),
-                        borderRadius: 2
-                    }}>
-                        <Folder sx={{ fontSize: 48, color: theme.palette.text.disabled, mb: 2 }} />
-                        <Typography variant="h6" sx={{ color: theme.palette.text.secondary, mb: 1 }}>
-                            No Projects Found
-                        </Typography>
-                        <Typography variant="body2" sx={{ color: theme.palette.text.disabled }}>
-                            Try adjusting your filters or search term
-                        </Typography>
-                    </Box>
-                )}
-            </Box>
+                                                    <ProjectMenuDialog
+                                                        project={project}
+                                                        colors={colors}
+                                                        refetch={refetch}
+                                                        apiUrl={mainAPI}
+                                                        formatCurrency={formatCurrency}
+                                                        ProjectCreateInputForm={ProjectCreateInputForm}
+                                                    />
+                                                </div>
+                                            </TableCell>
 
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    )
+                }
 
-
-            {/* Menu Dropdown */}
-            <Menu
-                anchorEl={menuAnchorEl}
-                open={Boolean(menuAnchorEl)}
-                onClose={handleMenuClose}
-                onClick={(e) => e.stopPropagation()}
-                PaperProps={{
-                    sx: {
-                        mt: 1,
-                        minWidth: 180,
-                        borderRadius: 2,
-                        boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
-                    }
-                }}
-            >
-                <MenuItem onClick={handleEditClick}>
-                    <Edit fontSize="small" sx={{ mr: 1, color: colors.primary }} />
-                    <Typography variant="body2">Edit Project</Typography>
-                </MenuItem>
-                <MenuItem onClick={handleDeleteClick}>
-                    <Delete fontSize="small" sx={{ mr: 1, color: colors.error }} />
-                    <Typography variant="body2" sx={{ color: colors.error }}>
-                        Delete Project
-                    </Typography>
-                </MenuItem>
-            </Menu>
-
-            {/* Edit Project Dialog */}
-            <Dialog
-                open={openEditDialog}
-                onClose={handleEditDialogClose}
-                maxWidth="lg"
-                fullWidth
-                PaperProps={{
-                    sx: {
-                        borderRadius: 3,
-                        maxHeight: '90vh',
-                        overflow: 'hidden'
-                    }
-                }}
-            >
-                <DialogTitle sx={{
-                    bgcolor: alpha(colors.primary, 0.05),
-                    borderBottom: `1px solid ${alpha(colors.primary, 0.1)}`,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    pr: 2,
-                    py: 2
-                }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                {
+                    filteredProjects.length === 0 && (
                         <Box sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            width: 36,
-                            height: 36,
-                            borderRadius: 1,
-                            bgcolor: alpha(colors.primary, 0.1)
+                            py: 8,
+                            textAlign: 'center',
+                            bgcolor: alpha(theme.palette.background.default, 0.5),
+                            borderRadius: 2
                         }}>
-                            <Edit sx={{ color: colors.primary }} />
-                        </Box>
-                        <Box>
-                            <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                                Edit Project
+                            <Folder sx={{ fontSize: 48, color: theme.palette.text.disabled, mb: 2 }} />
+                            <Typography variant="h6" sx={{ color: theme.palette.text.secondary, mb: 1 }}>
+                                No Projects Found
                             </Typography>
-                            <Typography variant="body2" sx={{ color: colors.primary, fontWeight: 500 }}>
-                                {selectedProject?.code} - {selectedProject?.title}
+                            <Typography variant="body2" sx={{ color: theme.palette.text.disabled }}>
+                                Try adjusting your filters or search term
                             </Typography>
                         </Box>
-                    </Box>
+                    )
+                }
+            </Box >
 
-                    <IconButton
-                        onClick={handleEditDialogClose}
-                        size="small"
-                        sx={{
-                            border: `1px solid ${alpha(theme.palette.divider, 0.5)}`,
-                            '&:hover': {
-                                bgcolor: alpha(theme.palette.action.hover, 0.1),
-                                borderColor: theme.palette.divider
-                            }
-                        }}
-                    >
-                        <Close />
-                    </IconButton>
-                </DialogTitle>
-                <DialogContent sx={{ p: 0 }}>
-                    {selectedProject && (
-                        <ProjectCreateInputForm
-                            formMode="edit"
-                            defaultValues={selectedProject}
-                            invalidateQueryKey={["dashboardData", apiUrl]}
-                        />
-                    )}
-                </DialogContent>
-            </Dialog>
 
-            {/* Delete Confirmation Dialog */}
-            <Dialog
-                open={openDeleteDialog}
-                onClose={handleDeleteDialogClose}
-                maxWidth="sm"
-                fullWidth
-            >
-                <DialogTitle sx={{
-                    bgcolor: alpha(colors.error, 0.05),
-                    borderBottom: `1px solid ${alpha(colors.error, 0.1)}`
-                }}>
-                    <Typography variant="h6" sx={{ fontWeight: 600, color: colors.error }}>
-                        Delete Project
-                    </Typography>
-                </DialogTitle>
-                <DialogContent sx={{ pt: 3 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                        <Warning sx={{ color: colors.error, mr: 2 }} />
-                        <Typography variant="body1">
-                            Are you sure you want to delete this project?
-                        </Typography>
-                    </Box>
-                    <Box sx={{
-                        p: 2,
-                        bgcolor: alpha(colors.error, 0.05),
-                        borderRadius: 2,
-                        border: `1px solid ${alpha(colors.error, 0.1)}`
-                    }}>
-                        <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 0.5 }}>
-                            {selectedProject?.code} - {selectedProject?.title}
-                        </Typography>
-                        <Typography variant="body2" sx={{ color: colors.gray }}>
-                            Customer: {selectedProject?.customerName || 'N/A'} | Budget: {formatCurrency(selectedProject?.totalBudget)}
-                        </Typography>
-                    </Box>
-                    <Typography variant="caption" sx={{ color: colors.error, display: 'block', mt: 2 }}>
-                        This action cannot be undone. All project data will be permanently deleted.
-                    </Typography>
-                </DialogContent>
-                <DialogActions sx={{ p: 2, borderTop: `1px solid ${alpha(colors.error, 0.1)}` }}>
-                    <Button
-                        onClick={handleDeleteDialogClose}
-                        variant="outlined"
-                        sx={{ borderRadius: 2 }}
-                    >
-                        Cancel
-                    </Button>
-                    <Button
-                        onClick={handleConfirmDelete}
-                        variant="contained"
-                        color="error"
-                        sx={{ borderRadius: 2 }}
-                        startIcon={<Delete />}
-                    >
-                        {deleteMutation.isPending ? 'Deleting...' : 'Delete Project'}
-                    </Button>
-                </DialogActions>
-            </Dialog>
-
-        </Box>
+        </Box >
     );
 }

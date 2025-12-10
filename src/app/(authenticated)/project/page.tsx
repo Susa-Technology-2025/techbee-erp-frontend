@@ -14,7 +14,7 @@ import {
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import BusinessIcon from '@mui/icons-material/Business';
 import PersonalDashboard from './personalDashboard/page';
-import Dashboard from './_dashboard/dashBoard';
+import Dashboard from './_dashboard/CompanyDashBoard';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/lib/store/store';
 
