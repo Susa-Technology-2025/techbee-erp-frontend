@@ -420,7 +420,7 @@ export default function ProjectAnalyticsDashboard() {
 
     const apiUrl = buildApiUrl();
 
-    const { data, isLoading, isError, error, refetch } = useDataQuery({
+    const { data, isLoading, isFetching, isError, error, refetch } = useDataQuery({
         apiEndPoint: apiUrl,
         enabled: true,
         noFilter: true,
@@ -567,7 +567,7 @@ export default function ProjectAnalyticsDashboard() {
     // Color palette
 
 
-    if (isLoading) {
+    if (isLoading || isFetching) {
         return (
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
                 <CircularProgress />
