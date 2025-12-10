@@ -33,6 +33,11 @@ import {
     InputLabel,
     Select,
     MenuItem,
+    Menu,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
     Link as MuiLink
 } from '@mui/material';
 import {
@@ -68,15 +73,19 @@ import {
     CheckCircle as CheckCircleIcon,
     Error as ErrorIcon,
     AccessTime as AccessTimeIcon,
-    Money
+    Money,
+    MoreVert,
+    Edit,
+    Delete
 } from '@mui/icons-material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LineChart, Line, BarChart as ReBarChart, Bar, PieChart as RePieChart, Pie, Cell, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, AreaChart, Area } from 'recharts';
 import { format, parseISO } from 'date-fns';
-import { useDataQuery } from '@/lib/tanstack/useDataQuery';
+import { useDataMutation, useDataQuery } from '@/lib/tanstack/useDataQuery';
 import dayjs, { Dayjs } from 'dayjs';
 import Link from 'next/link';
-
+import toast from 'react-hot-toast';
+import ProjectCreateInputForm from '../projects/_components/Form';
 // Types
 interface DashboardData {
     window: {
@@ -389,6 +398,13 @@ export default function ProjectAnalyticsDashboard() {
     const [statusFilter, setStatusFilter] = useState('all');
     const [riskFilter, setRiskFilter] = useState('all');
 
+    const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
+    const [selectedProject, setSelectedProject] = useState<any>(null);
+    const [openEditDialog, setOpenEditDialog] = useState(false);
+    const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+    const [currentMenuProject, setCurrentMenuProject] = useState<any>(null);
+
+
     const buildApiUrl = () => {
         const baseUrl = 'https://project.api.techbee.et/api/projects/analytics/overview';
         const params = new URLSearchParams({
@@ -397,6 +413,7 @@ export default function ProjectAnalyticsDashboard() {
         });
         return `${baseUrl}?${params.toString()}`;
     };
+
 
     const apiUrl = buildApiUrl();
 
@@ -407,12 +424,69 @@ export default function ProjectAnalyticsDashboard() {
         fetchWithoutRefresh: true,
     });
 
+    const deleteMutation = useDataMutation({
+        apiEndPoint: `https://project.api.techbee.et/api/projects/:id`,
+        method: 'DELETE',
+        invalidateQueryKey: ["dashboardData", apiUrl], // This will invalidate your dashboard query
+        onSuccess: (data) => {
+            toast.success('Project deleted successfully');
+            handleDeleteDialogClose();
+            refetch(); // Refresh the data
+        },
+        onError: (error) => {
+            toast.error(`Failed to delete project: ${error.message || 'Unknown error'}`);
+        }
+    });
     const dashboardData = data as DashboardData;
 
     const handleApply = () => {
         refetch();
         setShowPicker(false);
     };
+
+    const handleMenuClick = (event: React.MouseEvent<HTMLElement>, project: any) => {
+        event.preventDefault();
+        event.stopPropagation();
+        setMenuAnchorEl(event.currentTarget);
+        setCurrentMenuProject(project);
+    };
+
+    const handleMenuClose = () => {
+        setMenuAnchorEl(null);
+        setCurrentMenuProject(null);
+    };
+
+    const handleEditClick = () => {
+        setSelectedProject(currentMenuProject);
+        handleMenuClose();
+        setOpenEditDialog(true);
+    };
+
+    const handleDeleteClick = () => {
+        setSelectedProject(currentMenuProject);
+        handleMenuClose();
+        setOpenDeleteDialog(true);
+    };
+
+    const handleEditDialogClose = () => {
+        setOpenEditDialog(false);
+        setSelectedProject(null);
+    };
+
+    const handleDeleteDialogClose = () => {
+        setOpenDeleteDialog(false);
+        setSelectedProject(null);
+    };
+
+
+    const handleConfirmDelete = () => {
+        if (selectedProject?.id) {
+            deleteMutation.mutate({
+                __pathParams: { id: selectedProject.id }
+            });
+        }
+    };
+
 
     const toggleSection = (section: string) => {
         setExpandedSections(prev => ({
@@ -1754,9 +1828,11 @@ export default function ProjectAnalyticsDashboard() {
                                                 : alpha(colors.primary, 0.15)
                                                 }`,
                                         },
-                                        height: '100%'
+                                        height: '100%',
+                                        position: 'relative' // Added for better icon positioning
                                     }}>
                                         <CardContent sx={{ p: 3 }}>
+                                            {/* Top section with icon, risk flag, and project code */}
                                             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
                                                 <Box>
                                                     <Chip
@@ -1773,9 +1849,23 @@ export default function ProjectAnalyticsDashboard() {
                                                         {project.title}
                                                     </Typography>
                                                 </Box>
-                                                {project.riskFlag && (
-                                                    <Warning sx={{ color: colors.error }} />
-                                                )}
+
+                                                <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
+                                                    {project.riskFlag && (
+                                                        <Warning sx={{ color: colors.error, mt: 0.5 }} />
+                                                    )}
+                                                    <IconButton
+                                                        size="small"
+                                                        onClick={(e) => handleMenuClick(e, project)}
+                                                        sx={{
+                                                            '&:hover': {
+                                                                bgcolor: alpha(theme.palette.action.hover, 0.1)
+                                                            }
+                                                        }}
+                                                    >
+                                                        <MoreVert fontSize="small" />
+                                                    </IconButton>
+                                                </Box>
                                             </Box>
 
                                             <Typography variant="body2" sx={{ color: theme.palette.text.secondary, mb: 2 }}>
@@ -1968,6 +2058,131 @@ export default function ProjectAnalyticsDashboard() {
                     </Box>
                 )}
             </Box>
+
+
+
+            {/* Menu Dropdown */}
+            <Menu
+                anchorEl={menuAnchorEl}
+                open={Boolean(menuAnchorEl)}
+                onClose={handleMenuClose}
+                onClick={(e) => e.stopPropagation()}
+                PaperProps={{
+                    sx: {
+                        mt: 1,
+                        minWidth: 180,
+                        borderRadius: 2,
+                        boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
+                    }
+                }}
+            >
+                <MenuItem onClick={handleEditClick}>
+                    <Edit fontSize="small" sx={{ mr: 1, color: colors.primary }} />
+                    <Typography variant="body2">Edit Project</Typography>
+                </MenuItem>
+                <MenuItem onClick={handleDeleteClick}>
+                    <Delete fontSize="small" sx={{ mr: 1, color: colors.error }} />
+                    <Typography variant="body2" sx={{ color: colors.error }}>
+                        Delete Project
+                    </Typography>
+                </MenuItem>
+            </Menu>
+
+            {/* Edit Project Dialog */}
+            <Dialog
+                open={openEditDialog}
+                onClose={handleEditDialogClose}
+                maxWidth="lg"
+                fullWidth
+                PaperProps={{
+                    sx: {
+                        borderRadius: 3,
+                        maxHeight: '90vh'
+                    }
+                }}
+            >
+                <DialogTitle sx={{
+                    bgcolor: alpha(colors.primary, 0.05),
+                    borderBottom: `1px solid ${alpha(colors.primary, 0.1)}`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1
+                }}>
+                    <Edit sx={{ color: colors.primary }} />
+                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                        Edit Project: {selectedProject?.code}
+                    </Typography>
+                </DialogTitle>
+                <DialogContent sx={{ p: 0 }}>
+                    {selectedProject && (
+                        <ProjectCreateInputForm
+                            formMode="edit"
+                            defaultValues={selectedProject}
+                            invalidateQueryKey={["dashboardData", apiUrl]}
+                        />
+                    )}
+                </DialogContent>
+            </Dialog>
+
+            {/* Delete Confirmation Dialog */}
+            <Dialog
+                open={openDeleteDialog}
+                onClose={handleDeleteDialogClose}
+                maxWidth="sm"
+                fullWidth
+            >
+                <DialogTitle sx={{
+                    bgcolor: alpha(colors.error, 0.05),
+                    borderBottom: `1px solid ${alpha(colors.error, 0.1)}`
+                }}>
+                    <Typography variant="h6" sx={{ fontWeight: 600, color: colors.error }}>
+                        Delete Project
+                    </Typography>
+                </DialogTitle>
+                <DialogContent sx={{ pt: 3 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                        <Warning sx={{ color: colors.error, mr: 2 }} />
+                        <Typography variant="body1">
+                            Are you sure you want to delete this project?
+                        </Typography>
+                    </Box>
+                    <Box sx={{
+                        p: 2,
+                        bgcolor: alpha(colors.error, 0.05),
+                        borderRadius: 2,
+                        border: `1px solid ${alpha(colors.error, 0.1)}`
+                    }}>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 0.5 }}>
+                            {selectedProject?.code} - {selectedProject?.title}
+                        </Typography>
+                        <Typography variant="body2" sx={{ color: colors.gray }}>
+                            Customer: {selectedProject?.customerName || 'N/A'} | Budget: {formatCurrency(selectedProject?.totalBudget)}
+                        </Typography>
+                    </Box>
+                    <Typography variant="caption" sx={{ color: colors.error, display: 'block', mt: 2 }}>
+                        This action cannot be undone. All project data will be permanently deleted.
+                    </Typography>
+                </DialogContent>
+                <DialogActions sx={{ p: 2, borderTop: `1px solid ${alpha(colors.error, 0.1)}` }}>
+                    <Button
+                        onClick={handleDeleteDialogClose}
+                        variant="outlined"
+                        sx={{ borderRadius: 2 }}
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        onClick={handleConfirmDelete}
+                        variant="contained"
+                        color="error"
+                        sx={{ borderRadius: 2 }}
+                        startIcon={<Delete />}
+                    >
+                        {deleteMutation.isPending ? 'Deleting...' : 'Delete Project'}
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
         </Box>
     );
 }
