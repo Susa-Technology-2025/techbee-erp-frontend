@@ -4,11 +4,9 @@ import CustomShapeBackground from "@/components/shapes/main-shape";
 import ResponsiveNavbar from "@/components/modulab/navbar";
 import { Box } from "@mui/material";
 import MiniSidebarDrawer from "@/components/modulab/sidebar";
-import { Toaster } from "react-hot-toast";
 export default function Page({ children }: { children: ReactNode }) {
   return (
     <SessioProvider>
-      <Toaster />
       <Box
         sx={{
           display: "flex",

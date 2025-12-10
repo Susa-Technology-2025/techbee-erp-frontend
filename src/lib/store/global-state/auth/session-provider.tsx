@@ -15,7 +15,7 @@ export default function SessionProvider({ children }: { children: ReactNode }) {
     itemology.push("/super-admin/landing-page");
     itemology.push("/dashboard");
     itemology.push("/test");
-    if (itemology.includes(pathname)) {
+    if (itemology.includes(pathname) || pathname.startsWith("/project/")) {
       setEnabled(true);
     }
   }, [pathname]);
@@ -33,7 +33,7 @@ export default function SessionProvider({ children }: { children: ReactNode }) {
     error,
   } = useDataQuery({
     apiEndPoint: "https://api.techbee.et/api/auth/auth/refresh-token",
-    enabled: Boolean(code) && !Boolean(session.tenantCode),
+    enabled: Boolean(code) && !Boolean(session.tenantCode) && enabled,
     fetchWithoutRefresh: true,
     tenantCode: code,
     noFilter: true,
