@@ -1,4 +1,5 @@
 import {TitleField} from "./GeneralSectionFields"
+import {CodeField} from "./GeneralSectionFields"
 import {TotalPercentCompletionField} from "./GeneralSectionFields"
 import {CustomerNameField} from "./GeneralSectionFields"
 import {DepartmentOrCostCenterField} from "./GeneralSectionFields"
@@ -20,6 +21,7 @@ export const GeneralSection = () =>{
       }}
     >
       <TitleField/>
+<CodeField/>
 <TotalPercentCompletionField/>
 <CustomerNameField/>
 <DepartmentOrCostCenterField/>

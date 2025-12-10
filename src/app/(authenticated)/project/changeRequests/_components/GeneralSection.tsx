@@ -1,4 +1,5 @@
 import {TitleField} from "./GeneralSectionFields"
+import {CodeField} from "./GeneralSectionFields"
 import {ChangeTypeField} from "./GeneralSectionFields"
 import {PriorityField} from "./GeneralSectionFields"
 import {WbsItemField} from "./GeneralSectionFields"
@@ -16,6 +17,7 @@ export const GeneralSection = () =>{
       }}
     >
       <TitleField/>
+<CodeField/>
 <ChangeTypeField/>
 <PriorityField/>
 <WbsItemField/>

@@ -1,6 +1,7 @@
 import { MRT_ColumnDef } from "material-react-table";
 export const columns: MRT_ColumnDef<any, any>[] = [
   { accessorKey: "name", header: "Name" },
+  { accessorKey: "code", header: "Code" },
   { accessorKey: "status", header: "Status" },
   { accessorKey: "resourceName", header: "Resource Name" },
   { accessorKey: "taskName", header: "Task Name" },

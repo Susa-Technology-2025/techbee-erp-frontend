@@ -73,6 +73,39 @@ export const TitleField = ({index}: any) => {
 
 
 
+export const CodeField = ({index}: any) => {
+  const { control: formControl } = useFormContext();
+  return (
+    <Controller
+      name={`code`}
+      control={formControl}
+      rules={{ required: false }}
+      render={({ field: controllerField, fieldState }) => (
+        <TextField
+          {...controllerField}
+          type="text" 
+          variant="standard"
+          label="Code"
+          placeholder="Enter the change request code"
+          helperText={fieldState.error ? "Code is required" : "The unique code for the change request."}
+          error={!!fieldState.error}
+          disabled={false}
+          className=""
+           slotProps={{
+            inputLabel: { shrink: true },
+          }}
+          style={undefined}
+          sx={{}}
+          false
+          false
+        />
+      )}
+    />
+  );
+};
+
+
+
 export const ChangeTypeField = ({index}: any) => {
   const { control: formControl } = useFormContext();
   return (

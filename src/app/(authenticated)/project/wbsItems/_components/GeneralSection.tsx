@@ -1,4 +1,6 @@
 import {TitleField} from "./GeneralSectionFields"
+import {CodeField} from "./GeneralSectionFields"
+import {WbsItemColorField} from "./GeneralSectionFields"
 import {TypeField} from "./GeneralSectionFields"
 import {SlaStateField} from "./GeneralSectionFields"
 import {ApprovalRequiredField} from "./GeneralSectionFields"
@@ -23,6 +25,8 @@ export const GeneralSection = () =>{
       }}
     >
       <TitleField/>
+<CodeField/>
+<WbsItemColorField/>
 <TypeField/>
 <SlaStateField/>
 <ApprovalRequiredField/>
