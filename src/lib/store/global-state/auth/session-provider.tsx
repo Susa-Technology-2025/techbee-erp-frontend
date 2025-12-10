@@ -7,12 +7,12 @@ import { useDataQuery } from "@/lib/tanstack/useDataQuery";
 export default function SessionProvider({ children }: { children: ReactNode }) {
   const session = useSelector((state: RootState) => state.session);
   const dispatch = useDispatch();
+  const [code, setCode] = useState();
   useEffect(() => {
     const hostname = window.location.hostname;
     const derivedCode = hostname.split(".")[0];
-    setCode(derivedCode);
-  }, []);
-  const [code, setCode] = useState();
+    setCode(session.tenantCode ? session.tenantCode : derivedCode);
+  }, [session]);
   const {
     data: refreshResult,
     isSuccess,
@@ -25,7 +25,7 @@ export default function SessionProvider({ children }: { children: ReactNode }) {
     tenantCode: code,
     noFilter: true,
   });
-
+  console.log(error);
   useEffect(() => {
     if (isSuccess) {
       const data = refreshResult;
@@ -41,7 +41,7 @@ export default function SessionProvider({ children }: { children: ReactNode }) {
         );
       }
     }
-  }, [isSuccess, isError]);
+  }, [isSuccess]);
 
   return <>{children}</>;
 }
