@@ -104,11 +104,14 @@ import TaskCreationDialog from './_components/taskDialog';
 import { useDataQuery } from '@/lib/tanstack/useDataQuery';
 import { useSelector } from 'react-redux';
 import { RootState } from "@/lib/store/store";
-import { Close, MoreVert } from '@mui/icons-material';
+import { CheckCircle, Close, MoreVert, Warning } from '@mui/icons-material';
 import Form from "../projects/_components/Form";
 import ProjectMenuDialog from '../_dashboard/ProjectMenuDialog';
-import {colors, formatCurrency, mainAPI} from '../_dashboard/consts'
+import { colors, formatCurrency, mainProjectAPI, mainTaskAPI } from '../_dashboard/consts'
 import ProjectCreateInputForm from '../projects/_components/Form';
+import { color } from 'html2canvas/dist/types/css/types/color';
+import WbsItemCreateInput from '../wbsItems/_components/Form';
+import TaskMenuDialog from '../_dashboard/TaskMenuDialog';
 // ========== TYPES ==========
 interface Project {
     projectId: string;
@@ -401,7 +404,7 @@ export default function PersonalDashboard() {
     const theme = useTheme();
     const [taskViewType, setTaskViewType] = useState<'all' | 'upcoming' | 'overdue' | 'completed'>('all');
     const [assignedTaskViewType, setAssignedTaskViewType] = useState<'all' | 'upcoming' | 'overdue' | 'completed' | 'active'>('all');
-    const { data, isLoading, isFetching, isError, error, refetch} = useDataQuery<DashboardData>({
+    const { data, isLoading, isFetching, isError, error, refetch } = useDataQuery<DashboardData>({
         apiEndPoint: `https://project.api.techbee.et/api/projects/analytics/personal?userId=${session?.user?.id}`,
         enabled: Boolean(session?.user?.id)
     });
@@ -591,159 +594,207 @@ export default function PersonalDashboard() {
 
         return (
             <Link href={`/project/${task.projectId}`} passHref key={task.wbsItemId}>
-                <Card sx={{
-                    height: '100%',
-                    position: 'relative',
-                    transition: 'transform 0.2s',
-                    '&:hover': { transform: 'translateY(-4px)' },
-                    borderLeft: isOverdue ? '4px solid #dc3545' :
-                        isCompleted ? '4px solid #10b981' : '4px solid transparent'
-                }}>
-                    {isOverdue && (
+                <Box key={task.wbsItemId} sx={{ position: 'relative', height: '100%' }}>
+                    <Card sx={{
+                        height: '100%',
+                        position: 'relative',
+                        transition: 'transform 0.2s',
+                        '&:hover': {
+                            transform: 'translateY(-4px)',
+                            boxShadow: 3
+                        },
+                        borderLeft: isOverdue ? '4px solid #dc3545' :
+                            isCompleted ? '4px solid #10b981' : '4px solid transparent'
+                    }}>
+                        {/* Overdue/Completed Badge and Menu Button */}
                         <Box sx={{
                             position: 'absolute',
                             top: 8,
                             right: 8,
-                            bgcolor: '#fee2e2',
-                            color: '#dc3545',
-                            borderRadius: 1,
-                            px: 1,
-                            py: 0.5,
-                            fontSize: '0.75rem',
-                            fontWeight: 600,
                             display: 'flex',
                             alignItems: 'center',
-                            gap: 0.5
+                            gap: 1,
+                            zIndex: 2
                         }}>
-                            <ErrorIcon fontSize="small" />
-                            Overdue
-                        </Box>
-                    )}
-                    {isCompleted && (
-                        <Box sx={{
-                            position: 'absolute',
-                            top: 8,
-                            right: 8,
-                            bgcolor: '#d1fae5',
-                            color: '#10b981',
-                            borderRadius: 1,
-                            px: 1,
-                            py: 0.5,
-                            fontSize: '0.75rem',
-                            fontWeight: 600,
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 0.5
-                        }}>
-                            <CheckIcon fontSize="small" />
-                            Completed
-                        </Box>
-                    )}
+                            {isOverdue && (
+                                <Box sx={{
+                                    bgcolor: '#fee2e2',
+                                    color: '#dc3545',
+                                    borderRadius: 1,
+                                    px: 1,
+                                    py: 0.5,
+                                    fontSize: '0.75rem',
+                                    fontWeight: 600,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 0.5
+                                }}>
+                                    <Warning fontSize="small" />
+                                    Overdue
+                                </Box>
+                            )}
+                            {isCompleted && (
+                                <Box sx={{
+                                    bgcolor: '#d1fae5',
+                                    color: '#10b981',
+                                    borderRadius: 1,
+                                    px: 1,
+                                    py: 0.5,
+                                    fontSize: '0.75rem',
+                                    fontWeight: 600,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 0.5
+                                }}>
+                                    <CheckCircle fontSize="small" />
+                                    Completed
+                                </Box>
+                            )}
 
-                    <CardHeader
-                        avatar={
-                            <Avatar sx={{
-                                bgcolor: isOverdue ? '#fee2e2' :
-                                    isCompleted ? '#d1fae5' : '#e0e7ff'
-                            }}>
-                                <TaskIcon sx={{
-                                    color: isOverdue ? '#dc3545' :
-                                        isCompleted ? '#10b981' : '#4361ee'
-                                }} />
-                            </Avatar>
-                        }
-                        title={
-                            <Typography variant="h6" fontWeight={600}>
-                                {task.title}
-                            </Typography>
-                        }
-                        subheader={
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1, flexWrap: 'wrap' }}>
-                                <Chip label={task.projectType} size="small" />
-                                {task.priority && (
-                                    <Chip
-                                        label={task.priority}
-                                        size="small"
-                                        sx={{
-                                            bgcolor: getPriorityColor(task.priority),
-                                            color: 'white'
-                                        }}
-                                    />
-                                )}
-                                {isAssigned && (
-                                    <Chip
-                                        icon={<AssignmentIcon />}
-                                        label="Assigned"
-                                        size="small"
-                                        color="info"
-                                        variant="outlined"
-                                    />
-                                )}
+                            {/* Menu Button - positioned at top-right */}
+                            <Box onClick={(e) => e.stopPropagation()}>
+                                <TaskMenuDialog
+                                    task={task}
+                                    colors={colors}
+                                    refetch={refetch}
+                                    apiUrl={mainTaskAPI}
+                                    TaskCreateInputForm={WbsItemCreateInput}
+                                />
                             </Box>
-                        }
-                    />
-                    <CardContent>
-                        <Typography variant="body2" color="text.secondary" gutterBottom>
-                            Project: {task.projectTitle || task.projectCode}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                            {task.description || 'No description available'}
-                        </Typography>
+                        </Box>
 
-                        <Box sx={{ mb: 2 }}>
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                                <Typography variant="caption">Progress</Typography>
-                                <Typography variant="caption" fontWeight={600}>
-                                    {task.percentCompletion !== null ? `${task.percentCompletion}%` : 'Not set'}
+                        {/* Card Header */}
+                        <CardHeader
+                            onClick={() => window.open(`/project/${task.projectId}`, '_blank')}
+                            sx={{ cursor: 'pointer' }}
+                            avatar={
+                                <Avatar sx={{
+                                    bgcolor: isOverdue ? '#fee2e2' :
+                                        isCompleted ? '#d1fae5' : '#e0e7ff'
+                                }}>
+                                    <TaskIcon sx={{
+                                        color: isOverdue ? '#dc3545' :
+                                            isCompleted ? '#10b981' : '#4361ee'
+                                    }} />
+                                </Avatar>
+                            }
+                            title={
+                                <Typography variant="h6" fontWeight={600}>
+                                    {task.title}
                                 </Typography>
-                            </Box>
-                            <LinearProgress
-                                variant="determinate"
-                                value={task.percentCompletion || 0}
-                                sx={{ height: 8, borderRadius: 4 }}
-                            />
-                        </Box>
+                            }
+                            subheader={
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1, flexWrap: 'wrap' }}>
+                                    <Chip label={task.projectType} size="small" />
+                                    {task.priority && (
+                                        <Chip
+                                            label={task.priority}
+                                            size="small"
+                                            sx={{
+                                                bgcolor: getPriorityColor(task.priority),
+                                                color: 'white'
+                                            }}
+                                        />
+                                    )}
+                                    {isAssigned && (
+                                        <Chip
+                                            icon={<AssignmentIcon />}
+                                            label="Assigned"
+                                            size="small"
+                                            color="info"
+                                            variant="outlined"
+                                        />
+                                    )}
+                                </Box>
+                            }
+                        />
 
-                        {isAssigned && assignedTask.assignments && assignedTask.assignments.length > 0 && (
+                        {/* Card Content */}
+                        <CardContent>
+                            <Typography variant="body2" color="text.secondary" gutterBottom>
+                                Project: {task.projectTitle || task.projectCode}
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                                {task.description || 'No description available'}
+                            </Typography>
+
+                            {/* Progress Bar */}
                             <Box sx={{ mb: 2 }}>
-                                <Typography variant="caption" color="text.secondary" display="block">
-                                    Assigned to: {assignedTask.assignments.map(a => a.role).join(', ')}
-                                </Typography>
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                                    <Typography variant="caption">Progress</Typography>
+                                    <Typography variant="caption" fontWeight={600}>
+                                        {task.percentCompletion !== null ? `${task.percentCompletion}%` : 'Not set'}
+                                    </Typography>
+                                </Box>
+                                <LinearProgress
+                                    variant="determinate"
+                                    value={task.percentCompletion || 0}
+                                    sx={{
+                                        height: 8,
+                                        borderRadius: 4,
+                                        bgcolor: alpha('#6366F1', 0.1),
+                                        '& .MuiLinearProgress-bar': {
+                                            bgcolor: isOverdue ? '#dc3545' :
+                                                isCompleted ? '#10b981' : '#6366F1'
+                                        }
+                                    }}
+                                />
                             </Box>
-                        )}
 
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                <AccessTimeIcon fontSize="small" />
-                                <Typography variant="caption">
-                                    Due: {formatDate(task.plannedEndDate)}
-                                </Typography>
+                            {/* Assigned To */}
+                            {isAssigned && assignedTask.assignments && assignedTask.assignments.length > 0 && (
+                                <Box sx={{ mb: 2 }}>
+                                    <Typography variant="caption" color="text.secondary" display="block">
+                                        Assigned to: {assignedTask.assignments.map(a => a.role).join(', ')}
+                                    </Typography>
+                                </Box>
+                            )}
+
+                            {/* Due Date and Status */}
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                    <AccessTimeIcon fontSize="small" />
+                                    <Typography variant="caption">
+                                        Due: {formatDate(task.plannedEndDate)}
+                                    </Typography>
+                                </Box>
+                                <Chip
+                                    label={task.taskStage}
+                                    size="small"
+                                    color={getStatusColor(task.taskStage)}
+                                />
                             </Box>
-                            <Chip
-                                label={task.taskStage}
+
+                            {/* Duration */}
+                            {task.durationDays !== null && (
+                                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
+                                    Duration: {task.durationDays} days
+                                </Typography>
+                            )}
+
+                            {/* Approval Status */}
+                            {task.approvalStatus && (
+                                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
+                                    Status: {task.approvalStatus}
+                                </Typography>
+                            )}
+                        </CardContent>
+
+                        {/* Card Actions */}
+                        <CardActions sx={{ justifyContent: 'space-between', p: 2, pt: 0 }}>
+                            <Button
                                 size="small"
-                                color={getStatusColor(task.taskStage)}
-                            />
-                        </Box>
-
-                        {task.durationDays !== null && (
-                            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
-                                Duration: {task.durationDays} days
-                            </Typography>
-                        )}
-
-                        {task.approvalStatus && (
-                            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
-                                Status: {task.approvalStatus}
-                            </Typography>
-                        )}
-                    </CardContent>
-                    <CardActions sx={{ justifyContent: 'space-between', p: 2, pt: 0 }}>
-                        <Button size="small" onClick={() => handleTaskClick(task)}>
-                            View Details
-                        </Button>
-                    </CardActions>
-                </Card>
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleTaskClick(task);
+                                }}
+                                sx={{ borderRadius: 1 }}
+                            >
+                                View Details
+                            </Button>
+                        </CardActions>
+                    </Card>
+                </Box>
             </Link>
         );
     };
@@ -803,7 +854,7 @@ export default function PersonalDashboard() {
                                 project={project}
                                 colors={colors}
                                 refetch={refetch}
-                                apiUrl={mainAPI}
+                                apiUrl={mainProjectAPI}
                                 formatCurrency={formatCurrency}
                                 ProjectCreateInputForm={ProjectCreateInputForm}
                             />
@@ -1014,55 +1065,221 @@ export default function PersonalDashboard() {
     );
 
     // Component for Upcoming Deadline Card
-    const UpcomingDeadlineCard = ({ deadline }: { deadline: any }) => (
-        <Card sx={{ mb: 2 }}>
-            <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <Avatar sx={{ bgcolor: '#e0e7ff' }}>
-                    {deadline.type === 'wbsItem' ?
-                        <TaskIcon sx={{ color: '#4361ee' }} /> :
-                        <FolderIcon sx={{ color: '#4361ee' }} />
-                    }
-                </Avatar>
-                <Box sx={{ flex: 1 }}>
-                    <Typography fontWeight={600} variant="body2">
-                        {deadline.title}
-                    </Typography>
-                    <Typography variant="caption" color="#64748b">
-                        {deadline.description || deadline.projectTitle}
-                    </Typography>
-                    <Box sx={{ display: 'flex', gap: 1, mt: 0.5, flexWrap: 'wrap' }}>
-                        {deadline.priority && (
-                            <Chip
-                                label={deadline.priority}
-                                size="small"
+    const UpcomingDeadlineCard = ({ deadline }: { deadline: any }) => {
+        const isTask = deadline.type === 'wbsItem';
+        const deadlineDate = new Date(deadline.deadline);
+        const today = new Date();
+        const daysDiff = Math.ceil((deadlineDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+        // Determine urgency color
+        const getUrgencyColor = () => {
+            if (daysDiff < 0) return '#dc3545'; // Overdue
+            if (daysDiff <= 1) return '#ef4444'; // Due tomorrow/today
+            if (daysDiff <= 3) return '#f59e0b'; // Due in 3 days
+            if (daysDiff <= 7) return '#3b82f6'; // Due in a week
+            return '#10b981'; // More than a week
+        };
+
+        const urgencyColor = getUrgencyColor();
+
+        // Format the due text
+        const dueText = daysDiff < 0 ? `${Math.abs(daysDiff)}d overdue` :
+            daysDiff === 0 ? 'Due today' :
+                daysDiff === 1 ? 'Due tomorrow' :
+                    `${daysDiff}d`;
+
+        return (
+            <Card sx={{
+                mb: 2,
+                position: 'relative',
+                borderLeft: `4px solid ${urgencyColor}`,
+                transition: 'all 0.2s ease',
+                overflow: 'visible'
+            }}>
+                <CardContent sx={{
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: 2,
+                    position: 'relative',
+                    pr: 8 // Leave space for menu button
+                }}>
+                    {/* Avatar */}
+                    <Avatar sx={{
+                        bgcolor: `${urgencyColor}15`,
+                        width: 44,
+                        height: 44,
+                        mt: 0.5
+                    }}>
+                        {isTask ?
+                            <TaskIcon sx={{ color: urgencyColor, fontSize: 20 }} /> :
+                            <FolderIcon sx={{ color: urgencyColor, fontSize: 20 }} />
+                        }
+                    </Avatar>
+
+                    {/* Content */}
+                    <Box sx={{ flex: 1, minWidth: 0 }}>
+                        {/* First row: Title + Due date */}
+                        <Box sx={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'flex-start',
+                            mb: 0.5
+                        }}>
+                            <Typography
+                                fontWeight={600}
+                                variant="body2"
                                 sx={{
-                                    bgcolor: getPriorityColor(deadline.priority),
-                                    color: 'white'
+                                    flex: 1,
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    whiteSpace: 'nowrap',
+                                    pr: 1
                                 }}
-                            />
-                        )}
-                        <Chip
-                            label={deadline.taskStage || 'Task'}
-                            size="small"
-                        />
-                        <Chip
-                            label={deadline.projectType}
-                            size="small"
-                            variant="outlined"
-                        />
+                            >
+                                {deadline.title}
+                            </Typography>
+
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                {/* Due date badge */}
+                                <Box sx={{
+                                    bgcolor: `${urgencyColor}15`,
+                                    color: urgencyColor,
+                                    borderRadius: 1,
+                                    px: 1,
+                                    py: 0.25,
+                                    fontSize: '0.7rem',
+                                    fontWeight: 700,
+                                    whiteSpace: 'nowrap'
+                                }}>
+                                    {dueText}
+                                </Box>
+
+                                {/* Menu button */}
+                                <Box
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        e.preventDefault();
+                                    }}
+                                >
+                                    {isTask ? (
+                                        <TaskMenuDialog
+                                            task={deadline}
+                                            colors={colors}
+                                            refetch={refetch}
+                                            apiUrl={mainTaskAPI}
+                                            TaskCreateInputForm={WbsItemCreateInput}
+                                        />
+                                    ) : (
+                                        <ProjectMenuDialog
+                                            project={deadline}
+                                            colors={colors}
+                                            refetch={refetch}
+                                            apiUrl={mainProjectAPI}
+                                            formatCurrency={formatCurrency}
+                                            ProjectCreateInputForm={ProjectCreateInputForm}
+                                        />
+                                    )}
+                                </Box>
+                            </Box>
+                        </Box>
+
+                        {/* Description */}
+                        <Typography
+                            variant="caption"
+                            color="#64748b"
+                            sx={{
+                                display: 'block',
+                                mb: 1.5,
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap'
+                            }}
+                        >
+                            {deadline.description || deadline.projectTitle}
+                        </Typography>
+
+                        {/* Second row: Chips + Progress */}
+                        <Box sx={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            flexWrap: 'wrap',
+                            gap: 1
+                        }}>
+                            {/* Chips */}
+                            <Box sx={{
+                                display: 'flex',
+                                gap: 0.75,
+                                flexWrap: 'wrap'
+                            }}>
+                                {deadline.priority && (
+                                    <Chip
+                                        label={deadline.priority}
+                                        size="small"
+                                        sx={{
+                                            bgcolor: getPriorityColor(deadline.priority),
+                                            color: 'white',
+                                            height: 20,
+                                            fontSize: '0.7rem'
+                                        }}
+                                    />
+                                )}
+                                <Chip
+                                    label={deadline.taskStage || (isTask ? 'Task' : 'Project')}
+                                    size="small"
+                                    sx={{
+                                        height: 20,
+                                        fontSize: '0.7rem'
+                                    }}
+                                />
+                                <Chip
+                                    label={deadline.projectType}
+                                    size="small"
+                                    variant="outlined"
+                                    sx={{
+                                        height: 20,
+                                        fontSize: '0.7rem'
+                                    }}
+                                />
+                            </Box>
+
+                            {/* Progress */}
+                            {deadline.percentCompletion !== null && (
+                                <Box sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 0.5,
+                                    flexShrink: 0
+                                }}>
+                                    <Box sx={{
+                                        width: 40,
+                                        height: 4,
+                                        bgcolor: '#e2e8f0',
+                                        borderRadius: 2,
+                                        overflow: 'hidden'
+                                    }}>
+                                        <Box sx={{
+                                            width: `${deadline.percentCompletion}%`,
+                                            height: '100%',
+                                            bgcolor: urgencyColor
+                                        }} />
+                                    </Box>
+                                    <Typography
+                                        variant="caption"
+                                        color={urgencyColor}
+                                        fontWeight={600}
+                                        sx={{ fontSize: '0.7rem' }}
+                                    >
+                                        {deadline.percentCompletion}%
+                                    </Typography>
+                                </Box>
+                            )}
+                        </Box>
                     </Box>
-                </Box>
-                <Box sx={{ textAlign: 'right', minWidth: 100 }}>
-                    <Typography variant="caption" fontWeight={600} color="#4361ee">
-                        {formatDate(deadline.deadline)}
-                    </Typography>
-                    <Typography variant="caption" color="#64748b" display="block">
-                        {deadline.percentCompletion !== null ? `${deadline.percentCompletion}% complete` : 'Progress not set'}
-                    </Typography>
-                </Box>
-            </CardContent>
-        </Card>
-    );
+                </CardContent>
+            </Card>
+        );
+    };
 
     // Component for Time Entry Card
     const TimeEntryCard = ({ entry }: { entry: TimeEntry }) => (
@@ -1471,44 +1688,118 @@ export default function PersonalDashboard() {
                                             <>
                                                 <List sx={{ maxHeight: 400, overflow: 'auto' }}>
                                                     {myProjects.recent.slice(0, 4).map((project) => (
-                                                        <Link href={`/project/${project.projectId}`} passHref key={project.projectId}>
+                                                        <Box key={project.projectId} sx={{ position: 'relative' }}>
                                                             <ListItem
+                                                                onClick={() => window.open(`/project/${project.projectId}`, '_blank')}
                                                                 sx={{
                                                                     borderBottom: '1px solid #e2e8f0',
                                                                     cursor: 'pointer',
-                                                                    '&:hover': { bgcolor: '#f1f5f9' }
+                                                                    transition: 'background-color 0.2s',
+                                                                    '&:hover': {
+                                                                        bgcolor: '#f1f5f9',
+                                                                        '& .project-menu': {
+                                                                            opacity: 1
+                                                                        }
+                                                                    },
+                                                                    py: 1.5
                                                                 }}
+                                                                secondaryAction={
+                                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                                        <Chip
+                                                                            label={project.projectStage}
+                                                                            size="small"
+                                                                            color={getStatusColor(project.projectStage)}
+                                                                            sx={{ height: 24 }}
+                                                                        />
+                                                                        <Box
+                                                                            className="project-menu"
+                                                                            sx={{
+                                                                                // opacity: 0,
+                                                                                transition: 'opacity 0.2s',
+
+                                                                            }}
+                                                                            onClick={(e) => e.stopPropagation()}
+                                                                        >
+                                                                            <ProjectMenuDialog
+                                                                                project={project}
+                                                                                colors={colors}
+                                                                                refetch={refetch}
+                                                                                apiUrl={mainProjectAPI}
+                                                                                formatCurrency={formatCurrency}
+                                                                                ProjectCreateInputForm={ProjectCreateInputForm}
+                                                                            />
+                                                                        </Box>
+                                                                    </Box>
+                                                                }
                                                             >
                                                                 <ListItemAvatar>
-                                                                    <Avatar sx={{ bgcolor: '#e0e7ff' }}>
+                                                                    <Avatar sx={{
+                                                                        bgcolor: '#e0e7ff',
+                                                                        width: 40,
+                                                                        height: 40
+                                                                    }}>
                                                                         <FolderIcon sx={{ color: '#4361ee' }} />
                                                                     </Avatar>
                                                                 </ListItemAvatar>
                                                                 <ListItemText
                                                                     primary={
-                                                                        <Typography fontWeight={600}>
+                                                                        <Typography fontWeight={600} noWrap>
                                                                             {project.title}
                                                                         </Typography>
                                                                     }
                                                                     secondary={
-                                                                        <Typography variant="body2" color="#64748b">
-                                                                            {project.projectType} • {project.totalPercentCompletion}% complete
-                                                                        </Typography>
+                                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+                                                                            <Typography variant="caption" color="#64748b">
+                                                                                {project.projectType}
+                                                                            </Typography>
+                                                                            {project.totalPercentCompletion !== null && (
+                                                                                <>
+                                                                                    <Typography variant="caption" color="#64748b">•</Typography>
+                                                                                    <Box sx={{
+                                                                                        display: 'flex',
+                                                                                        alignItems: 'center',
+                                                                                        gap: 0.5
+                                                                                    }}>
+                                                                                        <Box sx={{
+                                                                                            width: 40,
+                                                                                            height: 4,
+                                                                                            bgcolor: '#e2e8f0',
+                                                                                            borderRadius: 2,
+                                                                                            overflow: 'hidden'
+                                                                                        }}>
+                                                                                            <Box sx={{
+                                                                                                width: `${project.totalPercentCompletion}%`,
+                                                                                                height: '100%',
+                                                                                                bgcolor: project.totalPercentCompletion >= 75 ? '#10B981' :
+                                                                                                    project.totalPercentCompletion >= 50 ? '#F59E0B' : '#EF4444'
+                                                                                            }} />
+                                                                                        </Box>
+                                                                                        <Typography variant="caption" color="#64748b">
+                                                                                            {project.totalPercentCompletion}%
+                                                                                        </Typography>
+                                                                                    </Box>
+                                                                                </>
+                                                                            )}
+                                                                        </Box>
                                                                     }
+                                                                    sx={{
+                                                                        '& .MuiListItemText-primary': {
+                                                                            overflow: 'hidden',
+                                                                            textOverflow: 'ellipsis'
+                                                                        }
+                                                                    }}
                                                                 />
-                                                                <ListItemSecondaryAction>
-                                                                    <Chip
-                                                                        label={project.projectStage}
-                                                                        size="small"
-                                                                        color={getStatusColor(project.projectStage)}
-                                                                    />
-                                                                </ListItemSecondaryAction>
                                                             </ListItem>
-                                                        </Link>
+                                                        </Box>
                                                     ))}
                                                 </List>
                                                 <Box sx={{ mt: 2, textAlign: 'center' }}>
-                                                    <Button onClick={() => setTabValue('projects')}>
+                                                    <Button
+                                                        onClick={() => setTabValue('projects')}
+                                                        variant="outlined"
+                                                        size="small"
+                                                        sx={{ borderRadius: 2 }}
+                                                    >
                                                         View All Projects ({myProjects.recent.length})
                                                     </Button>
                                                 </Box>

@@ -89,7 +89,9 @@ import Link from 'next/link';
 import toast from 'react-hot-toast';
 import ProjectCreateInputForm from '../projects/_components/Form';
 import ProjectMenuDialog from './ProjectMenuDialog';
-import { colors, formatCurrency, mainAPI } from './consts';
+import { colors, formatCurrency, mainProjectAPI } from './consts';
+import TaskMenuDialog from './TaskMenuDialog';
+import WbsItemCreateInput from '../wbsItems/_components/Form';
 // Types
 interface DashboardData {
     window: {
@@ -409,7 +411,7 @@ export default function ProjectAnalyticsDashboard() {
     const [currentMenuProject, setCurrentMenuProject] = useState<any>(null);
 
     const buildApiUrl = () => {
-        const baseUrl = `${mainAPI}/analytics/overview`;
+        const baseUrl = `${mainProjectAPI}/analytics/overview`;
         const params = new URLSearchParams({
             from: formatDate(fromDate),
             to: formatDate(toDate)
@@ -428,7 +430,7 @@ export default function ProjectAnalyticsDashboard() {
     });
 
     const deleteMutation = useDataMutation({
-        apiEndPoint: `${mainAPI}/:id`,
+        apiEndPoint: `${mainProjectAPI}/:id`,
         method: 'DELETE',
         invalidateQueryKey: ["dashboardData", apiUrl], // This will invalidate your dashboard query
         onSuccess: (data) => {
@@ -1097,7 +1099,7 @@ export default function ProjectAnalyticsDashboard() {
                                                                 project={project}
                                                                 colors={colors}
                                                                 refetch={refetch}
-                                                                apiUrl={mainAPI}
+                                                                apiUrl={mainProjectAPI}
                                                                 formatCurrency={formatCurrency}
                                                                 ProjectCreateInputForm={ProjectCreateInputForm}
                                                             />
@@ -1659,39 +1661,71 @@ export default function ProjectAnalyticsDashboard() {
                                 {/* Filtered Tasks */}
                                 {filteredTasks.length > 0 ? (
                                     <Stack spacing={2}>
-                                        {filteredTasks.map((task, index) => (
-                                            <Link
-                                                key={task.id}
-                                                href={`/project/${task.projectId}`}
-                                                style={{ textDecoration: 'none' }}
-                                            >
-                                                <Paper sx={{
-                                                    p: 2,
-                                                    borderRadius: 2,
-                                                    cursor: 'pointer',
-                                                    '&:hover': {
-                                                        bgcolor: alpha(colors.teal, 0.05),
-                                                        borderColor: colors.teal
-                                                    }
-                                                }}>
-                                                    <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 0.5 }}>
-                                                        {task.title}
-                                                    </Typography>
-                                                    <Typography variant="caption" sx={{ color: colors.gray, display: 'block', mb: 1 }}>
-                                                        Project: {task.projectTitle}
-                                                    </Typography>
-                                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                                        <Typography variant="caption" sx={{ color: colors.gray }}>
-                                                            {task.code}
+                                        {filteredTasks.map((task) => (
+                                            <Box key={task.id} sx={{ position: 'relative' }}>
+                                                <Link
+                                                    href={`/project/${task.projectId}`}
+                                                    style={{ textDecoration: 'none' }}
+                                                >
+                                                    <Paper sx={{
+                                                        p: 2,
+                                                        borderRadius: 2,
+                                                        cursor: 'pointer',
+                                                        position: 'relative',
+                                                        '&:hover': {
+                                                            bgcolor: alpha(colors.teal, 0.05),
+                                                            borderColor: colors.teal
+                                                        }
+                                                    }}>
+                                                        {/* Top section with menu button */}
+                                                        <Box sx={{
+                                                            display: 'flex',
+                                                            justifyContent: 'space-between',
+                                                            alignItems: 'flex-start',
+                                                            mb: 1
+                                                        }}>
+                                                            <Box sx={{ flex: 1, pr: 1 }}>
+                                                                <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 0.5 }}>
+                                                                    {task.title}
+                                                                </Typography>
+                                                            </Box>
+
+                                                            {/* Menu button positioned at top-right */}
+                                                            <Box
+                                                                sx={{
+                                                                    position: 'absolute',
+                                                                    top: 8,
+                                                                    right: 8,
+                                                                    zIndex: 1
+                                                                }}
+                                                                onClick={(e) => e.stopPropagation()}
+                                                            >
+                                                                <TaskMenuDialog
+                                                                    task={task}
+                                                                    colors={colors}
+                                                                    refetch={refetch} // or refetchTasks if you have separate refetch
+                                                                    apiUrl={apiUrl} // or tasksApiUrl
+                                                                    TaskCreateInputForm={WbsItemCreateInput}
+                                                                />
+                                                            </Box>
+                                                        </Box>
+
+                                                        <Typography variant="caption" sx={{ color: colors.gray, display: 'block', mb: 1 }}>
+                                                            Project: {task.projectTitle}
                                                         </Typography>
-                                                        <Chip
-                                                            label={`Due: ${formatDateTime(task.plannedEndDate)}`}
-                                                            size="small"
-                                                            variant="outlined"
-                                                        />
-                                                    </Box>
-                                                </Paper>
-                                            </Link>
+                                                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                            <Typography variant="caption" sx={{ color: colors.gray }}>
+                                                                {task.code}
+                                                            </Typography>
+                                                            <Chip
+                                                                label={`Due: ${formatDateTime(task.plannedEndDate)}`}
+                                                                size="small"
+                                                                variant="outlined"
+                                                            />
+                                                        </Box>
+                                                    </Paper>
+                                                </Link>
+                                            </Box>
                                         ))}
                                     </Stack>
                                 ) : (
@@ -2248,7 +2282,7 @@ export default function ProjectAnalyticsDashboard() {
                                                         project={project}
                                                         colors={colors}
                                                         refetch={refetch}
-                                                        apiUrl={mainAPI}
+                                                        apiUrl={mainProjectAPI}
                                                         formatCurrency={formatCurrency}
                                                         ProjectCreateInputForm={ProjectCreateInputForm}
                                                     />

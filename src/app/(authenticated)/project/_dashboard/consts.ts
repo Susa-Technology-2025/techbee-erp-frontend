@@ -1,4 +1,5 @@
-export const mainAPI = "https://project.api.techbee.et/api/projects"
+export const mainProjectAPI = "https://project.api.techbee.et/api/projects"
+export const mainTaskAPI = "https://project.api.techbee.et/api/tasks"
 export const colors = {
     primary: '#6366F1',
     success: '#10B981',
