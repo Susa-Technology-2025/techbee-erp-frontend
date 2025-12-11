@@ -3,12 +3,20 @@ export const ChangeRequestCreateInputFormSchema = z.object({
   id: z.string().optional().nullable(),
   title: z.string({ error: "Title is required" }),
   code: z.string({ error: "Code is required" }).optional().nullable(),
-  changeType: z.string({ error: "Change type is required" }),
-  approvalStatus: z.enum(["Draft", "Pending", "Approved", "Rejected"], {
-    error: "Approval status is required",
-  }),
+  changeType: z
+    .string({ error: "Change type is required" })
+    .optional()
+    .nullable(),
+  approvalStatus: z
+    .enum(["Draft", "Pending", "Approved", "Rejected"], {
+      error: "Approval status is required",
+    })
+    .default("Draft"),
   priority: z.enum(["Low", "Medium", "High", "Critical"]).optional().nullable(),
-  description: z.string({ error: "Description is required" }),
+  description: z
+    .string({ error: "Description is required" })
+    .optional()
+    .nullable(),
   reason: z.string().optional().nullable(),
   commentsNotes: z.string().optional().nullable(),
   implementationPlan: z.string().optional().nullable(),
@@ -31,5 +39,9 @@ export const ChangeRequestCreateInputFormSchema = z.object({
     .transform((v) => (typeof v === "string" ? v : v?.id)),
   impactResources: z.unknown().optional().nullable(),
   notificationsPolicy: z.unknown().optional().nullable(),
-  wbsItem: z.object({ id: z.string() }).meta({ url: "/wbsItems" }),
+  wbsItem: z
+    .object({ id: z.string().optional().nullable() })
+    .meta({ url: "/wbsItems" })
+    .optional()
+    .nullable(),
 });
