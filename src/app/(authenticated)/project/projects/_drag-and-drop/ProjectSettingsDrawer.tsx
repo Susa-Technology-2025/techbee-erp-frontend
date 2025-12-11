@@ -28,58 +28,59 @@ interface ProjectSettingsDrawerProps {
   onClose: () => void;
   project: any;
 }
-const menuSectionsWithComponents = [
-  {
-    id: "milestones",
-    icon: <Timeline />,
-    title: "Milestones",
-    description: "Track project milestones and deadlines",
-    color: "#4f46e5",
-    count: 5,
-    Component: Milestones,
-  },
-  {
-    id: "wbsitems",
-    icon: <BarChart />,
-    title: "WBS Items",
-    description: "Work Breakdown Structure items",
-    color: "#dc2626",
-    count: 15,
-    Component: WbsItems,
-  },
-  {
-    id: "assignments",
-    icon: <Group />,
-    title: "Assignments",
-    description: "Project and WBS assignments",
-    color: "#ea580c",
-    count: 8,
-    Component: ProjectAssignment,
-  },
-  {
-    id: "contracts",
-    icon: <Description />,
-    title: "Contracts",
-    description: "Project contracts and agreements",
-    color: "#0891b2",
-    count: 3,
-    Component: ProjectContract,
-  },
-  {
-    id: "changeRequests",
-    icon: <ChangeCircle />,
-    title: "Change Requests",
-    description: "Manage project change requests",
-    color: "#c026d3",
-    count: 2,
-    Component: ChangeRequest,
-  },
-];
 const ProjectSettingsDrawer: React.FC<ProjectSettingsDrawerProps> = ({
   open,
   onClose,
   project,
 }) => {
+  const menuSectionsWithComponents = [
+    {
+      id: "milestones",
+      icon: <Timeline />,
+      title: "Milestones",
+      description: "Track project milestones and deadlines",
+      color: "#4f46e5",
+      count: project?._count?.milestones || project?.milestones?.length || 0,
+      Component: Milestones,
+    },
+    {
+      id: "wbsitems",
+      icon: <BarChart />,
+      title: "WBS Items",
+      description: "Work Breakdown Structure items",
+      color: "#dc2626",
+      count: project?._count?.wbsItems || project?.wbsItems?.length || 0,
+      Component: WbsItems,
+    },
+    {
+      id: "assignments",
+      icon: <Group />,
+      title: "Assignments",
+      description: "Project and WBS assignments",
+      color: "#ea580c",
+      count: project?._count?.assignments || project?.assignments?.length || 0,
+      Component: ProjectAssignment,
+    },
+    {
+      id: "contracts",
+      icon: <Description />,
+      title: "Contracts",
+      description: "Project contracts and agreements",
+      color: "#0891b2",
+      count: project?._count?.contracts || project?.contracts?.length || 0,
+      Component: ProjectContract,
+    },
+    {
+      id: "changeRequests",
+      icon: <ChangeCircle />,
+      title: "Change Requests",
+      description: "Manage project change requests",
+      color: "#c026d3",
+      count:
+        project?._count?.changeRequest || project?.changeRequest?.length || 0,
+      Component: ChangeRequest,
+    },
+  ];
   const [selectedSection, setSelectedSection] = useState("milestones");
   const selectedSectionData = menuSectionsWithComponents.find(
     (section) => section.id === selectedSection

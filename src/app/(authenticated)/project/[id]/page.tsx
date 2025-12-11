@@ -68,6 +68,7 @@ export default function ProjectDetailPage() {
   } = useDataQuery({
     apiEndPoint: `https://api.techbee.et/api/project/projects/${projectId}`,
     enabled: !!projectId,
+    noFilter: true,
   });
 
   const handleBackToList = () => {
@@ -113,7 +114,7 @@ export default function ProjectDetailPage() {
 
   return (
     <ProjectDetail
-      project={projectData?.data}
+      project={projectData}
       allProjects={[]} // Pass empty array since we don't need all projects for this view
       onBackToList={handleBackToList}
       onProjectSelect={handleProjectSelect}
