@@ -5,14 +5,7 @@ import {
     Box,
     Typography,
     Button,
-    Drawer,
-    Dialog,
-    DialogContent,
-    AppBar,
-    Toolbar,
-    IconButton,
     useTheme,
-    alpha,
     CircularProgress,
     Alert,
     AlertTitle,
@@ -22,22 +15,11 @@ import {
 import { TabContext, TabList, TabPanel } from "@mui/lab";
 import AddIcon from '@mui/icons-material/Add';
 import DashboardIcon from '@mui/icons-material/Dashboard';
-import Close from '@mui/icons-material/Close';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import Tab from '@mui/material/Tab';
 import { useSelector } from 'react-redux';
-
-// Import components
 import TaskCreationDialog from './_components/dialogs/taskDialog';
 import { useDataQuery } from '@/lib/tanstack/useDataQuery';
 import { RootState } from "@/lib/store/store";
-import { colors, mainProjectAPI, mainTaskAPI, formatCurrency } from '../_utils/consts';
-import ProjectCreateInputForm from '../projects/_components/Form';
-import WbsItemCreateInput from '../wbsItems/_components/Form';
-import ProjectMenuDialog from '../_dashboard/ProjectMenuDialog';
-import TaskMenuDialog from '../_dashboard/TaskMenuDialog';
-
-// Import new components
 import { DashboardData, Project, Task, TaskIAssigned, Goal } from '../_utils/types';
 import { formatDate } from '../_utils/helpers';
 import OverviewTab from './_components/sections/OverviewTab';

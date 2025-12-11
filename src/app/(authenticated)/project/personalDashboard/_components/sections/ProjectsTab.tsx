@@ -34,6 +34,9 @@ import ErrorIcon from '@mui/icons-material/Error';
 import { Project } from '../../../_utils/types';
 import ProjectCardGrid from '../cards/ProjectCardGrid';
 import { getStatusColor, formatDate } from '../../../_utils/helpers';
+import ProjectMenuDialog from '../../../_dashboard/ProjectMenuDialog';
+import { colors, formatCurrency, mainProjectAPI } from '../../../_utils/consts';
+import ProjectCreateInputForm from '../../../projects/_components/Form';
 
 interface ProjectsTabProps {
     myProjects: {
@@ -189,7 +192,18 @@ const ProjectsTab: React.FC<ProjectsTabProps> = ({
                                             <Typography variant="caption" color="#64748b">
                                                 {formatDate(project.plannedStartDate)}
                                             </Typography>
+                                            <Box onClick={(e) => e.stopPropagation()}>
+                                                <ProjectMenuDialog
+                                                    project={project}
+                                                    colors={colors}
+                                                    refetch={refetch}
+                                                    apiUrl={mainProjectAPI}
+                                                    formatCurrency={formatCurrency}
+                                                    ProjectCreateInputForm={ProjectCreateInputForm}
+                                                />
+                                            </Box>
                                         </Box>
+
                                     </ListItemSecondaryAction>
                                 </ListItem>
                             ))}

@@ -1,3 +1,5 @@
+import { format, parseISO } from "date-fns";
+
 export const mainProjectAPI = "https://project.api.techbee.et/api/projects"
 export const mainTaskAPI = "https://project.api.techbee.et/api/tasks"
 export const colors = {
@@ -23,4 +25,18 @@ export const formatCurrency = (amount: number | null): string => {
         return `ETB ${(amount / 1000).toFixed(1)}K`;
     }
     return `ETB ${amount.toFixed(0)}`;
+};
+
+export const formatDate = (date: Date): string => {
+    return format(date, 'yyyy-MM-dd');
+};
+
+export const formatDateTime = (dateString: string | null): string => {
+    if (!dateString) return 'N/A';
+    return format(parseISO(dateString), 'MMM dd, yyyy');
+};
+
+export const formatNumber = (num: number | null): string => {
+    if (num === null || num === undefined) return 'N/A';
+    return new Intl.NumberFormat('en-US').format(num);
 };
