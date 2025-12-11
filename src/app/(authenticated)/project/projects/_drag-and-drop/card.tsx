@@ -61,13 +61,6 @@ export function TaskCard({ task, isOverlay }: TaskCardProps) {
     switch (dialogContentType) {
       case "task-details":
         return <TaskQuickDetail task={task} />;
-
-        return (
-          <WbsAssignmentForm
-            formMode="create"
-            defaultValues={{ wbsItem: { id: task.id } }}
-          />
-        );
       default:
         return null;
     }
@@ -81,7 +74,7 @@ export function TaskCard({ task, isOverlay }: TaskCardProps) {
         sx={{
           bgcolor: isOverlay
             ? "backgroundSection.main"
-            : alpha(task.color || theme.palette.background.paper, 0.3),
+            : alpha(task.color || theme.palette.background.paper, 1),
           position: "relative",
           p: 0,
         }}
