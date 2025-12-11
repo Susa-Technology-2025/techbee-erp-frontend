@@ -59,6 +59,10 @@ export function TaskPopover({
         handleDialogClose();
       },
       onError: (message) => {},
+      invalidateQueryKey: [
+        "data",
+        `https://api.techbee.et/api/project/wbsItems?where[project][id]=${task.project?.id}`,
+      ],
     });
     return (
       <Box sx={{ p: 3 }}>
@@ -248,7 +252,16 @@ export function TaskPopover({
       case "details":
         return <TaskDetailSection task={task} />;
       case "edit":
-        return <WbsItemForm formMode="edit" defaultValues={task} />;
+        return (
+          <WbsItemForm
+            formMode="edit"
+            defaultValues={task}
+            invalidateQueryKey={[
+              "data",
+              `https://api.techbee.et/api/project/wbsItems?where[project][id]=${task.project?.id}`,
+            ]}
+          />
+        );
       case "delete":
         return <DeleteSection />;
       default:
@@ -261,18 +274,7 @@ export function TaskPopover({
         );
     }
   };
-  const getDialogTitle = () => {
-    switch (currentAction) {
-      case "details":
-        return "Task Details";
-      case "edit":
-        return "Edit Task";
-      case "delete":
-        return "Delete Task";
-      default:
-        return "Task Actions";
-    }
-  };
+
   const menuItems = [
     {
       icon: <Visibility fontSize="small" />,

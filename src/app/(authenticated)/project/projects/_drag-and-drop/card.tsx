@@ -10,6 +10,8 @@ import {
   Paper,
   Typography,
   AppBar,
+  alpha,
+  useTheme,
 } from "@mui/material";
 import { TaskMenuButton } from "./task-menu-button";
 import { Close } from "@mui/icons-material";
@@ -53,32 +55,13 @@ export function TaskCard({ task, isOverlay }: TaskCardProps) {
     setDialogOpen(false);
     setDialogContentType(null);
   };
+  const theme = useTheme();
   const handleMenuClose = () => setMenuAnchor(null);
   const renderDialogContent = () => {
     switch (dialogContentType) {
       case "task-details":
         return <TaskQuickDetail task={task} />;
-      case "attachments":
-        return (
-          <WbsAttachments
-            idString={"?where[wbsItem][id]=" + task.id}
-            defaultValues={{
-              wbsItem: { id: task.id },
-              milestone: { id: task.milestone?.id },
-            }}
-          />
-        );
-      case "avatars":
-        return (
-          <WbsAssignments
-            idString={"?where[wbsItem][id]=" + task.id}
-            defaultValues={{
-              wbsItem: { id: task.id },
-              milestone: { id: task.milestone?.id },
-            }}
-          />
-        );
-      case "assignTask":
+
         return (
           <WbsAssignmentForm
             formMode="create"
@@ -96,7 +79,9 @@ export function TaskCard({ task, isOverlay }: TaskCardProps) {
         {...(!isOverlay ? attributes : {})}
         {...(!isOverlay ? listeners : {})}
         sx={{
-          bgcolor: isOverlay ? "backgroundSection.main" : undefined,
+          bgcolor: isOverlay
+            ? "backgroundSection.main"
+            : alpha(task.color || theme.palette.background.paper, 0.3),
           position: "relative",
           p: 0,
         }}

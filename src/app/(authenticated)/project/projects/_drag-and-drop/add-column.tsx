@@ -115,6 +115,10 @@ export function AddColumn({ onAddColumn, project }: AddColumnProps) {
                 name: project?.taskStageSet?.name,
               },
             }}
+            invalidateQueryKey={[
+              "data",
+              `https://api.techbee.et/api/project/taskStages?where[setField][id]=${project.taskStageSet?.id}`,
+            ]}
           />
         </DialogContent>
       </Dialog>

@@ -67,8 +67,6 @@ export function ColumnPopover({
   };
 
   const DetailSection = () => {
-    const theme = useTheme();
-
     return (
       <Box sx={{ p: 6, gap: 6, display: "flex", flexDirection: "column" }}>
         {/* Header Section */}
@@ -516,6 +514,10 @@ export function ColumnPopover({
       onError: (message) => {
         // Handle error
       },
+      invalidateQueryKey: [
+        "data",
+        `https://api.techbee.et/api/project/taskStages?where[setField][id]=${column.setField?.id}`,
+      ],
     });
 
     const taskCount = column._count?.wbsItems || 0;
@@ -678,7 +680,16 @@ export function ColumnPopover({
       case "details":
         return <DetailSection />;
       case "edit":
-        return <TaskStageForm formMode="edit" defaultValues={column} />;
+        return (
+          <TaskStageForm
+            formMode="edit"
+            defaultValues={column}
+            invalidateQueryKey={[
+              "data",
+              `https://api.techbee.et/api/project/taskStages?where[setField][id]=${column.setField?.id}`,
+            ]}
+          />
+        );
       case "delete":
         return <DeleteSection />;
       default:

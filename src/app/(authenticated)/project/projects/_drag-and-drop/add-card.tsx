@@ -61,6 +61,10 @@ export function AddCard({ column, project }: AddCardProps) {
             taskStage: { id: column.id, name: column.name },
             project: { id: project?.id, title: project?.title },
           }}
+          invalidateQueryKey={[
+            "data",
+            `https://api.techbee.et/api/project/wbsItems?where[project][id]=${project.id}`,
+          ]}
         />
       </DialogContent>
     </Dialog>

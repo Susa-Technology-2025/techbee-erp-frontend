@@ -37,6 +37,7 @@ export default function Page({ children }: { children: ReactNode }) {
               p: 2,
               overflow: "auto",
               position: "relative",
+              zIndex: 3,
             }}
           >
             {children}

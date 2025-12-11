@@ -234,7 +234,6 @@ export const projectLinks: NavItem[] = [
     category: "settings",
     description: "Define workflow stages for tasks.",
     active: true,
-    nonSidebar: true,
   },
 
   // taskstagesets
@@ -248,7 +247,6 @@ export const projectLinks: NavItem[] = [
     category: "settings",
     description: "Manage sets of task stages.",
     active: true,
-    nonSidebar: true,
   },
 
   // timesheets
