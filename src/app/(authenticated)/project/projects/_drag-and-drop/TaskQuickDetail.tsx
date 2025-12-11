@@ -27,14 +27,6 @@ import AttachmentsMenuContent from "./AttachmentsMenuContent";
 import { useDataMutation, useDataQuery } from "@/lib/tanstack/useDataQuery";
 import toast from "react-hot-toast";
 
-const DarkCheckbox = styled(Checkbox)(({ theme }) => ({
-  color: theme.palette.text.secondary,
-  padding: 0,
-  "&.Mui-checked": {
-    color: theme.palette.warning.light,
-  },
-}));
-
 const ChatTextField = styled(TextField)(({ theme }) => ({
   "& .MuiOutlinedInput-root": {
     bgcolor: theme.palette.background.paper,
@@ -164,8 +156,9 @@ const CommentItem = ({ comment, level = 0, taskId, onReplySubmit, theme }) => {
             bgcolor: theme.palette.primary.main,
             fontSize: "0.875rem",
           }}
+          src={`${comment.avatar}`}
         >
-          {comment.createdBy?.firstName?.[0] || "U"}
+          {comment.name[0] || "U"}
         </Avatar>
 
         <Box sx={{ flex: 1 }}>
@@ -184,8 +177,7 @@ const CommentItem = ({ comment, level = 0, taskId, onReplySubmit, theme }) => {
                 color: theme.palette.text.primary,
               }}
             >
-              {comment.createdBy?.firstName || "User"}{" "}
-              {comment.createdBy?.lastName || ""}
+              {comment.name || "User"}
             </Typography>
             <Typography
               variant="caption"
