@@ -256,23 +256,24 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
 
   const generateRandomColor = (seed: string) => {
     const colors = [
-      "#6c63ff",
-      "#ff6584",
-      "#00d4aa",
-      "#ffb74d",
-      "#36d1dc",
-      "#5b86e5",
-      "#f5576c",
-      "#4facfe",
-      "#00f2fe",
-      "#43e97b",
-      "#38f9d7",
-      "#fa709a",
-      "#fee140",
-      "#667eea",
-      "#764ba2",
-      "#f093fb",
-    ];
+      theme.palette.primary.main,
+      theme.palette.primary.light,
+      theme.palette.primary.dark,
+      theme.palette.secondary.main,
+      theme.palette.secondary.light,
+      theme.palette.secondary.dark,
+      theme.palette.section?.main || theme.palette.primary.main,
+      theme.palette.section?.light || theme.palette.primary.light,
+      theme.palette.section?.dark || theme.palette.primary.dark,
+      theme.palette.backgroundSection?.main || theme.palette.primary.main,
+      theme.palette.backgroundSection?.light || theme.palette.primary.light,
+      theme.palette.backgroundSection?.dark || theme.palette.primary.dark,
+      // Add some variations
+      alpha(theme.palette.primary.main, 0.7),
+      alpha(theme.palette.secondary.main, 0.7),
+      alpha(theme.palette.section?.main || theme.palette.primary.main, 0.7),
+    ].filter(Boolean);
+
     const hash = seed.split("").reduce((acc, char) => {
       return char.charCodeAt(0) + ((acc << 5) - acc);
     }, 0);
@@ -830,7 +831,7 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
             <Box
               sx={{
                 p: 3,
-                borderBottom: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                // borderBottom: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
