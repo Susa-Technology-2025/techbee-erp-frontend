@@ -521,8 +521,8 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
                       position: 'absolute',
                       top: -2,
                       right: -2,
-                      width: 16,
-                      height: 16,
+                      width: 17,
+                      height: 17,
                       borderRadius: '50%',
                       backgroundColor: progress >= 75 ? theme.palette.success.main :
                         progress >= 50 ? theme.palette.warning.main :
@@ -532,8 +532,8 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
                       justifyContent: 'center',
                     }}
                   >
-                    <Typography variant="caption" sx={{ fontSize: '0.6rem', fontWeight: 700, color: 'white' }}>
-                      {progress}%
+                    <Typography variant="caption" sx={{ fontSize: '0.5rem', fontWeight: 700, color: 'white' }}>
+                      {progress}
                     </Typography>
                   </Box>
                 </Box>
@@ -831,7 +831,7 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
             <Box
               sx={{
                 p: 3,
-                // borderBottom: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                borderBottom: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
