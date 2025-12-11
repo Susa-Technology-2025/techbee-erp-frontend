@@ -13,7 +13,7 @@ export default function Page({ children }: { children: ReactNode }) {
           height: "100vh",
           width: "100vw",
           overflow: "hidden",
-          position: "fixed",
+          position: "relative",
           top: 0,
           left: 0,
           bgcolor: "backgroundSection.main",
