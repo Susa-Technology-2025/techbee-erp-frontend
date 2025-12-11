@@ -260,7 +260,7 @@ export function TaskPopover({
             invalidateQueryKey={[
               "data",
               `https://api.techbee.et/api/project/wbsItems?where[project][id]=${task.project?.id}`,
-              `https://api.techbee.et/api/project/projects/${task.project?.id}`,
+              // `https://api.techbee.et/api/project/projects/${task.project?.id}`,
             ]}
           />
         );

@@ -64,7 +64,7 @@ export function AddCard({ column, project }: AddCardProps) {
           invalidateQueryKey={[
             "data",
             `https://api.techbee.et/api/project/wbsItems?where[project][id]=${project.id}`,
-            `https://api.techbee.et/api/project/projects/${project?.id}`,
+            // `https://api.techbee.et/api/project/projects/${project?.id}`,
           ]}
         />
       </DialogContent>
