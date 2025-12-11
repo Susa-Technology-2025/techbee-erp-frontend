@@ -32,6 +32,10 @@ import {
   FormControl,
   Alert,
   Snackbar,
+  Badge,
+  Paper,
+  Fade,
+  Zoom,
 } from "@mui/material";
 import {
   ArrowBack,
@@ -45,11 +49,33 @@ import {
   Percent,
   DateRange,
   Close,
+  MoreVert,
+  FilterList,
+  Share,
+  Timeline,
+  ViewKanban,
+  Dashboard,
+  Menu as MenuIcon,
+  ChevronLeft,
+  Notifications,
+  Favorite,
+  Visibility,
+  VisibilityOff,
+  Download,
+  Print,
+  Refresh,
+  HelpOutline,
+  Fullscreen,
+  MoreHoriz,
+  KeyboardArrowDown,
+  KeyboardArrowUp,
+  DragIndicator,
 } from "@mui/icons-material";
 import Projectology from "../_drag-and-drop";
 import ProjectSettingsDrawer from "./ProjectSettingsDrawer";
 import { Project } from "../_components/schema";
 import { useDataMutation, useDataQuery } from "@/lib/tanstack/useDataQuery";
+import { transformToPrismaInput } from "../_components/transformToPrismaInput";
 
 interface ProjectDetailProps {
   project: Project;
@@ -58,213 +84,7 @@ interface ProjectDetailProps {
   onProjectSelect: (project: Project) => void;
 }
 
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  avatar?: string;
-  role?: string;
-}
-
-// Transform utility functions
-interface NestedObject {
-  [key: string]: any;
-}
-
-const getNestedWriteAction = (
-  nestedData: NestedObject
-): "create" | "update" => {
-  return nestedData.id ? "update" : "create";
-};
-
-const cleanNestedObject = (
-  data: NestedObject,
-  action: "create" | "update"
-): NestedObject => {
-  const cleaned: NestedObject = {};
-  for (const key in data) {
-    if (!Object.prototype.hasOwnProperty.call(data, key)) continue;
-    const value = data[key];
-    if (
-      key === "createdAt" ||
-      key === "updatedAt" ||
-      key === "createdBy" ||
-      key === "updatedBy"
-    ) {
-      continue;
-    }
-    if (value === null || value === undefined) {
-      continue;
-    }
-    if (
-      typeof value === "object" &&
-      value !== null &&
-      !Array.isArray(value) &&
-      !(value instanceof Date)
-    ) {
-      const cleanedNested = cleanNestedObject(value, action);
-      if (Object.keys(cleanedNested).length > 0) {
-        cleaned[key] = cleanedNested;
-      }
-    } else {
-      cleaned[key] = value;
-    }
-  }
-  if (action === "create") {
-    delete cleaned.id;
-  }
-  return cleaned;
-};
-
-const isTargetListWriteOperation = (value: NestedObject): boolean => {
-  const keys = Object.keys(value);
-  return keys.some((key) => key === "create" || key === "update");
-};
-
-export const transformToPrismaInput = (data: NestedObject): NestedObject => {
-  const result: NestedObject = {};
-  for (const key in data) {
-    if (!Object.prototype.hasOwnProperty.call(data, key)) continue;
-    const value = data[key];
-    if (
-      key === "createdAt" ||
-      key === "updatedAt" ||
-      key === "createdBy" ||
-      key === "updatedBy"
-    ) {
-      continue;
-    }
-    if (value === null || value === undefined) {
-      continue;
-    }
-    if (Array.isArray(value)) {
-      const arrayContainsObjects = value.every(
-        (item) => typeof item === "object" && item !== null
-      );
-      if (arrayContainsObjects) {
-        const createItems: NestedObject[] = [];
-        const updateItems: NestedObject[] = [];
-        value.forEach((item) => {
-          if (item.id) {
-            const cleanedData = cleanNestedObject(item, "update");
-            delete cleanedData.id;
-            if (Object.keys(cleanedData).length > 0) {
-              updateItems.push({
-                where: { id: item.id },
-                data: cleanedData,
-              });
-            }
-          } else {
-            const cleanedData = cleanNestedObject(item, "create");
-            if (Object.keys(cleanedData).length > 0) {
-              createItems.push(cleanedData);
-            }
-          }
-        });
-        const operation: NestedObject = {};
-        if (createItems.length > 0) {
-          operation.create = createItems;
-        }
-        if (updateItems.length > 0) {
-          operation.update = updateItems;
-        }
-        if (Object.keys(operation).length > 0) {
-          result[key] = operation;
-        }
-        continue;
-      }
-    }
-    const isNestedObject =
-      typeof value === "object" &&
-      value !== null &&
-      !Array.isArray(value) &&
-      !(value instanceof Date);
-    if (isNestedObject) {
-      if (key === "metadata") {
-        result[key] = value;
-        continue;
-      }
-      if (isTargetListWriteOperation(value)) {
-        const cleanedOperations: NestedObject = {};
-        for (const opKey of ["create", "update"]) {
-          const opValue = value[opKey];
-          if (opValue && Array.isArray(opValue)) {
-            cleanedOperations[opKey] = opValue
-              .map((item) => {
-                if (opKey === "create") {
-                  return cleanNestedObject(item, "create");
-                } else if (opKey === "update") {
-                  if (item.data) {
-                    return {
-                      where: item.where,
-                      data: cleanNestedObject(item.data, "update"),
-                    };
-                  }
-                  return item;
-                }
-                return item;
-              })
-              .filter((item) => {
-                if (opKey === "update") {
-                  return item.data && Object.keys(item.data).length > 0;
-                }
-                return (
-                  typeof item === "object" &&
-                  item !== null &&
-                  Object.keys(item).length > 0
-                );
-              });
-            if (cleanedOperations[opKey].length === 0) {
-              delete cleanedOperations[opKey];
-            }
-          }
-        }
-        if (Object.keys(cleanedOperations).length > 0) {
-          result[key] = cleanedOperations;
-        }
-        continue;
-      }
-      const keys = Object.keys(value);
-      if (keys.length === 1 && keys[0] === "id") {
-        result[key] = { connect: value };
-        continue;
-      }
-      const action = getNestedWriteAction(value);
-      const cleanedNestedObject = cleanNestedObject(value, action);
-      if (Object.keys(cleanedNestedObject).length > 0) {
-        result[key] = { [action]: cleanedNestedObject };
-      }
-    } else {
-      result[key] = value;
-    }
-  }
-  const finalResult: NestedObject = {};
-  for (const key in result) {
-    if (!Object.prototype.hasOwnProperty.call(result, key)) continue;
-    const value = result[key];
-    if (
-      typeof value === "object" &&
-      value !== null &&
-      !Array.isArray(value) &&
-      Object.keys(value).length === 1 &&
-      Object.keys(value)[0] === "connect"
-    ) {
-      const connectValue = value.connect;
-      if (
-        typeof connectValue === "object" &&
-        connectValue !== null &&
-        !Array.isArray(connectValue) &&
-        Object.keys(connectValue).length === 1 &&
-        Object.keys(connectValue)[0] === "id"
-      ) {
-        finalResult[key] = connectValue;
-        continue;
-      }
-    }
-    finalResult[key] = value;
-  }
-  return finalResult;
-};
+// ... (keep all your existing transform utility functions as they are)
 
 const ProjectDetail: React.FC<ProjectDetailProps> = ({
   project,
@@ -301,9 +121,8 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
   // Add mutation for updating project assignments
   const { mutate: updateProjectAssignments, isPending: isUpdating } =
     useDataMutation({
-      apiEndPoint: `https://project.api.techbee.et/api/projects/${project.id}`,
+      apiEndPoint: `https://project.api.techbee.et/api/projects/${project?.id}`,
       method: "PATCH",
-      // enabled: false,
       onSuccess: () => {
         setSnackbar({
           open: true,
@@ -311,7 +130,6 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
           severity: "success",
         });
         handleCloseInviteDialog();
-        // You might want to refresh the project data here
       },
       onError: (error) => {
         setSnackbar({
@@ -346,13 +164,11 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
         ? prev.filter((id) => id !== userId)
         : [...prev, userId];
 
-      // Remove role when user is deselected
       if (!newSelectedUsers.includes(userId)) {
         const newRoles = { ...userRoles };
         delete newRoles[userId];
         setUserRoles(newRoles);
       } else {
-        // Set default role for new user
         setUserRoles((prevRoles) => ({
           ...prevRoles,
           [userId]: "Team Member",
@@ -371,12 +187,9 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
   };
 
   const prepareAssignmentsData = () => {
-    // First, handle existing assignments (update to remove if needed, or keep)
-    const existingAssignments = project.assignments || [];
+    const existingAssignments = project?.assignments || [];
     const existingIds = existingAssignments.map((a) => a.id).filter(Boolean);
 
-    // For simplicity, we'll create new assignments for selected users
-    // You can modify this to handle updates/deletes as needed
     const newAssignments = selectedUsers.map((userId) => {
       const user = filteredUsers.find((u: any) => u.id === userId);
       const role = userRoles[userId] || "Team Member";
@@ -390,20 +203,16 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
         startDate: new Date().toISOString(),
         endDate: null,
         isOwner: role === "Owner",
-        // projectId: project.id
       };
     });
 
-    // Combine with existing assignments
     const allAssignments = [
       ...existingAssignments.map((assignment) => ({
         ...assignment,
-        // Keep existing assignments as-is
       })),
       ...newAssignments,
     ];
 
-    // Filter out duplicates based on employeeId
     const uniqueAssignments = allAssignments.filter(
       (assignment, index, self) =>
         index === self.findIndex((a) => a.employeeId === assignment.employeeId)
@@ -415,20 +224,13 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
   const handleAssignUsers = async () => {
     try {
       setLoading(true);
-
       const assignments = prepareAssignmentsData();
-
-      // Transform using the utility function
       const transformedData = transformToPrismaInput({
         assignments: assignments,
       });
-
-      // Prepare the update payload
       const updatePayload = {
         assignments: transformedData.assignments || { create: [] },
       };
-
-      // Make the API call
       updateProjectAssignments(updatePayload);
     } catch (error) {
       console.error("Error assigning users:", error);
@@ -470,8 +272,6 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
       "#667eea",
       "#764ba2",
       "#f093fb",
-      "#f5576c",
-      "#4facfe",
     ];
     const hash = seed.split("").reduce((acc, char) => {
       return char.charCodeAt(0) + ((acc << 5) - acc);
@@ -508,8 +308,8 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
       internalResourceName: assignment.internalResourceName,
       color: generateRandomColor(
         assignment.employeeId ||
-          assignment.id ||
-          assignment.internalResourceName
+        assignment.id ||
+        assignment.internalResourceName
       ),
       rawAssignment: assignment,
     }));
@@ -518,11 +318,9 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
   const filteredUsers = useMemo(() => {
     if (!usersData) return [];
     const users = Array.isArray(usersData) ? usersData : [];
-
-    // Filter out users already assigned to the project
     const assignedUserIds = new Set(
-      project.assignments
-        ?.map((assignment) => assignment.employeeId)
+      project?.assignments
+        ?.map((assignment) => assignment?.employeeId)
         .filter(Boolean) || []
     );
 
@@ -531,14 +329,13 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
       const userEmail = user.email || "";
       const searchLower = searchTerm.toLowerCase();
 
-      // Check if user matches search AND is not already assigned
       return (
         (userName.toLowerCase().includes(searchLower) ||
           userEmail.toLowerCase().includes(searchLower)) &&
         !assignedUserIds.has(user.id)
       );
     });
-  }, [usersData, searchTerm, project.assignments]);
+  }, [usersData, searchTerm, project?.assignments]);
 
   const formatDate = (dateString: string | null | undefined) => {
     if (!dateString) return "Not specified";
@@ -554,7 +351,7 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
     }
   };
 
-  const deadline = project.plannedEndDate || project.actualEndDate || null;
+  const deadline = project?.plannedEndDate || project?.actualEndDate || null;
   const progress = project?.totalPercentCompletion || 0;
 
   const handleCloseSnackbar = () => {
@@ -563,200 +360,541 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
 
   return (
     <Box
-      className="w-full h-full flex flex-col relative overflow-auto"
       sx={{
-        height: "100vh",
+        height: "90vh",
         display: "flex",
         flexDirection: "column",
         position: "relative",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundAttachment: "fixed",
+        overflow: "hidden",
+        // backgroundColor: theme.palette.background.default,
       }}
     >
-      {/* Header Section */}
-      <Box
-        className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 p-6 relative z-10"
-        sx={{
-          background: `linear-gradient(135deg, 
-            ${alpha(theme.palette.section.main, 0.6)} 0%, 
-            ${alpha(theme.palette.section.main, 0.8)} 50%, 
-            ${alpha(theme.palette.section.main, 1)} 100%)`,
-        }}
-      >
-        <Box className="flex items-start space-x-4 flex-1">
-          <IconButton
-            onClick={onBackToList}
-            sx={{
-              backgroundColor: alpha(theme.palette.background.paper, 0.8),
-              backdropFilter: "blur(10px)",
-              "&:hover": {
-                backgroundColor: alpha(theme.palette.action.hover, 0.9),
-                transform: "translateY(-2px)",
-              },
-              boxShadow: `0 8px 32px ${alpha(theme.palette.common.black, 0.1)}`,
-              border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-              transition: "all 0.3s ease",
-              mt: 0.5,
-            }}
-          >
-            <ArrowBack />
-          </IconButton>
-          <Box className="flex flex-col space-y-2 flex-1">
-            <Box className="flex items-center space-x-3">
-              <Typography
-                className="font-bold"
+      {/* Floating Top Bar */}
+      <Fade in={true} timeout={600}>
+        <Paper
+          elevation={2}
+          sx={{
+            position: "fixed",
+            top: 66,
+            left: "50%",
+            transform: "translateX(-50%)",
+            width: "95%",
+            maxWidth: "1400px",
+            height: "64px",
+            borderRadius: 3,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            px: 3,
+            py: 1,
+            backgroundColor: alpha(theme.palette.background.paper, 0.95),
+            backdropFilter: "blur(20px)",
+            border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+            zIndex: 1000,
+            boxShadow: `0 8px 32px ${alpha(theme.palette.common.black, 0.08)}`,
+          }}
+        >
+          {/* Left Section */}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+            {/* Back Button */}
+            <Tooltip title="Back to Projects">
+              <IconButton
+                onClick={onBackToList}
+                size="medium"
                 sx={{
-                  color: theme.palette.info.contrastText,
-                  background: `linear-gradient(135deg, ${theme.palette.primary.contrastText} 0%, ${theme.palette.secondary.contrastText} 100%)`,
-                  backgroundClip: "text",
-                  WebkitBackgroundClip: "text",
-                  fontWeight: 800,
-                  fontSize: { sm: "1rem", md: "2rem", lg: "3rem" },
+                  backgroundColor: alpha(theme.palette.primary.main, 0.1),
+                  color: theme.palette.primary.main,
+                  '&:hover': {
+                    backgroundColor: alpha(theme.palette.primary.main, 0.2),
+                    transform: "translateY(-2px)",
+                  },
+                  transition: "all 0.3s ease",
                 }}
               >
-                {project.title}
-              </Typography>
-              <Chip
-                icon={<Star sx={{ fontSize: 16 }} />}
-                label={project.projectStage?.name || "Active"}
-                size="small"
-                sx={{ color: "white" }}
+                <ChevronLeft />
+              </IconButton>
+            </Tooltip>
+
+            {/* Project Info */}
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+              <Box
+                sx={{
+                  width: 4,
+                  height: 28,
+                  borderRadius: 2,
+                  background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
+                }}
               />
-            </Box>
-            <Typography
-              variant="body1"
-              sx={{
-                color: alpha(theme.palette.info.contrastText, 0.8),
-                maxWidth: "500px",
-              }}
-            >
-              {project.description ||
-                "Manage your project tasks and collaborate with your team efficiently."}
-            </Typography>
-            <Box className="flex flex-wrap items-center gap-4 mt-3">
-              <Box className="flex items-center space-x-2">
-                <CalendarToday
-                  sx={{
-                    fontSize: 18,
-                    color: alpha(theme.palette.info.contrastText, 0.7),
-                  }}
-                />
+              <Box>
                 <Typography
-                  variant="body2"
-                  sx={{ color: alpha(theme.palette.info.contrastText, 0.8) }}
+                  variant="h6"
+                  sx={{
+                    fontWeight: 700,
+                    fontSize: "1.1rem",
+                    background: `linear-gradient(135deg, ${theme.palette.text.primary} 0%, ${alpha(theme.palette.text.primary, 0.8)} 100%)`,
+                    backgroundClip: "text",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                  }}
                 >
-                  {deadline
-                    ? `Due: ${formatDate(deadline)}`
-                    : "No deadline set"}
+                  {project.title}
                 </Typography>
-              </Box>
-              {teamMembers.length > 0 && (
-                <Tooltip title="Click to view team members">
-                  <Box
-                    className="flex items-center space-x-2 cursor-pointer"
-                    onClick={() => {
-                      if (teamMembers.length > 0) {
-                        handleOpenMemberDetails(teamMembers[0].rawAssignment);
-                      }
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 0.25 }}>
+                  <Chip
+                    label={project.projectStage?.name || "Active"}
+                    size="small"
+                    sx={{
+                      backgroundColor: alpha(theme.palette.primary.main, 0.1),
+                      color: theme.palette.primary.main,
+                      fontWeight: 600,
+                      height: 20,
+                      fontSize: '0.7rem',
                     }}
-                  >
-                    <People
-                      sx={{
-                        fontSize: 18,
-                        color: alpha(theme.palette.info.contrastText, 0.7),
-                      }}
-                    />
-                    <AvatarGroup
-                      max={4}
-                      sx={{
-                        "& .MuiAvatar-root": {
-                          width: 28,
-                          height: 28,
-                          fontSize: 12,
-                          cursor: "pointer",
-                          "&:hover": {
-                            transform: "scale(1.1)",
-                            transition: "transform 0.2s",
-                          },
-                        },
-                      }}
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      {teamMembers.map((member, index) => (
-                        <Avatar
-                          key={member.id}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleOpenMemberDetails(member.rawAssignment);
-                          }}
-                          sx={{
-                            bgcolor: member.color,
-                            fontSize: "12px",
-                            fontWeight: 600,
-                            border: member.isOwner
-                              ? `2px solid ${theme.palette.warning.main}`
-                              : "none",
-                            cursor: "pointer",
-                          }}
-                        >
-                          {member.initials}
-                        </Avatar>
-                      ))}
-                    </AvatarGroup>
+                  />
+                  {project.customerName && (
                     <Typography
                       variant="caption"
                       sx={{
-                        color: alpha(theme.palette.info.contrastText, 0.7),
-                        cursor: "pointer",
+                        color: theme.palette.text.secondary,
+                        fontSize: '0.75rem',
                       }}
                     >
-                      {teamMembers.length} member
-                      {teamMembers.length !== 1 ? "s" : ""}
+                      • {project.customerName}
                     </Typography>
-                  </Box>
-                </Tooltip>
-              )}
-              {project.customerName && (
-                <Chip
-                  label={project.customerName}
-                  size="small"
-                  variant="outlined"
-                  sx={{
-                    borderColor: alpha(theme.palette.info.contrastText, 0.3),
-                    color: theme.palette.info.contrastText,
-                    fontWeight: 500,
-                  }}
-                />
-              )}
+                  )}
+                </Box>
+              </Box>
             </Box>
           </Box>
-        </Box>
-        <Box className="flex items-center space-x-2 mt-4 lg:mt-0">
-          <Tooltip title="Assign Team Members">
-            <IconButton
-              onClick={handleOpenInviteDialog}
-              sx={{
-                backgroundColor: alpha(theme.palette.background.paper, 0.8),
-                backdropFilter: "blur(10px)",
-                "&:hover": {
-                  backgroundColor: alpha(theme.palette.action.hover, 0.9),
+
+          {/* Center Section - Stats */}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 3 }}>
+            {/* Deadline */}
+            <Tooltip title={`Due: ${deadline ? formatDate(deadline) : 'No deadline'}`}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Box
+                  sx={{
+                    width: 36,
+                    height: 36,
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: alpha(theme.palette.warning.main, 0.1),
+                    color: theme.palette.warning.main,
+                  }}
+                >
+                  <CalendarToday sx={{ fontSize: 18 }} />
+                </Box>
+                <Box>
+                  <Typography variant="caption" sx={{ color: theme.palette.text.secondary, fontSize: '0.75rem' }}>
+                    Deadline
+                  </Typography>
+                  <Typography variant="body2" sx={{ fontWeight: 500, fontSize: '0.875rem' }}>
+                    {deadline ? formatDate(deadline) : "Not set"}
+                  </Typography>
+                </Box>
+              </Box>
+            </Tooltip>
+
+            {/* Progress */}
+            <Tooltip title={`Progress: ${progress}%`}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Box sx={{ position: 'relative' }}>
+                  <Box
+                    sx={{
+                      width: 36,
+                      height: 36,
+                      borderRadius: '50%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      backgroundColor: alpha(theme.palette.info.main, 0.1),
+                      color: theme.palette.info.main,
+                    }}
+                  >
+                    <Timeline sx={{ fontSize: 18 }} />
+                  </Box>
+                  <Box
+                    sx={{
+                      position: 'absolute',
+                      top: -2,
+                      right: -2,
+                      width: 16,
+                      height: 16,
+                      borderRadius: '50%',
+                      backgroundColor: progress >= 75 ? theme.palette.success.main :
+                        progress >= 50 ? theme.palette.warning.main :
+                          theme.palette.error.main,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <Typography variant="caption" sx={{ fontSize: '0.6rem', fontWeight: 700, color: 'white' }}>
+                      {progress}%
+                    </Typography>
+                  </Box>
+                </Box>
+                <Box>
+                  <Typography variant="caption" sx={{ color: theme.palette.text.secondary, fontSize: '0.75rem' }}>
+                    Progress
+                  </Typography>
+                  <Typography variant="body2" sx={{ fontWeight: 500, fontSize: '0.875rem' }}>
+                    {progress}% Complete
+                  </Typography>
+                </Box>
+              </Box>
+            </Tooltip>
+
+            {/* Team Members */}
+            <Tooltip title="Team Members">
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Box
+                  sx={{
+                    width: 36,
+                    height: 36,
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: alpha(theme.palette.success.main, 0.1),
+                    color: theme.palette.success.main,
+                    cursor: 'pointer',
+                  }}
+                  onClick={() => {
+                    if (teamMembers.length > 0) {
+                      // Get a random team member or the first one
+                      const randomIndex = Math.floor(Math.random() * teamMembers.length);
+                      handleOpenMemberDetails(teamMembers[randomIndex].rawAssignment);
+                    }
+                  }}
+                >
+                  <People sx={{ fontSize: 18 }} />
+                </Box>
+                <Box>
+                  <Typography variant="caption" sx={{ color: theme.palette.text.secondary, fontSize: '0.75rem' }}>
+                    Team
+                  </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+
+
+                    <AvatarGroup
+                      max={3}
+                      componentsProps={{
+                        additionalAvatar: {
+                          sx: {
+                            width: 20,
+                            height: 20,
+                            fontSize: 9,
+                            border: `1.5px solid ${theme.palette.background.paper}`,
+                            cursor: 'pointer',
+                            backgroundColor: alpha(theme.palette.primary.main, 0.1),
+                            color: theme.palette.primary.main,
+                            '&:hover': {
+                              backgroundColor: alpha(theme.palette.primary.main, 0.2),
+                              transform: 'scale(1.1)',
+                            },
+                          },
+                          onClick: (event) => {
+                            event.stopPropagation();
+                            // Open a dialog to show all team members
+                            // Or you can open the member details for the first extra member
+                            if (teamMembers.length > 3) {
+                              handleOpenMemberDetails(teamMembers[3].rawAssignment);
+                            }
+                          }
+                        }
+                      }}
+                      sx={{
+                        '& .MuiAvatar-root': {
+                          width: 20,
+                          height: 20,
+                          fontSize: 9,
+                          border: `1.5px solid ${theme.palette.background.paper}`,
+                          '&:hover': {
+                            transform: 'scale(1.2)',
+                          },
+                        },
+                      }}
+                    >
+                      {teamMembers.map((member) => (
+                        <Tooltip key={member.id} title={member.name}>
+                          <Avatar
+                            sx={{
+                              bgcolor: member.color,
+                              fontSize: '9px',
+                              fontWeight: 700,
+                              cursor: 'pointer',
+                            }}
+                            onClick={() => handleOpenMemberDetails(member.rawAssignment)}
+                          >
+                            {member.initials}
+                          </Avatar>
+                        </Tooltip>
+                      ))}
+                    </AvatarGroup>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        fontWeight: 500,
+                        fontSize: '0.875rem',
+                        cursor: teamMembers.length > 0 ? 'pointer' : 'default',
+                        '&:hover': teamMembers.length > 0 ? {
+                          textDecoration: 'underline',
+                          color: theme.palette.primary.main,
+                        } : {},
+                      }}
+                      onClick={() => {
+                        if (teamMembers.length > 0) {
+                          // Get a random team member or the first one
+                          const randomIndex = Math.floor(Math.random() * teamMembers.length);
+                          handleOpenMemberDetails(teamMembers[randomIndex].rawAssignment);
+                        }
+                      }}
+                    >
+                      {teamMembers.length}
+                    </Typography>
+                  </Box>
+                </Box>
+              </Box>
+            </Tooltip>
+          </Box>
+
+          {/* Right Section - Actions */}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+
+            {/* Share Button */}
+            <Tooltip title="Share project">
+              <IconButton
+                size="small"
+                onClick={handleOpenInviteDialog}
+                sx={{
+                  backgroundColor: alpha(theme.palette.primary.main, 0.1),
                   color: theme.palette.primary.main,
-                  transform: "translateY(-2px)",
-                },
-                boxShadow: `0 8px 32px ${alpha(
-                  theme.palette.common.black,
-                  0.1
-                )}`,
-                border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-                transition: "all 0.3s ease",
+                  '&:hover': {
+                    backgroundColor: alpha(theme.palette.primary.main, 0.2),
+                  },
+                }}
+              >
+                <Share sx={{ fontSize: 20 }} />
+              </IconButton>
+            </Tooltip>
+
+            {/* Filter Button */}
+            {/* <Tooltip title="Show filters">
+              <IconButton
+                size="small"
+                onClick={() => setShowFilters(!showFilters)}
+                sx={{
+                  backgroundColor: showFilters ? alpha(theme.palette.primary.main, 0.1) : 'transparent',
+                  color: showFilters ? theme.palette.primary.main : theme.palette.text.secondary,
+                  '&:hover': {
+                    backgroundColor: alpha(theme.palette.primary.main, 0.1),
+                  },
+                }}
+              >
+                <FilterList sx={{ fontSize: 20 }} />
+              </IconButton>
+            </Tooltip> */}
+
+            {/* More Actions */}
+            {/* <Tooltip title="More actions">
+              <IconButton
+                size="small"
+                sx={{
+                  backgroundColor: alpha(theme.palette.action.hover, 0.1),
+                  color: theme.palette.text.secondary,
+                  '&:hover': {
+                    backgroundColor: alpha(theme.palette.action.hover, 0.2),
+                  },
+                }}
+              >
+                <MoreVert sx={{ fontSize: 20 }} />
+              </IconButton>
+            </Tooltip> */}
+
+            {/* Settings FAB */}
+            <Zoom in={true} style={{ transitionDelay: '300ms' }}>
+              <Tooltip title="Project Tools">
+                <IconButton
+                  onClick={toggleSettings}
+                  sx={{
+                    ml: 1,
+                    width: 40,
+                    height: 40,
+                    backgroundColor: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
+                    background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
+                    color: 'white',
+                    '&:hover': {
+                      background: `linear-gradient(135deg, ${theme.palette.secondary.main} 0%, ${theme.palette.primary.main} 100%)`,
+                      transform: "translateY(-2px) scale(1.05)",
+                      boxShadow: `0 6px 20px ${alpha(theme.palette.primary.main, 0.4)}`,
+                    },
+                    boxShadow: `0 4px 15px ${alpha(theme.palette.primary.main, 0.3)}`,
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  }}
+                >
+                  <Settings sx={{ fontSize: 20 }} />
+                </IconButton>
+              </Tooltip>
+            </Zoom>
+          </Box>
+        </Paper>
+      </Fade>
+
+      {/* Filters Bar (Collapsible) */}
+      {/* {showFilters && (
+        <Fade in={showFilters}>
+          <Paper
+            elevation={1}
+            sx={{
+              position: "fixed",
+              top: 96,
+              left: "50%",
+              transform: "translateX(-50%)",
+              width: "95%",
+              maxWidth: "1400px",
+              borderRadius: 2,
+              px: 3,
+              py: 1.5,
+              backgroundColor: alpha(theme.palette.background.paper, 0.9),
+              backdropFilter: "blur(10px)",
+              border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+              zIndex: 999,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 2,
+            }}
+          >
+            <Typography variant="body2" sx={{ fontWeight: 500, color: theme.palette.text.secondary }}>
+              Filters:
+            </Typography>
+            <Chip label="Assigned to me" size="small" variant="outlined" />
+            <Chip label="Overdue" size="small" variant="outlined" />
+            <Chip label="High Priority" size="small" variant="outlined" />
+            <Chip label="This week" size="small" variant="outlined" />
+            <IconButton size="small">
+              <Close sx={{ fontSize: 16 }} />
+            </IconButton>
+          </Paper>
+        </Fade>
+      )} */}
+
+      {/* FULL SCREEN BOARD CONTAINER */}
+      <Box
+        sx={{
+          flex: 1,
+          // mt: showFilters ? '136px' : '96px', // Adjust margin based on filters visibility
+          // height: `calc(100vh - ${showFilters ? '136px' : '96px'})`,
+          overflow: "hidden",
+          position: "relative",
+        }}
+      >
+        {/* Background Pattern */}
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            // backgroundImage: `radial-gradient(${alpha(theme.palette.primary.main, 0.03)} 1px, transparent 1px)`,
+            backgroundSize: '20px 20px',
+            pointerEvents: 'none',
+            zIndex: 0,
+          }}
+        />
+
+        {/* Board Container with max width but full height */}
+        <Box
+          sx={{
+            minHeight: '100%',
+            width: '100%',
+            px: 3,
+            pb: 3,
+            position: 'relative',
+            zIndex: 1,
+          }}
+        >
+          <Paper
+            elevation={0}
+            sx={{
+              minHeight: '100%',
+              borderRadius: 3,
+              backgroundColor: "transparent",
+              overflow: 'hidden',
+            }}
+          >
+            {/* Board Header */}
+            <Box
+              sx={{
+                p: 3,
+                borderBottom: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
               }}
             >
-              <PersonAdd />
-            </IconButton>
-          </Tooltip>
+
+            </Box>
+
+            {/* The Actual Board - Takes full available height */}
+            <Box sx={{ height: 'calc(100% - 80px)', overflow: 'auto' }}>
+              <Projectology project={project} />
+            </Box>
+          </Paper>
         </Box>
       </Box>
+
+      {/* Floating Action Buttons */}
+      {/* <Box
+        sx={{
+          position: 'fixed',
+          right: 24,
+          bottom: 24,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 2,
+          zIndex: 1000,
+        }}
+      >
+        <Zoom in={true} style={{ transitionDelay: '400ms' }}>
+          <Tooltip title="Full screen">
+            <IconButton
+              sx={{
+                backgroundColor: theme.palette.background.paper,
+                color: theme.palette.primary.main,
+                boxShadow: `0 4px 20px ${alpha(theme.palette.common.black, 0.15)}`,
+                '&:hover': {
+                  backgroundColor: theme.palette.primary.main,
+                  color: 'white',
+                  transform: 'translateY(-4px)',
+                },
+              }}
+            >
+              <Fullscreen />
+            </IconButton>
+          </Tooltip>
+        </Zoom>
+
+        <Zoom in={true} style={{ transitionDelay: '500ms' }}>
+          <Tooltip title="Add new task">
+            <Fab
+              color="primary"
+              sx={{
+                boxShadow: `0 6px 20px ${alpha(theme.palette.primary.main, 0.3)}`,
+                '&:hover': {
+                  transform: 'scale(1.1)',
+                  boxShadow: `0 8px 25px ${alpha(theme.palette.primary.main, 0.4)}`,
+                },
+              }}
+            >
+              <DragIndicator />
+            </Fab>
+          </Tooltip>
+        </Zoom>
+      </Box> */}
 
       {/* Member Details Dialog */}
       <Dialog
@@ -768,11 +906,7 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
         {selectedMember && (
           <>
             <DialogTitle>
-              <Box
-                display="flex"
-                justifyContent="space-between"
-                alignItems="center"
-              >
+              <Box display="flex" justifyContent="space-between" alignItems="center">
                 <Typography variant="h6">Team Member Details</Typography>
                 <IconButton onClick={handleCloseMemberDetails} size="small">
                   <Close />
@@ -780,20 +914,8 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
               </Box>
             </DialogTitle>
             <DialogContent dividers>
-              <Box
-                display="flex"
-                flexDirection={{ xs: "column", md: "row" }}
-                gap={3}
-              >
-                <Box
-                  sx={{
-                    flex: { md: 1 },
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    mb: { xs: 3, md: 0 },
-                  }}
-                >
+              <Box display="flex" flexDirection={{ xs: "column", md: "row" }} gap={3}>
+                <Box sx={{ flex: { md: 1 }, display: "flex", flexDirection: "column", alignItems: "center", mb: { xs: 3, md: 0 } }}>
                   <Avatar
                     sx={{
                       width: 100,
@@ -803,8 +925,8 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
                       mb: 2,
                       bgcolor: generateRandomColor(
                         selectedMember.employeeId ||
-                          selectedMember.id ||
-                          selectedMember.internalResourceName
+                        selectedMember.id ||
+                        selectedMember.internalResourceName
                       ),
                       border: selectedMember.isOwner
                         ? `3px solid ${theme.palette.warning.main}`
@@ -839,35 +961,16 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
                 <Box sx={{ flex: { md: 2 } }}>
                   <Card variant="outlined">
                     <CardContent>
-                      <Typography
-                        variant="subtitle1"
-                        color="primary"
-                        gutterBottom
-                      >
+                      <Typography variant="subtitle1" color="primary" gutterBottom>
                         Assignment Details
                       </Typography>
                       <Divider sx={{ mb: 2 }} />
                       <Box display="flex" flexWrap="wrap" gap={2}>
-                        <Box
-                          sx={{
-                            flex: {
-                              xs: "1 0 100%",
-                              sm: "1 0 calc(50% - 16px)",
-                            },
-                          }}
-                        >
+                        <Box sx={{ flex: { xs: "1 0 100%", sm: "1 0 calc(50% - 16px)" } }}>
                           <Box display="flex" alignItems="center" mb={2}>
-                            <Work
-                              sx={{
-                                mr: 1,
-                                color: theme.palette.text.secondary,
-                              }}
-                            />
+                            <Work sx={{ mr: 1, color: theme.palette.text.secondary }} />
                             <Box>
-                              <Typography
-                                variant="caption"
-                                color="textSecondary"
-                              >
+                              <Typography variant="caption" color="textSecondary">
                                 Role
                               </Typography>
                               <Typography variant="body1">
@@ -876,26 +979,11 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
                             </Box>
                           </Box>
                         </Box>
-                        <Box
-                          sx={{
-                            flex: {
-                              xs: "1 0 100%",
-                              sm: "1 0 calc(50% - 16px)",
-                            },
-                          }}
-                        >
+                        <Box sx={{ flex: { xs: "1 0 100%", sm: "1 0 calc(50% - 16px)" } }}>
                           <Box display="flex" alignItems="center" mb={2}>
-                            <Percent
-                              sx={{
-                                mr: 1,
-                                color: theme.palette.text.secondary,
-                              }}
-                            />
+                            <Percent sx={{ mr: 1, color: theme.palette.text.secondary }} />
                             <Box>
-                              <Typography
-                                variant="caption"
-                                color="textSecondary"
-                              >
+                              <Typography variant="caption" color="textSecondary">
                                 Allocation
                               </Typography>
                               <Typography variant="body1">
@@ -904,26 +992,11 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
                             </Box>
                           </Box>
                         </Box>
-                        <Box
-                          sx={{
-                            flex: {
-                              xs: "1 0 100%",
-                              sm: "1 0 calc(50% - 16px)",
-                            },
-                          }}
-                        >
+                        <Box sx={{ flex: { xs: "1 0 100%", sm: "1 0 calc(50% - 16px)" } }}>
                           <Box display="flex" alignItems="center" mb={2}>
-                            <DateRange
-                              sx={{
-                                mr: 1,
-                                color: theme.palette.text.secondary,
-                              }}
-                            />
+                            <DateRange sx={{ mr: 1, color: theme.palette.text.secondary }} />
                             <Box>
-                              <Typography
-                                variant="caption"
-                                color="textSecondary"
-                              >
+                              <Typography variant="caption" color="textSecondary">
                                 Start Date
                               </Typography>
                               <Typography variant="body1">
@@ -932,26 +1005,11 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
                             </Box>
                           </Box>
                         </Box>
-                        <Box
-                          sx={{
-                            flex: {
-                              xs: "1 0 100%",
-                              sm: "1 0 calc(50% - 16px)",
-                            },
-                          }}
-                        >
+                        <Box sx={{ flex: { xs: "1 0 100%", sm: "1 0 calc(50% - 16px)" } }}>
                           <Box display="flex" alignItems="center" mb={2}>
-                            <DateRange
-                              sx={{
-                                mr: 1,
-                                color: theme.palette.text.secondary,
-                              }}
-                            />
+                            <DateRange sx={{ mr: 1, color: theme.palette.text.secondary }} />
                             <Box>
-                              <Typography
-                                variant="caption"
-                                color="textSecondary"
-                              >
+                              <Typography variant="caption" color="textSecondary">
                                 End Date
                               </Typography>
                               <Typography variant="body1">
@@ -1034,7 +1092,6 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
             sx={{ mb: 2 }}
           />
 
-          {/* Role assignment section */}
           {selectedUsers.length > 0 && (
             <Box mb={2}>
               <Typography variant="subtitle2" gutterBottom>
@@ -1043,27 +1100,17 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
               {selectedUsers.map((userId) => {
                 const user = filteredUsers.find((u: any) => u.id === userId);
                 return (
-                  <Box
-                    key={userId}
-                    display="flex"
-                    alignItems="center"
-                    gap={1}
-                    mb={1}
-                  >
+                  <Box key={userId} display="flex" alignItems="center" gap={1} mb={1}>
                     <Typography variant="body2" sx={{ flex: 1 }}>
                       {user?.name || user?.email}
                     </Typography>
                     <FormControl size="small" sx={{ width: 150 }}>
                       <Select
                         value={userRoles[userId] || "Team Member"}
-                        onChange={(e) =>
-                          handleRoleChange(userId, e.target.value)
-                        }
+                        onChange={(e) => handleRoleChange(userId, e.target.value)}
                       >
                         <MenuItem value="Team Member">Team Member</MenuItem>
-                        <MenuItem value="Project Manager">
-                          Project Manager
-                        </MenuItem>
+                        <MenuItem value="Project Manager">Project Manager</MenuItem>
                         <MenuItem value="Developer">Developer</MenuItem>
                         <MenuItem value="Designer">Designer</MenuItem>
                         <MenuItem value="Tester">Tester</MenuItem>
@@ -1134,17 +1181,9 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
           )}
 
           {selectedUsers.length > 0 && (
-            <Box
-              mt={2}
-              p={2}
-              sx={{
-                backgroundColor: alpha(theme.palette.primary.main, 0.05),
-                borderRadius: 1,
-              }}
-            >
+            <Box mt={2} p={2} sx={{ backgroundColor: alpha(theme.palette.primary.main, 0.05), borderRadius: 1 }}>
               <Typography variant="body2">
-                Selected {selectedUsers.length} user
-                {selectedUsers.length !== 1 ? "s" : ""}
+                Selected {selectedUsers.length} user{selectedUsers.length !== 1 ? "s" : ""}
               </Typography>
             </Box>
           )}
@@ -1155,118 +1194,18 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
             onClick={handleAssignUsers}
             variant="contained"
             disabled={selectedUsers.length === 0 || loading || isUpdating}
-            startIcon={
-              loading || isUpdating ? <CircularProgress size={20} /> : null
-            }
+            startIcon={loading || isUpdating ? <CircularProgress size={20} /> : null}
           >
             {loading || isUpdating ? "Assigning..." : "Assign Selected Users"}
           </Button>
         </DialogActions>
       </Dialog>
-      {}
-      {}
-      <Box
-        className="flex-1 p-6 relative z-10"
-        sx={{
-          background: `linear-gradient(180deg, ${alpha(
-            theme.palette.background.default,
-            0
-          )} 0%, ${alpha(theme.palette.background.default, 1)} 100%)`,
-        }}
-      >
-        <Box
-          sx={{
-            overflow: "hidden",
-            height: "100%",
-          }}
-        >
-          <Projectology project={project} />
-        </Box>
-      </Box>
-
-      {/* Settings FAB */}
-      <Box className="fixed bottom-8 right-8 z-50">
-        <Fab
-          variant="extended"
-          color="primary"
-          onClick={toggleSettings}
-          className="shadow-2xl hover:shadow-3xl transition-all duration-300 px-6 py-4"
-          sx={{
-            background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
-            "&:hover": {
-              background: `linear-gradient(135deg, ${theme.palette.secondary.main} 0%, ${theme.palette.primary.main} 100%)`,
-              transform: "translateY(-4px) scale(1.05)",
-              boxShadow: `0 20px 40px ${alpha(
-                theme.palette.primary.main,
-                0.3
-              )}`,
-            },
-            boxShadow: `0 15px 35px ${alpha(theme.palette.primary.main, 0.2)}`,
-            borderRadius: "16px",
-            fontWeight: 600,
-            fontSize: "16px",
-            textTransform: "none",
-            transition: "all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
-            position: "relative",
-            overflow: "hidden",
-            "&::before": {
-              content: '""',
-              position: "absolute",
-              top: 0,
-              left: "-100%",
-              width: "100%",
-              height: "100%",
-              background:
-                "linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)",
-              transition: "left 0.5s ease",
-            },
-            "&:hover::before": {
-              left: "100%",
-            },
-          }}
-        >
-          <Settings sx={{ mr: 2, fontSize: 20 }} />
-          Project Tools
-        </Fab>
-      </Box>
 
       {/* Settings Drawer */}
       <ProjectSettingsDrawer
         open={settingsOpen}
         onClose={toggleSettings}
         project={project}
-      />
-
-      {/* Background Effects */}
-      <Box
-        sx={{
-          position: "absolute",
-          top: "10%",
-          right: "5%",
-          width: "300px",
-          height: "300px",
-          borderRadius: "50%",
-          background: `radial-gradient(${alpha(
-            theme.palette.primary.main,
-            0.1
-          )} 0%, transparent 70%)`,
-          zIndex: 0,
-        }}
-      />
-      <Box
-        sx={{
-          position: "absolute",
-          bottom: "20%",
-          left: "3%",
-          width: "200px",
-          height: "200px",
-          borderRadius: "50%",
-          background: `radial-gradient(${alpha(
-            theme.palette.secondary.main,
-            0.08
-          )} 0%, transparent 70%)`,
-          zIndex: 0,
-        }}
       />
 
       {/* Snackbar for notifications */}
@@ -1276,15 +1215,11 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
         onClose={handleCloseSnackbar}
         anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
       >
-        <Alert
-          onClose={handleCloseSnackbar}
-          severity={snackbar.severity}
-          sx={{ width: "100%" }}
-        >
+        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: "100%" }}>
           {snackbar.message}
         </Alert>
       </Snackbar>
-    </Box>
+    </Box >
   );
 };
 
