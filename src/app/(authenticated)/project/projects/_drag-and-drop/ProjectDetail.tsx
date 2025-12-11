@@ -831,7 +831,7 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
             <Box
               sx={{
                 p: 3,
-                borderBottom: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                // borderBottom: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
