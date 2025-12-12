@@ -1,0 +1,2 @@
+import {z} from "zod"
+export const UserRoleFormSchema = z.object({ id: z.string().optional().nullable(), role: z.object({ id: z.string({ error: "Role is required" }) }).meta({ url: "/roles" }), user: z.object({ id: z.string({ error: "User is required" }) }).meta({ url: "/users" }) })

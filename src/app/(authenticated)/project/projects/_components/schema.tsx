@@ -1,2 +1,58 @@
-import { z } from "zod"
-export const ProjectCreateInputFormSchema = z.object({ id: z.string().optional().nullable(), title: z.string({ error: "Title is required" }), code: z.string({ error: "Code is required" }).optional().nullable(), approvalStatus: z.enum(["Draft", "Pending", "Approved", "Rejected"], { error: "Approval status is required" }).default("Draft"), currency: z.enum(["ETB", "USD", "EUR", "GBP", "AED"]).optional().nullable(), approvalRequired: z.boolean({ error: "Approval required is required" }).default(false), riskFlag: z.boolean({ error: "Risk flag is required" }).default(false), notifyMemberInvited: z.boolean({ error: "Notify member invited is required" }).default(false), notifyProjectAssignmentChanged: z.boolean({ error: "Notify project assignment changed is required" }).default(false), actualCost: z.coerce.number().optional().nullable(), totalBudget: z.coerce.number().optional().nullable(), totalPercentCompletion: z.coerce.number().optional().nullable(), variance: z.coerce.number().optional().nullable(), actualStartDate: z.coerce.date().optional().nullable(), actualEndDate: z.coerce.date().optional().nullable(), plannedStartDate: z.coerce.date().optional().nullable(), plannedEndDate: z.coerce.date().optional().nullable(), customerName: z.string().optional().nullable(), departmentOrCostCenter: z.string().optional().nullable(), description: z.string().optional().nullable(), projectManagerEmployeeId: z.string().optional().nullable().meta({ url: "users" }), billingMethod: z.object({ id: z.string().optional().nullable() }).optional().nullable().meta({ url: "/billingMethods" }), projectStage: z.object({ id: z.string().optional().nullable() }).optional().nullable().meta({ url: "/projectStages" }), projectType: z.object({ id: z.string().optional().nullable() }).optional().nullable().meta({ url: "/projectTypes" }), taskStageSet: z.object({ id: z.string().optional().nullable() }).optional().nullable().meta({ url: "/taskStageSets" }) })
+import { z } from "zod";
+export const ProjectCreateInputFormSchema = z.object({
+  id: z.string().optional().nullable(),
+  title: z.string({ error: "Title is required" }),
+  code: z.string({ error: "Code is required" }).optional().nullable(),
+  approvalStatus: z
+    .enum(["Draft", "Pending", "Approved", "Rejected"], {
+      error: "Approval status is required",
+    })
+    .default("Draft"),
+  currency: z.enum(["ETB", "USD", "EUR", "GBP", "AED"]).optional().nullable(),
+  approvalRequired: z
+    .boolean({ error: "Approval required is required" })
+    .default(false),
+  riskFlag: z.boolean({ error: "Risk flag is required" }).default(false),
+  notifyMemberInvited: z
+    .boolean({ error: "Notify member invited is required" })
+    .default(false),
+  notifyProjectAssignmentChanged: z
+    .boolean({ error: "Notify project assignment changed is required" })
+    .default(false),
+  actualCost: z.coerce.number().optional().nullable(),
+  totalBudget: z.coerce.number().optional().nullable(),
+  totalPercentCompletion: z.coerce.number().optional().nullable(),
+  variance: z.coerce.number().optional().nullable(),
+  actualStartDate: z.coerce.date().optional().nullable(),
+  actualEndDate: z.coerce.date().optional().nullable(),
+  plannedStartDate: z.coerce.date().optional().nullable(),
+  plannedEndDate: z.coerce.date().optional().nullable(),
+  customerName: z.string().optional().nullable(),
+  departmentOrCostCenter: z.string().optional().nullable(),
+  description: z.string().optional().nullable(),
+  projectManagerEmployeeId: z
+    .string()
+    .optional()
+    .nullable()
+    .meta({ url: "users" }),
+  billingMethod: z
+    .object({ id: z.string().optional().nullable() })
+    .optional()
+    .nullable()
+    .meta({ url: "/billingMethods" }),
+  projectStage: z
+    .object({ id: z.string().optional().nullable() })
+    .optional()
+    .nullable()
+    .meta({ url: "/projectStages" }),
+  projectType: z
+    .object({ id: z.string().optional().nullable() })
+    .optional()
+    .nullable()
+    .meta({ url: "/projectTypes" }),
+  taskStageSet: z
+    .object({ id: z.string().optional().nullable() })
+    .optional()
+    .nullable()
+    .meta({ url: "/taskStageSets" }),
+});
