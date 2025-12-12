@@ -242,7 +242,7 @@ export const NotifyTaskDueSoonField = ({index}: any) => {
   const { control: formControl } = useFormContext();
   return (
     <Controller
-      name={`notifyTaskDueSoon`}
+      name={`notifyProjectOverdue`}
       control={formControl}
       rules={{ required: false }}
       render={({ field: controllerField, fieldState }) => (
