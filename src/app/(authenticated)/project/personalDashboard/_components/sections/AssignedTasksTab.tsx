@@ -219,7 +219,7 @@ const AssignedTasksTab: React.FC<AssignedTasksTabProps> = ({
                             {assignedTaskViewType === 'overdue' && 'No overdue assigned tasks found.'}
                             {assignedTaskViewType === 'completed' && 'No completed assigned tasks found.'}
                             {assignedTaskViewType === 'active' && 'No active assigned tasks found.'}
-                            {assignedTaskViewType === 'all' && 'No assigned tasks found matching your filters.'}
+                            {assignedTaskViewType === 'all' && 'No assigned tasks found.'}
                         </Typography>
                         {searchQuery && (
                             <Button onClick={() => onSearchChange('')} sx={{ mt: 2 }}>

@@ -683,38 +683,6 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
               </IconButton>
             </Tooltip>
 
-            {/* Filter Button */}
-            {/* <Tooltip title="Show filters">
-              <IconButton
-                size="small"
-                onClick={() => setShowFilters(!showFilters)}
-                sx={{
-                  backgroundColor: showFilters ? alpha(theme.palette.primary.main, 0.1) : 'transparent',
-                  color: showFilters ? theme.palette.primary.main : theme.palette.text.secondary,
-                  '&:hover': {
-                    backgroundColor: alpha(theme.palette.primary.main, 0.1),
-                  },
-                }}
-              >
-                <FilterList sx={{ fontSize: 20 }} />
-              </IconButton>
-            </Tooltip> */}
-
-            {/* More Actions */}
-            {/* <Tooltip title="More actions">
-              <IconButton
-                size="small"
-                sx={{
-                  backgroundColor: alpha(theme.palette.action.hover, 0.1),
-                  color: theme.palette.text.secondary,
-                  '&:hover': {
-                    backgroundColor: alpha(theme.palette.action.hover, 0.2),
-                  },
-                }}
-              >
-                <MoreVert sx={{ fontSize: 20 }} />
-              </IconButton>
-            </Tooltip> */}
 
             {/* Settings FAB */}
             <Zoom in={true} style={{ transitionDelay: '300ms' }}>
@@ -745,45 +713,6 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
         </Paper>
       </Fade>
 
-      {/* Filters Bar (Collapsible) */}
-      {/* {showFilters && (
-        <Fade in={showFilters}>
-          <Paper
-            elevation={1}
-            sx={{
-              position: "fixed",
-              top: 96,
-              left: "50%",
-              transform: "translateX(-50%)",
-              width: "95%",
-              maxWidth: "1400px",
-              borderRadius: 2,
-              px: 3,
-              py: 1.5,
-              backgroundColor: alpha(theme.palette.background.paper, 0.9),
-              backdropFilter: "blur(10px)",
-              border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-              zIndex: 999,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 2,
-            }}
-          >
-            <Typography variant="body2" sx={{ fontWeight: 500, color: theme.palette.text.secondary }}>
-              Filters:
-            </Typography>
-            <Chip label="Assigned to me" size="small" variant="outlined" />
-            <Chip label="Overdue" size="small" variant="outlined" />
-            <Chip label="High Priority" size="small" variant="outlined" />
-            <Chip label="This week" size="small" variant="outlined" />
-            <IconButton size="small">
-              <Close sx={{ fontSize: 16 }} />
-            </IconButton>
-          </Paper>
-        </Fade>
-      )} */}
-
-      {/* FULL SCREEN BOARD CONTAINER */}
       <Box
         sx={{
           flex: 1,
@@ -849,56 +778,6 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
         </Box>
       </Box>
 
-      {/* Floating Action Buttons */}
-      {/* <Box
-        sx={{
-          position: 'fixed',
-          right: 24,
-          bottom: 24,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 2,
-          zIndex: 1000,
-        }}
-      >
-        <Zoom in={true} style={{ transitionDelay: '400ms' }}>
-          <Tooltip title="Full screen">
-            <IconButton
-              sx={{
-                backgroundColor: theme.palette.background.paper,
-                color: theme.palette.primary.main,
-                boxShadow: `0 4px 20px ${alpha(theme.palette.common.black, 0.15)}`,
-                '&:hover': {
-                  backgroundColor: theme.palette.primary.main,
-                  color: 'white',
-                  transform: 'translateY(-4px)',
-                },
-              }}
-            >
-              <Fullscreen />
-            </IconButton>
-          </Tooltip>
-        </Zoom>
-
-        <Zoom in={true} style={{ transitionDelay: '500ms' }}>
-          <Tooltip title="Add new task">
-            <Fab
-              color="primary"
-              sx={{
-                boxShadow: `0 6px 20px ${alpha(theme.palette.primary.main, 0.3)}`,
-                '&:hover': {
-                  transform: 'scale(1.1)',
-                  boxShadow: `0 8px 25px ${alpha(theme.palette.primary.main, 0.4)}`,
-                },
-              }}
-            >
-              <DragIndicator />
-            </Fab>
-          </Tooltip>
-        </Zoom>
-      </Box> */}
-
-      {/* Member Details Dialog */}
       <Dialog
         open={memberDetailsOpen}
         onClose={handleCloseMemberDetails}
