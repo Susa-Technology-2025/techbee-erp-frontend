@@ -378,7 +378,7 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
           sx={{
             position: "fixed",
             top: 66,
-            left: "50%",
+            left: "52%",
             transform: "translateX(-50%)",
             width: "95%",
             maxWidth: "1400px",
@@ -550,117 +550,115 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
             </Tooltip>
 
             {/* Team Members */}
-            <Tooltip title="Team Members">
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <Box
-                  sx={{
-                    width: 36,
-                    height: 36,
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    backgroundColor: alpha(theme.palette.success.main, 0.1),
-                    color: theme.palette.success.main,
-                    cursor: 'pointer',
-                  }}
-                  onClick={() => {
-                    if (teamMembers.length > 0) {
-                      // Get a random team member or the first one
-                      const randomIndex = Math.floor(Math.random() * teamMembers.length);
-                      handleOpenMemberDetails(teamMembers[randomIndex].rawAssignment);
-                    }
-                  }}
-                >
-                  <People sx={{ fontSize: 18 }} />
-                </Box>
-                <Box>
-                  <Typography variant="caption" sx={{ color: theme.palette.text.secondary, fontSize: '0.75rem' }}>
-                    Team
-                  </Typography>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <Box
+                sx={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: alpha(theme.palette.success.main, 0.1),
+                  color: theme.palette.success.main,
+                  cursor: 'pointer',
+                }}
+                onClick={() => {
+                  if (teamMembers.length > 0) {
+                    // Get a random team member or the first one
+                    const randomIndex = Math.floor(Math.random() * teamMembers.length);
+                    handleOpenMemberDetails(teamMembers[randomIndex].rawAssignment);
+                  }
+                }}
+              >
+                <People sx={{ fontSize: 18 }} />
+              </Box>
+              <Box>
+                <Typography variant="caption" sx={{ color: theme.palette.text.secondary, fontSize: '0.75rem' }}>
+                  Team
+                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
 
 
-                    <AvatarGroup
-                      max={3}
-                      componentsProps={{
-                        additionalAvatar: {
-                          sx: {
-                            width: 20,
-                            height: 20,
-                            fontSize: 9,
-                            border: `1.5px solid ${theme.palette.background.paper}`,
-                            cursor: 'pointer',
-                            backgroundColor: alpha(theme.palette.primary.main, 0.1),
-                            color: theme.palette.primary.main,
-                            '&:hover': {
-                              backgroundColor: alpha(theme.palette.primary.main, 0.2),
-                              transform: 'scale(1.1)',
-                            },
-                          },
-                          onClick: (event) => {
-                            event.stopPropagation();
-                            // Open a dialog to show all team members
-                            // Or you can open the member details for the first extra member
-                            if (teamMembers.length > 3) {
-                              handleOpenMemberDetails(teamMembers[3].rawAssignment);
-                            }
-                          }
-                        }
-                      }}
-                      sx={{
-                        '& .MuiAvatar-root': {
+                  <AvatarGroup
+                    max={3}
+                    componentsProps={{
+                      additionalAvatar: {
+                        sx: {
                           width: 20,
                           height: 20,
                           fontSize: 9,
                           border: `1.5px solid ${theme.palette.background.paper}`,
+                          cursor: 'pointer',
+                          backgroundColor: alpha(theme.palette.primary.main, 0.1),
+                          color: theme.palette.primary.main,
                           '&:hover': {
-                            transform: 'scale(1.2)',
+                            backgroundColor: alpha(theme.palette.primary.main, 0.2),
+                            transform: 'scale(1.1)',
                           },
                         },
-                      }}
-                    >
-                      {teamMembers.map((member) => (
-                        <Tooltip key={member.id} title={member.name}>
-                          <Avatar
-                            sx={{
-                              bgcolor: member.color,
-                              fontSize: '9px',
-                              fontWeight: 700,
-                              cursor: 'pointer',
-                            }}
-                            onClick={() => handleOpenMemberDetails(member.rawAssignment)}
-                          >
-                            {member.initials}
-                          </Avatar>
-                        </Tooltip>
-                      ))}
-                    </AvatarGroup>
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        fontWeight: 500,
-                        fontSize: '0.875rem',
-                        cursor: teamMembers.length > 0 ? 'pointer' : 'default',
-                        '&:hover': teamMembers.length > 0 ? {
-                          textDecoration: 'underline',
-                          color: theme.palette.primary.main,
-                        } : {},
-                      }}
-                      onClick={() => {
-                        if (teamMembers.length > 0) {
-                          // Get a random team member or the first one
-                          const randomIndex = Math.floor(Math.random() * teamMembers.length);
-                          handleOpenMemberDetails(teamMembers[randomIndex].rawAssignment);
+                        onClick: (event) => {
+                          event.stopPropagation();
+                          // Open a dialog to show all team members
+                          // Or you can open the member details for the first extra member
+                          if (teamMembers.length > 3) {
+                            handleOpenMemberDetails(teamMembers[3].rawAssignment);
+                          }
                         }
-                      }}
-                    >
-                      {teamMembers.length}
-                    </Typography>
-                  </Box>
+                      }
+                    }}
+                    sx={{
+                      '& .MuiAvatar-root': {
+                        width: 20,
+                        height: 20,
+                        fontSize: 9,
+                        border: `1.5px solid ${theme.palette.background.paper}`,
+                        '&:hover': {
+                          transform: 'scale(1.2)',
+                        },
+                      },
+                    }}
+                  >
+                    {teamMembers.map((member) => (
+                      <Tooltip key={member.id} title={member.name}>
+                        <Avatar
+                          sx={{
+                            bgcolor: member.color,
+                            fontSize: '9px',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                          }}
+                          onClick={() => handleOpenMemberDetails(member.rawAssignment)}
+                        >
+                          {member.initials}
+                        </Avatar>
+                      </Tooltip>
+                    ))}
+                  </AvatarGroup>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontWeight: 500,
+                      fontSize: '0.875rem',
+                      cursor: teamMembers.length > 0 ? 'pointer' : 'default',
+                      '&:hover': teamMembers.length > 0 ? {
+                        textDecoration: 'underline',
+                        color: theme.palette.primary.main,
+                      } : {},
+                    }}
+                    onClick={() => {
+                      if (teamMembers.length > 0) {
+                        // Get a random team member or the first one
+                        const randomIndex = Math.floor(Math.random() * teamMembers.length);
+                        handleOpenMemberDetails(teamMembers[randomIndex].rawAssignment);
+                      }
+                    }}
+                  >
+                    {teamMembers.length}
+                  </Typography>
                 </Box>
               </Box>
-            </Tooltip>
+            </Box>
           </Box>
 
           {/* Right Section - Actions */}
@@ -683,6 +681,38 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
               </IconButton>
             </Tooltip>
 
+            {/* Filter Button */}
+            {/* <Tooltip title="Show filters">
+              <IconButton
+                size="small"
+                onClick={() => setShowFilters(!showFilters)}
+                sx={{
+                  backgroundColor: showFilters ? alpha(theme.palette.primary.main, 0.1) : 'transparent',
+                  color: showFilters ? theme.palette.primary.main : theme.palette.text.secondary,
+                  '&:hover': {
+                    backgroundColor: alpha(theme.palette.primary.main, 0.1),
+                  },
+                }}
+              >
+                <FilterList sx={{ fontSize: 20 }} />
+              </IconButton>
+            </Tooltip> */}
+
+            {/* More Actions */}
+            {/* <Tooltip title="More actions">
+              <IconButton
+                size="small"
+                sx={{
+                  backgroundColor: alpha(theme.palette.action.hover, 0.1),
+                  color: theme.palette.text.secondary,
+                  '&:hover': {
+                    backgroundColor: alpha(theme.palette.action.hover, 0.2),
+                  },
+                }}
+              >
+                <MoreVert sx={{ fontSize: 20 }} />
+              </IconButton>
+            </Tooltip> */}
 
             {/* Settings FAB */}
             <Zoom in={true} style={{ transitionDelay: '300ms' }}>
@@ -712,6 +742,7 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
           </Box>
         </Paper>
       </Fade>
+
 
       <Box
         sx={{
