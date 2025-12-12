@@ -29,6 +29,7 @@ import ProjectMenuDialog from '../../../_dashboard/ProjectMenuDialog';
 import { getStatusColor } from '../../../_utils/helpers';
 import { colors, mainProjectAPI, formatCurrency } from '../../../_utils/consts';
 import ProjectCreateInputForm from '../../../projects/_components/Form';
+import Link from 'next/link';
 
 interface OverviewTabProps {
     data: DashboardData;
@@ -255,7 +256,8 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                                         {myProjects.recent.slice(0, 4).map((project) => (
                                             <Box key={project.projectId} sx={{ position: 'relative' }}>
                                                 <ListItem
-                                                    onClick={() => window.open(`/project/${project.projectId}`)}
+                                                    component={Link}
+                                                    href={`/project/${project.projectId}`}
                                                     sx={{
                                                         borderBottom: '1px solid #e2e8f0',
                                                         cursor: 'pointer',
@@ -410,7 +412,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                         </CardContent>
                     </Card>
                 </Box>
-            </Box>
+            </Box >
         </>
     );
 };
