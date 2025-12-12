@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Box,
     useTheme,
@@ -22,7 +22,7 @@ import AnalyticsTrendsSection from './sections/AnalyticsTrendsSection';
 import AllProjectsSection from './sections/AllProjectsSection';
 
 // Import utilities
-import { colors, formatCurrency, mainProjectAPI } from '../_utils/consts';
+import { mainProjectAPI } from '../_utils/consts';
 
 // Types
 interface DashboardData {
@@ -121,13 +121,18 @@ interface DashboardData {
     }>;
 }
 
+
 export default function ProjectAnalyticsDashboard() {
     const theme = useTheme();
     const [showPicker, setShowPicker] = useState(false);
-    const [fromDate, setFromDate] = useState<Dayjs>(
-        dayjs().subtract(3, "month")
-    );
-    const [toDate, setToDate] = useState<Dayjs>(dayjs());
+    // Initialize with null - we'll set them after data loads
+    const [fromDate, setFromDate] = useState<Dayjs | null>(null);
+    const [toDate, setToDate] = useState<Dayjs | null>(null);
+    // Track if user has selected custom dates
+    const [hasCustomDates, setHasCustomDates] = useState(false);
+    // Add a ref to track initial data setting
+    const initialDataLoaded = React.useRef(false);
+
     const [viewMode, setViewMode] = useState<'card' | 'list'>('card');
     const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
         summary: true,
@@ -147,21 +152,32 @@ export default function ProjectAnalyticsDashboard() {
     const [riskFilter, setRiskFilter] = useState('all');
 
     const [selectedProject, setSelectedProject] = useState<any>(null);
-    const [openEditDialog, setOpenEditDialog] = useState(false);
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
-    const [currentMenuProject, setCurrentMenuProject] = useState<any>(null);
 
     const formatDate = (date: Date): string => {
         return dayjs(date).format('YYYY-MM-DD');
     };
 
+    // Build API URL based on whether custom dates are set
     const buildApiUrl = () => {
         const baseUrl = `${mainProjectAPI}/analytics/overview`;
-        const params = new URLSearchParams({
-            from: formatDate(fromDate.toDate()),
-            to: formatDate(toDate.toDate())
-        });
-        return `${baseUrl}?${params.toString()}`;
+
+        // If user hasn't selected custom dates, fetch without date params
+        if (!hasCustomDates) {
+            return baseUrl;
+        }
+
+        // If user has selected custom dates AND dates exist, include them
+        if (fromDate && toDate) {
+            const params = new URLSearchParams({
+                from: formatDate(fromDate.toDate()),
+                to: formatDate(toDate.toDate())
+            });
+            return `${baseUrl}?${params.toString()}`;
+        }
+
+        // Fallback to base URL (shouldn't happen, but just in case)
+        return baseUrl;
     };
 
     const apiUrl = buildApiUrl();
@@ -190,9 +206,46 @@ export default function ProjectAnalyticsDashboard() {
 
     const dashboardData = data as DashboardData;
 
+    // Set dates from API when data loads (only once on initial load)
+    useEffect(() => {
+        if (dashboardData?.window && !hasCustomDates && !initialDataLoaded.current) {
+            // Set dates from API response for display
+            setFromDate(dayjs(dashboardData.window.from));
+            setToDate(dayjs(dashboardData.window.to));
+            initialDataLoaded.current = true;
+        }
+    }, [dashboardData, hasCustomDates]);
+
     const handleApply = () => {
-        refetch();
-        setShowPicker(false);
+        // Only apply if both dates are selected
+        if (fromDate && toDate) {
+            setHasCustomDates(true);
+            // Use setTimeout to ensure state updates before refetch
+            setTimeout(() => {
+                refetch();
+            }, 0);
+            setShowPicker(false);
+        }
+    };
+
+    const handleClearDates = () => {
+        // Clear custom dates flag
+        setHasCustomDates(false);
+        // Don't reset dates to API dates - keep showing the current dates in UI
+        // The refetch will happen automatically because apiUrl changes
+        // Use setTimeout to ensure state updates before refetch
+        setTimeout(() => {
+            refetch();
+        }, 0);
+    };
+
+    const handleDateChange = (type: 'from' | 'to', newDate: Dayjs | null) => {
+        // Update the displayed dates without fetching
+        if (type === 'from') {
+            setFromDate(newDate);
+        } else {
+            setToDate(newDate);
+        }
     };
 
     const toggleSection = (section: string) => {
@@ -226,7 +279,7 @@ export default function ProjectAnalyticsDashboard() {
     if (!dashboardData) {
         return (
             <Alert severity="info" sx={{ m: 2 }}>
-                No data available for the selected date range.
+                No data available.
             </Alert>
         );
     }
@@ -239,12 +292,14 @@ export default function ProjectAnalyticsDashboard() {
             <DateRangePicker
                 fromDate={fromDate}
                 toDate={toDate}
-                setFromDate={setFromDate}
-                setToDate={setToDate}
+                setFromDate={(date) => handleDateChange('from', date)}
+                setToDate={(date) => handleDateChange('to', date)}
                 onApply={handleApply}
+                onClear={handleClearDates}
                 showPicker={showPicker}
                 setShowPicker={setShowPicker}
-                window={dashboardData.window}
+                hasCustomDates={hasCustomDates}
+                window={dashboardData?.window}
             />
 
             {/* Summary Section */}

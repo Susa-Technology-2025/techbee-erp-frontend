@@ -117,7 +117,7 @@ export function AddColumn({ onAddColumn, project }: AddColumnProps) {
             }}
             invalidateQueryKey={[
               "data",
-              `https://api.techbee.et/api/project/taskStages?where[setField][id]=${project.taskStageSet?.id}`,
+              `https://api.techbee.et/api/project/taskStages?where[setField][id]=${project?.taskStageSet?.id}`,
             ]}
           />
         </DialogContent>

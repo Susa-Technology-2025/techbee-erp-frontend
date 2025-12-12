@@ -439,11 +439,11 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
                     WebkitTextFillColor: "transparent",
                   }}
                 >
-                  {project.title}
+                  {project?.title}
                 </Typography>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 0.25 }}>
                   <Chip
-                    label={project.projectStage?.name || "Active"}
+                    label={project?.projectStage?.name || "Active"}
                     size="small"
                     sx={{
                       backgroundColor: alpha(theme.palette.primary.main, 0.1),
@@ -453,7 +453,7 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
                       fontSize: '0.7rem',
                     }}
                   />
-                  {project.customerName && (
+                  {project?.customerName && (
                     <Typography
                       variant="caption"
                       sx={{
@@ -461,7 +461,7 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
                         fontSize: '0.75rem',
                       }}
                     >
-                      • {project.customerName}
+                      • {project?.customerName}
                     </Typography>
                   )}
                 </Box>
@@ -986,7 +986,7 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
         maxWidth="sm"
         fullWidth
       >
-        <DialogTitle>Assign Team Members to {project.title}</DialogTitle>
+        <DialogTitle>Assign Team Members to {project?.title}</DialogTitle>
         <DialogContent>
           <TextField
             fullWidth
