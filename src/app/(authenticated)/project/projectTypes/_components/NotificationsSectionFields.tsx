@@ -1,7 +1,7 @@
 import { useDataMutation, useDataQuery } from "@/lib/tanstack/useDataQuery";
-import AddIcon from "@mui/icons-material/Add"
+import AddIcon from "@mui/icons-material/Add";
 import FileUploadWithPreview from "@/components/ReusableFormDrawer/file-upload";
-import DeleteIcon from "@mui/icons-material/Delete"
+import DeleteIcon from "@mui/icons-material/Delete";
 import {
   Autocomplete,
   TextField,
@@ -32,15 +32,12 @@ import {
   Toolbar,
 } from "@mui/material";
 import MDEditor from "@uiw/react-md-editor";
-import { useState, useEffect,useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Controller, useFormContext, useFieldArray } from "react-hook-form";
 import toast from "react-hot-toast";
 import { Close } from "@mui/icons-material";
 
-
-
-
-export const NotifyBudgetExceededField = ({index}: any) => {
+export const NotifyBudgetExceededField = ({ index }: any) => {
   const { control: formControl } = useFormContext();
   return (
     <Controller
@@ -63,7 +60,9 @@ export const NotifyBudgetExceededField = ({index}: any) => {
             sx={{}}
           />
           <FormHelperText error={!!fieldState.error}>
-            {fieldState.error ? "Notify budget exceeded is required" : "Notify users when project budget is exceeded."}
+            {fieldState.error
+              ? "Notify budget exceeded is required"
+              : "Notify users when project budget is exceeded."}
           </FormHelperText>
         </FormControl>
       )}
@@ -71,9 +70,7 @@ export const NotifyBudgetExceededField = ({index}: any) => {
   );
 };
 
-
-
-export const NotifyChangeRequestSubmittedField = ({index}: any) => {
+export const NotifyChangeRequestSubmittedField = ({ index }: any) => {
   const { control: formControl } = useFormContext();
   return (
     <Controller
@@ -96,7 +93,9 @@ export const NotifyChangeRequestSubmittedField = ({index}: any) => {
             sx={{}}
           />
           <FormHelperText error={!!fieldState.error}>
-            {fieldState.error ? "Notify change request submitted is required" : "Notify users when a change request is submitted."}
+            {fieldState.error
+              ? "Notify change request submitted is required"
+              : "Notify users when a change request is submitted."}
           </FormHelperText>
         </FormControl>
       )}
@@ -104,9 +103,7 @@ export const NotifyChangeRequestSubmittedField = ({index}: any) => {
   );
 };
 
-
-
-export const NotifyMilestoneDeadlineUpcomingField = ({index}: any) => {
+export const NotifyMilestoneDeadlineUpcomingField = ({ index }: any) => {
   const { control: formControl } = useFormContext();
   return (
     <Controller
@@ -129,7 +126,9 @@ export const NotifyMilestoneDeadlineUpcomingField = ({index}: any) => {
             sx={{}}
           />
           <FormHelperText error={!!fieldState.error}>
-            {fieldState.error ? "Notify milestone deadline upcoming is required" : "Notify users when a milestone deadline is upcoming."}
+            {fieldState.error
+              ? "Notify milestone deadline upcoming is required"
+              : "Notify users when a milestone deadline is upcoming."}
           </FormHelperText>
         </FormControl>
       )}
@@ -137,9 +136,7 @@ export const NotifyMilestoneDeadlineUpcomingField = ({index}: any) => {
   );
 };
 
-
-
-export const NotifyMilestoneOverdueField = ({index}: any) => {
+export const NotifyMilestoneOverdueField = ({ index }: any) => {
   const { control: formControl } = useFormContext();
   return (
     <Controller
@@ -162,7 +159,9 @@ export const NotifyMilestoneOverdueField = ({index}: any) => {
             sx={{}}
           />
           <FormHelperText error={!!fieldState.error}>
-            {fieldState.error ? "Notify milestone overdue is required" : "Notify users when a milestone is overdue."}
+            {fieldState.error
+              ? "Notify milestone overdue is required"
+              : "Notify users when a milestone is overdue."}
           </FormHelperText>
         </FormControl>
       )}
@@ -170,9 +169,7 @@ export const NotifyMilestoneOverdueField = ({index}: any) => {
   );
 };
 
-
-
-export const NotifyProjectDeadlineUpcomingField = ({index}: any) => {
+export const NotifyProjectDeadlineUpcomingField = ({ index }: any) => {
   const { control: formControl } = useFormContext();
   return (
     <Controller
@@ -195,7 +192,9 @@ export const NotifyProjectDeadlineUpcomingField = ({index}: any) => {
             sx={{}}
           />
           <FormHelperText error={!!fieldState.error}>
-            {fieldState.error ? "Notify project deadline upcoming is required" : "Notify users when a project deadline is upcoming."}
+            {fieldState.error
+              ? "Notify project deadline upcoming is required"
+              : "Notify users when a project deadline is upcoming."}
           </FormHelperText>
         </FormControl>
       )}
@@ -203,9 +202,7 @@ export const NotifyProjectDeadlineUpcomingField = ({index}: any) => {
   );
 };
 
-
-
-export const NotifyTaskDeadlineUpcomingField = ({index}: any) => {
+export const NotifyTaskDeadlineUpcomingField = ({ index }: any) => {
   const { control: formControl } = useFormContext();
   return (
     <Controller
@@ -228,7 +225,9 @@ export const NotifyTaskDeadlineUpcomingField = ({index}: any) => {
             sx={{}}
           />
           <FormHelperText error={!!fieldState.error}>
-            {fieldState.error ? "Notify task deadline upcoming is required" : "Notify users when a task deadline is upcoming."}
+            {fieldState.error
+              ? "Notify task deadline upcoming is required"
+              : "Notify users when a task deadline is upcoming."}
           </FormHelperText>
         </FormControl>
       )}
@@ -236,9 +235,7 @@ export const NotifyTaskDeadlineUpcomingField = ({index}: any) => {
   );
 };
 
-
-
-export const NotifyTaskDueSoonField = ({index}: any) => {
+export const NotifyTaskDueSoonField = ({ index }: any) => {
   const { control: formControl } = useFormContext();
   return (
     <Controller
@@ -256,12 +253,14 @@ export const NotifyTaskDueSoonField = ({index}: any) => {
                 color="primary"
               />
             }
-            label="Notify Task Due Soon"
+            label="Notify Project Overdue"
             style={undefined}
             sx={{}}
           />
           <FormHelperText error={!!fieldState.error}>
-            {fieldState.error ? "Notify task due soon is required" : "Notify users when a task is due soon."}
+            {fieldState.error
+              ? "Notify project overdue required"
+              : "Notify users when a project is overdue."}
           </FormHelperText>
         </FormControl>
       )}
@@ -269,9 +268,7 @@ export const NotifyTaskDueSoonField = ({index}: any) => {
   );
 };
 
-
-
-export const NotifyTaskOverdueField = ({index}: any) => {
+export const NotifyTaskOverdueField = ({ index }: any) => {
   const { control: formControl } = useFormContext();
   return (
     <Controller
@@ -294,7 +291,9 @@ export const NotifyTaskOverdueField = ({index}: any) => {
             sx={{}}
           />
           <FormHelperText error={!!fieldState.error}>
-            {fieldState.error ? "Notify task overdue is required" : "Notify users when a task is overdue."}
+            {fieldState.error
+              ? "Notify task overdue is required"
+              : "Notify users when a task is overdue."}
           </FormHelperText>
         </FormControl>
       )}
