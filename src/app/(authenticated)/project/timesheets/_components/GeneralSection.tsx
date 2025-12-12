@@ -1,17 +1,19 @@
-import {EmployeeIdField} from "./GeneralSectionFields"
-import {EntryCodeField} from "./GeneralSectionFields"
-import {StatusField} from "./GeneralSectionFields"
-import {TotalAmountField} from "./GeneralSectionFields"
-import {TotalHoursField} from "./GeneralSectionFields"
-import {PeriodStartField} from "./GeneralSectionFields"
-import {PeriodEndField} from "./GeneralSectionFields"
-import {SubmittedAtField} from "./GeneralSectionFields"
-import {IdField} from "./GeneralSectionFields"
+import { EmployeeIdField } from "./GeneralSectionFields";
+import { EntryCodeField } from "./GeneralSectionFields";
+import { PeriodStartField } from "./GeneralSectionFields";
+import { PeriodEndField } from "./GeneralSectionFields";
+import { TotalHoursField } from "./GeneralSectionFields";
+import { TotalAmountField } from "./GeneralSectionFields";
+import { RejectionReasonField } from "./GeneralSectionFields";
+import { ApprovedByEmployeeIdField } from "./GeneralSectionFields";
+import { ApprovedAtField } from "./GeneralSectionFields";
+import { SubmittedAtField } from "./GeneralSectionFields";
+import { EntriesField } from "./GeneralSectionFields";
 import { Box } from "@mui/material";
 
-
-export const GeneralSection = () =>{
-    return ( <Box
+export const GeneralSection = () => {
+  return (
+    <Box
       sx={{
         display: "flex",
         flexWrap: "wrap",
@@ -20,14 +22,17 @@ export const GeneralSection = () =>{
         justifyContent: "start",
       }}
     >
-      <EmployeeIdField/>
-<EntryCodeField/>
-<StatusField/>
-<TotalAmountField/>
-<TotalHoursField/>
-<PeriodStartField/>
-<PeriodEndField/>
-<SubmittedAtField/>
-<IdField/>
-      </Box>)
-    }
+      <EmployeeIdField />
+      <EntryCodeField />
+      <PeriodStartField />
+      <PeriodEndField />
+      <TotalHoursField />
+      <TotalAmountField />
+      <RejectionReasonField />
+      {/* <ApprovedByEmployeeIdField/> */}
+      <ApprovedAtField />
+      <SubmittedAtField />
+      <EntriesField />
+    </Box>
+  );
+};

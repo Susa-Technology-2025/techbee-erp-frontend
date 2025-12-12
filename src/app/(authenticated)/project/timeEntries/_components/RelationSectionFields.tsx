@@ -37,223 +37,15 @@ import { Controller, useFormContext, useFieldArray } from "react-hook-form";
 import toast from "react-hot-toast";
 import { Close } from "@mui/icons-material";
 
-import  ProjectFieldForm  from "../../projects/_components/Form";
+import  TimesheetFieldForm  from "../../timesheets/_components/Form";
 import  WbsItemFieldForm  from "../../wbsItems/_components/Form";
 
 
-export const TitleField = ({index}: any) => {
-  const { control: formControl } = useFormContext();
-  return (
-    <Controller
-      name={`title`}
-      control={formControl}
-      rules={{ required: false }}
-      render={({ field: controllerField, fieldState }) => (
-        <TextField
-          {...controllerField}
-          type="text" 
-          variant="standard"
-          label="Title"
-          placeholder="Enter the title"
-          helperText={fieldState.error ? "Title is required" : "A concise and descriptive title for the change request."}
-          error={!!fieldState.error}
-          disabled={false}
-          className=""
-           slotProps={{
-            inputLabel: { shrink: true },
-          }}
-          style={undefined}
-          sx={{}}
-          false
-          false
-        />
-      )}
-    />
-  );
-};
-
-
-
-export const PriorityField = ({ index }: any) => {
-  const { control: formControl } = useFormContext();
-  const options = ["Low","Medium","High","Critical"];
-  const isLoading = false;
-  
-
-  return (
-    <>
-      <Controller
-        name={`priority`}
-        control={formControl}
-        rules={{ required: false }}
-        render={({ field: controllerField, fieldState }) => {
-
-          const isPrimitiveField = typeof controllerField.value === "string" || typeof controllerField.value === "number";
-
-          const mappedValue = useMemo(() => {
-            if (!controllerField.value) return false ? [] : null;
-            if (false) {
-              if (isPrimitiveField) {
-                return (controllerField.value ?? []).map(val =>
-                  options.find(o => (option=>option)(o) === val)
-                ).filter(Boolean);
-              } else {
-                return (controllerField.value ?? []).map(val =>
-                  options.find(o => o === val || (option=>option)(o) === (option=>option)(val))
-                ).filter(Boolean);
-              }
-            } else {
-              if (isPrimitiveField) {
-                return options.find(o => (option=>option)(o) === controllerField.value) || null;
-              } else {
-                return options.find(o => o === controllerField.value || (option=>option)(o) === (option=>option)(controllerField.value)) || null;
-              }
-            }
-          }, [controllerField.value, options]);
-
-          return (
-            <Autocomplete
-              
-              {...controllerField}
-              
-              
-              options={options}
-              sx={{ minWidth: 240, maxWidth: 360 }}
-              getOptionLabel={option=>option}
-              getOptionKey={option=>option}
-              value={mappedValue}
-              onChange={(_, value) => {
-                if (false) {
-                  controllerField.onChange(
-                    isPrimitiveField ? (value ?? []).map((v: any) => (option=>option)(v)) : value ?? []
-                  );
-                } else {
-                  controllerField.onChange(
-                    isPrimitiveField ? (value ? (option=>option)(value) : null) : value ?? null
-                  );
-                }
-              }}
-              disabled={false}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  
-                  variant="standard"
-                  label="Priority"
-                  placeholder="Select priority"
-                  helperText={fieldState.error ? "Priority is required" : "The priority level of the change request."}
-                  error={!!fieldState.error}
-                  className=""
-                  style={undefined}
-                  sx={{"width":"100%","mb":2}}
-                />
-              )}
-              
-  renderOption={(props, option, { selected }) => {
-    const { key, ...otherProps } = props;
-    return (
-      <ListItem
-        key={key}
-        {...otherProps}
-        sx={{
-          p: 0,
-          m: 0,
-          display: "flex",
-          alignItems: "center",
-        }}
-      >
-        <Checkbox
-          style={{ marginRight: 8 }}
-          checked={selected}
-          sx={{ m: 0, p: 0 }}
-        />
-        {(option=>option)(option)}
-      </ListItem>
-    );
-  }}
-  
-            />
-          );
-        }}
-      />
-      
-    </>
-  );
-};
-
-
-
-export const CodeField = ({index}: any) => {
-  const { control: formControl } = useFormContext();
-  return (
-    <Controller
-      name={`code`}
-      control={formControl}
-      rules={{ required: false }}
-      render={({ field: controllerField, fieldState }) => (
-        <TextField
-          {...controllerField}
-          type="text" 
-          variant="standard"
-          label="Code"
-          placeholder="Enter change request code"
-          helperText={fieldState.error ? "Code is required" : "An identifying code or reference for the change request."}
-          error={!!fieldState.error}
-          disabled={false}
-          className=""
-           slotProps={{
-            inputLabel: { shrink: true },
-          }}
-          style={undefined}
-          sx={{}}
-          false
-          false
-        />
-      )}
-    />
-  );
-};
-
-
-
-export const ChangeTypeField = ({index}: any) => {
-  const { control: formControl } = useFormContext();
-  return (
-    <Controller
-      name={`changeType`}
-      control={formControl}
-      rules={{ required: false }}
-      render={({ field: controllerField, fieldState }) => (
-        <TextField
-          {...controllerField}
-          type="text" 
-          variant="standard"
-          label="Change Type"
-          placeholder="Enter change type"
-          helperText={fieldState.error ? "Change type is required" : "Specify the type of change being requested."}
-          error={!!fieldState.error}
-          disabled={false}
-          className=""
-           slotProps={{
-            inputLabel: { shrink: true },
-          }}
-          style={undefined}
-          sx={{}}
-          false
-          false
-        />
-      )}
-    />
-  );
-};
-
-
-
-export const ProjectField = ({ index }: any) => {
+export const TimesheetField = ({ index }: any) => {
   const { control: formControl } = useFormContext();
   
   const [options, setOptions] = useState([]);
-  const endpoint = "https://api.techbee.et/api/project/projects"
+  const endpoint = "https://api.techbee.et/api/project/timesheets"
   
   const { data, isLoading, isSuccess } = useDataQuery({
     apiEndPoint: endpoint,
@@ -274,7 +66,7 @@ export const ProjectField = ({ index }: any) => {
   return (
     <>
       <Controller
-        name={`project`}
+        name={`timesheet`}
         control={formControl}
         rules={{ required: false }}
         render={({ field: controllerField, fieldState }) => {
@@ -310,7 +102,7 @@ export const ProjectField = ({ index }: any) => {
               loading={isLoading}
               options={options}
               sx={{ minWidth: 240, maxWidth: 360 }}
-              getOptionLabel={option=>option.title}
+              getOptionLabel={option=>option.entryCode}
               getOptionKey={option=>option.id}
               value={mappedValue}
               onChange={(_, value) => {
@@ -351,9 +143,9 @@ export const ProjectField = ({ index }: any) => {
   }}
   
                   variant="standard"
-                  label="Project"
-                  placeholder="Select a project"
-                  helperText={fieldState.error ? "Project is required" : "The project this change request is related to."}
+                  label="Timesheet"
+                  placeholder="Select timesheet"
+                  helperText={fieldState.error ? "Timesheet ID is required" : "The timesheet this entry belongs to."}
                   error={!!fieldState.error}
                   className=""
                   style={undefined}
@@ -379,7 +171,7 @@ export const ProjectField = ({ index }: any) => {
           checked={selected}
           sx={{ m: 0, p: 0 }}
         />
-        {(option=>option.title)(option)}
+        {(option=>option.entryCode)(option)}
       </ListItem>
     );
   }}
@@ -401,7 +193,7 @@ export const ProjectField = ({ index }: any) => {
         >
           <Toolbar>
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Create Project
+            Create Timesheet
             </Typography>
             <IconButton
               edge="end"
@@ -414,7 +206,7 @@ export const ProjectField = ({ index }: any) => {
           </Toolbar>
         </AppBar>
         <DialogContent sx={{ p: 0, m: 0 }}>
-           <ProjectFieldForm formMode="create" />
+           <TimesheetFieldForm formMode="create" />
         </DialogContent>
       </Dialog>
     </>
@@ -526,8 +318,8 @@ export const WbsItemField = ({ index }: any) => {
   
                   variant="standard"
                   label="Wbs Item"
-                  placeholder="Select a WBS item"
-                  helperText={fieldState.error ? "WBS item is required" : "The Work Breakdown Structure item this change request relates to."}
+                  placeholder="Select WBS item"
+                  helperText={fieldState.error ? "WBS Item ID is required" : "The WBS item associated with this entry."}
                   error={!!fieldState.error}
                   className=""
                   style={undefined}

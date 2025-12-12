@@ -10,13 +10,13 @@ import WbsActivity from "../../activities/page";
 import ActualsLedger from "../../actualsLedgers/page";
 import ChangeRequest from "../../changeRequests/page";
 import Performance from "../../performanceRecords/page";
-import Timesheet from "../../timesheets/page";
 import WbsDependencyTo from "../../wbsDependencies/page";
 import WbsDependencyFrom from "../../wbsDependencies/page";
 import WbsComment from "../../comments/page";
 import WbsChildren from "../../wbsItems/page";
 import WbsAttachment from "../../attachments/page";
 import WbsAssignment from "../../wbsAssignments/page";
+import TimeEntryCreateInputForm from "../../timeEntries/page";
 
 type TaskDetailSectionProps = {
   task: Task;
@@ -102,9 +102,9 @@ export function TaskDetailSection({ task }: TaskDetailSectionProps) {
       ),
     },
     {
-      label: "Timesheets",
+      label: "TimeEntries",
       component: (
-        <Timesheet
+        <TimeEntryCreateInputForm
           idString={"?where[wbsItem][id]=" + task.id}
           defaultValues={{
             wbsItem: { id: task.id },

@@ -1,10 +1,7 @@
 import { MRT_ColumnDef } from "material-react-table";
 export const columns: MRT_ColumnDef<any, any>[] = [
-  { accessorKey: "employeeId", header: "Employee Id" },
+  { accessorKey: "employeeId", header: "Employee" },
   { accessorKey: "entryCode", header: "Entry Code" },
-  { accessorKey: "status", header: "Status" },
-  { accessorKey: "totalAmount", header: "Total Amount" },
-  { accessorKey: "totalHours", header: "Total Hours" },
   { accessorKey: "periodStart", header: "Period Start",
   Cell: ({ cell }) => {
     const v = cell.getValue();
@@ -15,6 +12,10 @@ export const columns: MRT_ColumnDef<any, any>[] = [
     const v = cell.getValue();
     return v ? new Date(v).toLocaleDateString() : "";
   } },
+  { accessorKey: "totalHours", header: "Total Hours" },
+  { accessorKey: "totalAmount", header: "Total Amount" },
+  { accessorKey: "rejectionReason", header: "Rejection Reason" },
+  { accessorKey: "approvedByEmployeeId", header: "Approved By Employee Id" },
   { accessorKey: "approvedAt", header: "Approved At",
   Cell: ({ cell }) => {
     const v = cell.getValue();
@@ -25,5 +26,5 @@ export const columns: MRT_ColumnDef<any, any>[] = [
     const v = cell.getValue();
     return v ? new Date(v).toLocaleDateString() : "";
   } },
-  { accessorKey: "rejectionReason", header: "Rejection Reason" }
+  { accessorKey: "entries", header: "Entries" }
 ];

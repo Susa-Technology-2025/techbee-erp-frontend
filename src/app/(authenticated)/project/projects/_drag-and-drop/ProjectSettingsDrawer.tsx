@@ -17,12 +17,14 @@ import {
   Group,
   ChangeCircle,
   BarChart,
+  Event,
 } from "@mui/icons-material";
 import Milestones from "../../milestones/page";
 import ChangeRequest from "../../changeRequests/page";
 import ProjectAssignment from "../../projectAssignments/page";
 import ProjectContract from "../../projectContracts/page";
 import WbsItems from "../../wbsItems/page";
+import TimeEntries from "../../timeEntries/page";
 interface ProjectSettingsDrawerProps {
   open: boolean;
   onClose: () => void;
@@ -46,7 +48,7 @@ const ProjectSettingsDrawer: React.FC<ProjectSettingsDrawerProps> = ({
     {
       id: "wbsitems",
       icon: <BarChart />,
-      title: "WBS Items",
+      title: "Tasks",
       description: "Work Breakdown Structure items",
       color: "#dc2626",
       count: project?._count?.wbsItems || project?.wbsItems?.length || 0,
@@ -60,6 +62,15 @@ const ProjectSettingsDrawer: React.FC<ProjectSettingsDrawerProps> = ({
       color: "#ea580c",
       count: project?._count?.assignments || project?.assignments?.length || 0,
       Component: ProjectAssignment,
+    },
+    {
+      id: "timentries",
+      icon: <Event />,
+      title: "Time Entries",
+      description: "Timesheet Time Entries",
+      color: "#dc2626",
+      count: project?._count?.timeEntries || project?.timeEntries?.length || 0,
+      Component: TimeEntries,
     },
     {
       id: "contracts",

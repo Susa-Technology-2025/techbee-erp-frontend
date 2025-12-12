@@ -1,8 +1,9 @@
-import {ImplementationPlanField} from "./ImplementationSectionFields"
+import {TimesheetField} from "./RelationSectionFields"
+import {WbsItemField} from "./RelationSectionFields"
 import { Box } from "@mui/material";
 
 
-export const ImplementationSection = () =>{
+export const RelationSection = () =>{
     return ( <Box
       sx={{
         display: "flex",
@@ -12,6 +13,7 @@ export const ImplementationSection = () =>{
         justifyContent: "start",
       }}
     >
-      <ImplementationPlanField/>
+      <TimesheetField/>
+<WbsItemField/>
       </Box>)
     }

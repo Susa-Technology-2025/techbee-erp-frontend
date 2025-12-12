@@ -14,15 +14,19 @@ import TabList from "@mui/lab/TabList";
 import TabPanel from "@mui/lab/TabPanel";
 import { useState, useEffect } from "react";
 import {GeneralSection} from "./GeneralSection"
+import {DetailsSection} from "./DetailsSection"
+import {FinancialSection} from "./FinancialSection"
+import {TimeSection} from "./TimeSection"
+import {RelationSection} from "./RelationSection"
 import { useDataMutation } from "@/lib/tanstack/useDataQuery";
 import {  FormResolverErrors } from "./FormResolverErrors";
-import { TimesheetCreateInputFormSchema } from "./schema";
+import { TimeEntryCreateInputFormSchema } from "./schema";
 import { transformToPrismaInput } from "./transformToPrismaInput";
 import { zodResolver } from "@hookform/resolvers/zod";
-export default function TimesheetCreateInputForm ({
+export default function TimeEntryCreateInputForm ({
  formMode = "create",
   defaultValues = {},
-  invalidateQueryKey = ["data","https://api.techbee.et/api/project/timesheets"]
+  invalidateQueryKey = ["data","https://api.techbee.et/api/project/timeEntries"]
 }: {
   formMode: "create" | "edit";
   defaultValues: any;
@@ -30,14 +34,14 @@ export default function TimesheetCreateInputForm ({
 }) {
   const methods = useForm({
     defaultValues,
-     resolver: zodResolver(TimesheetCreateInputFormSchema)
+     resolver: zodResolver(TimeEntryCreateInputFormSchema)
   });
   const { mutate, isPending } = useDataMutation({
     invalidateQueryKey,
     apiEndPoint:
       formMode === "create"
-        ? "https://api.techbee.et/api/project/timesheets"
-        : "https://api.techbee.et/api/project/timesheets/" + defaultValues?.id,
+        ? "https://api.techbee.et/api/project/timeEntries"
+        : "https://api.techbee.et/api/project/timeEntries/" + defaultValues?.id,
     method: formMode === "create" ? "POST" : "PATCH",
     onError: (error: any) => {
       toast.error("Error: " + (error.message || "Failed to submit form"));
@@ -104,6 +108,42 @@ export default function TimesheetCreateInputForm ({
                       bgcolor: "action.selected",
                     },
                   }}
+                /> <Tab
+                  label="Details"
+                  value="Details"
+                  sx={{
+                    borderRadius: 1,
+                    "&.Mui-selected": {
+                      bgcolor: "action.selected",
+                    },
+                  }}
+                /> <Tab
+                  label="Financial"
+                  value="Financial"
+                  sx={{
+                    borderRadius: 1,
+                    "&.Mui-selected": {
+                      bgcolor: "action.selected",
+                    },
+                  }}
+                /> <Tab
+                  label="Time"
+                  value="Time"
+                  sx={{
+                    borderRadius: 1,
+                    "&.Mui-selected": {
+                      bgcolor: "action.selected",
+                    },
+                  }}
+                /> <Tab
+                  label="Relation"
+                  value="Relation"
+                  sx={{
+                    borderRadius: 1,
+                    "&.Mui-selected": {
+                      bgcolor: "action.selected",
+                    },
+                  }}
                 />
             </TabList>
           </Box>
@@ -134,6 +174,86 @@ export default function TimesheetCreateInputForm ({
                   }}
                 >
                   <GeneralSection />
+                </TabPanel> <TabPanel
+                  value={"Details"}
+                  sx={{
+                    p: 0,
+                    pt: 2,
+                    "& .MuiFormControl-root": {
+                      mb: 1.5,
+                    },
+                    "& .MuiInputBase-root": {
+                      fontSize: "0.875rem",
+                    },
+                    "& .MuiInputLabel-root": {
+                      fontSize: "0.875rem",
+                    },
+                    "& .MuiButton-root": {
+                      fontSize: "0.8125rem",
+                    },
+                  }}
+                >
+                  <DetailsSection />
+                </TabPanel> <TabPanel
+                  value={"Financial"}
+                  sx={{
+                    p: 0,
+                    pt: 2,
+                    "& .MuiFormControl-root": {
+                      mb: 1.5,
+                    },
+                    "& .MuiInputBase-root": {
+                      fontSize: "0.875rem",
+                    },
+                    "& .MuiInputLabel-root": {
+                      fontSize: "0.875rem",
+                    },
+                    "& .MuiButton-root": {
+                      fontSize: "0.8125rem",
+                    },
+                  }}
+                >
+                  <FinancialSection />
+                </TabPanel> <TabPanel
+                  value={"Time"}
+                  sx={{
+                    p: 0,
+                    pt: 2,
+                    "& .MuiFormControl-root": {
+                      mb: 1.5,
+                    },
+                    "& .MuiInputBase-root": {
+                      fontSize: "0.875rem",
+                    },
+                    "& .MuiInputLabel-root": {
+                      fontSize: "0.875rem",
+                    },
+                    "& .MuiButton-root": {
+                      fontSize: "0.8125rem",
+                    },
+                  }}
+                >
+                  <TimeSection />
+                </TabPanel> <TabPanel
+                  value={"Relation"}
+                  sx={{
+                    p: 0,
+                    pt: 2,
+                    "& .MuiFormControl-root": {
+                      mb: 1.5,
+                    },
+                    "& .MuiInputBase-root": {
+                      fontSize: "0.875rem",
+                    },
+                    "& .MuiInputLabel-root": {
+                      fontSize: "0.875rem",
+                    },
+                    "& .MuiButton-root": {
+                      fontSize: "0.8125rem",
+                    },
+                  }}
+                >
+                  <RelationSection />
                 </TabPanel>
           </Box>
         </TabContext>

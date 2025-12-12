@@ -40,11 +40,77 @@ import { Close } from "@mui/icons-material";
 
 
 
-export const DescriptionField = ({index}: any) => {
+export const EntryCodeField = ({index}: any) => {
   const { control: formControl } = useFormContext();
   return (
     <Controller
-      name={`description`}
+      name={`entryCode`}
+      control={formControl}
+      rules={{ required: false }}
+      render={({ field: controllerField, fieldState }) => (
+        <TextField
+          {...controllerField}
+          type="text" 
+          variant="standard"
+          label="Entry Code"
+          placeholder="Enter entry code (optional)"
+          helperText={fieldState.error ? "This field is optional" : "The optional entry code for the time entry."}
+          error={!!fieldState.error}
+          disabled={false}
+          className=""
+           slotProps={{
+            inputLabel: { shrink: true },
+          }}
+          style={undefined}
+          sx={{}}
+          false
+          false
+        />
+      )}
+    />
+  );
+};
+
+
+
+export const TaskOrActivityField = ({index}: any) => {
+  const { control: formControl } = useFormContext();
+  return (
+    <Controller
+      name={`taskOrActivity`}
+      control={formControl}
+      rules={{ required: false }}
+      render={({ field: controllerField, fieldState }) => (
+        <TextField
+          {...controllerField}
+          type="text" 
+          variant="standard"
+          label="Task Or Activity"
+          placeholder="Enter task or activity"
+          helperText={fieldState.error ? "This field is optional" : "Description of the task or activity performed."}
+          error={!!fieldState.error}
+          disabled={false}
+          className=""
+           slotProps={{
+            inputLabel: { shrink: true },
+          }}
+          style={undefined}
+          sx={{}}
+          false
+          false
+        />
+      )}
+    />
+  );
+};
+
+
+
+export const NotesField = ({index}: any) => {
+  const { control: formControl } = useFormContext();
+  return (
+    <Controller
+      name={`notes`}
       control={formControl}
       rules={{ required: false }}
       render={({ field: controllerField, fieldState }) => (
@@ -54,9 +120,9 @@ export const DescriptionField = ({index}: any) => {
           maxRows={4}
           type="text" 
           variant="standard"
-          label="Description"
-          placeholder="Describe the change in detail"
-          helperText={fieldState.error ? "Description is required" : "Detailed explanation of the change request."}
+          label="Notes"
+          placeholder="Enter notes (optional)"
+          helperText={fieldState.error ? "This field is optional" : "Any additional notes for the time entry."}
           error={!!fieldState.error}
           disabled={false}
           className=""
@@ -70,28 +136,35 @@ export const DescriptionField = ({index}: any) => {
 
 
 
-export const ReasonField = ({index}: any) => {
+export const DurationHoursField = ({index}: any) => {
   const { control: formControl } = useFormContext();
   return (
     <Controller
-      name={`reason`}
+      name={`durationHours`}
       control={formControl}
       rules={{ required: false }}
       render={({ field: controllerField, fieldState }) => (
         <TextField
           {...controllerField}
-          multiline
-          maxRows={4}
-          type="text" 
+          type="number" 
           variant="standard"
-          label="Reason"
-          placeholder="Provide the reason for the change"
-          helperText={fieldState.error ? "Reason is required" : "The justification or rationale for the requested change."}
+          label="Duration Hours"
+          placeholder="Enter duration in hours"
+          helperText={fieldState.error ? "This field is optional" : "The duration of the time entry in hours."}
           error={!!fieldState.error}
           disabled={false}
           className=""
+           slotProps={{
+            inputLabel: { shrink: true },
+          }}
           style={undefined}
           sx={{}}
+          false
+          value={
+            controllerField.value
+              ? Number(controllerField.value)
+              : ""
+          }
         />
       )}
     />
@@ -100,30 +173,15 @@ export const ReasonField = ({index}: any) => {
 
 
 
-export const CommentsNotesField = ({index}: any) => {
-  const { control: formControl } = useFormContext();
+export const AttachmentUrlField = ({index}: any) => {
   return (
-    <Controller
-      name={`commentsNotes`}
-      control={formControl}
-      rules={{ required: false }}
-      render={({ field: controllerField, fieldState }) => (
-        <TextField
-          {...controllerField}
-          multiline
-          maxRows={4}
-          type="text" 
-          variant="standard"
-          label="Comments Notes"
-          placeholder="Add any comments or notes"
-          helperText={fieldState.error ? "Comments/Notes are required" : "Any additional comments or notes regarding the request."}
-          error={!!fieldState.error}
-          disabled={false}
-          className=""
-          style={undefined}
-          sx={{}}
-        />
-      )}
+    <FileUploadWithPreview
+      folder="TimeEntryCreateInput"
+      fileName="id"
+      watchField={"attachmentUrl"}
+      acceptedFileTypes={["image/*"]}
+      maxSize={1}
+      label="Attachment Url"
     />
   );
 };

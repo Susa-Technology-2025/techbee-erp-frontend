@@ -55,38 +55,8 @@ export const ImplementationPlanField = ({index}: any) => {
           type="text" 
           variant="standard"
           label="Implementation Plan"
-          placeholder="Enter the implementation plan"
-          helperText={fieldState.error ? "This field is required" : "The plan for implementing the change."}
-          error={!!fieldState.error}
-          disabled={false}
-          className=""
-          style={undefined}
-          sx={{}}
-        />
-      )}
-    />
-  );
-};
-
-
-
-export const NotificationsPolicyField = ({index}: any) => {
-  const { control: formControl } = useFormContext();
-  return (
-    <Controller
-      name={`notificationsPolicy`}
-      control={formControl}
-      rules={{ required: false }}
-      render={({ field: controllerField, fieldState }) => (
-        <TextField
-          {...controllerField}
-          multiline
-          maxRows={4}
-          type="text" 
-          variant="standard"
-          label="Notifications Policy"
-          placeholder="Enter the notification policy"
-          helperText={fieldState.error ? "This field is required" : "The policy for notifying stakeholders about the change."}
+          placeholder="Outline the implementation plan"
+          helperText={fieldState.error ? "Implementation plan is required" : "Detailed steps for implementing the requested change."}
           error={!!fieldState.error}
           disabled={false}
           className=""

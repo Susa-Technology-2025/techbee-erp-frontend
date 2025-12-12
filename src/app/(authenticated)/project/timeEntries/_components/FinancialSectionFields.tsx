@@ -40,28 +40,35 @@ import { Close } from "@mui/icons-material";
 
 
 
-export const DescriptionField = ({index}: any) => {
+export const AmountField = ({index}: any) => {
   const { control: formControl } = useFormContext();
   return (
     <Controller
-      name={`description`}
+      name={`amount`}
       control={formControl}
       rules={{ required: false }}
       render={({ field: controllerField, fieldState }) => (
         <TextField
           {...controllerField}
-          multiline
-          maxRows={4}
-          type="text" 
+          type="number" 
           variant="standard"
-          label="Description"
-          placeholder="Describe the change in detail"
-          helperText={fieldState.error ? "Description is required" : "Detailed explanation of the change request."}
+          label="Amount"
+          placeholder="Enter amount"
+          helperText={fieldState.error ? "This field is optional" : "The amount associated with the time entry."}
           error={!!fieldState.error}
           disabled={false}
           className=""
+           slotProps={{
+            inputLabel: { shrink: true },
+          }}
           style={undefined}
           sx={{}}
+          false
+          value={
+            controllerField.value
+              ? Number(controllerField.value)
+              : ""
+          }
         />
       )}
     />
@@ -70,58 +77,35 @@ export const DescriptionField = ({index}: any) => {
 
 
 
-export const ReasonField = ({index}: any) => {
+export const HourlyRateField = ({index}: any) => {
   const { control: formControl } = useFormContext();
   return (
     <Controller
-      name={`reason`}
+      name={`hourlyRate`}
       control={formControl}
       rules={{ required: false }}
       render={({ field: controllerField, fieldState }) => (
         <TextField
           {...controllerField}
-          multiline
-          maxRows={4}
-          type="text" 
+          type="number" 
           variant="standard"
-          label="Reason"
-          placeholder="Provide the reason for the change"
-          helperText={fieldState.error ? "Reason is required" : "The justification or rationale for the requested change."}
+          label="Hourly Rate"
+          placeholder="Enter hourly rate"
+          helperText={fieldState.error ? "This field is optional" : "The hourly rate for the time entry."}
           error={!!fieldState.error}
           disabled={false}
           className=""
+           slotProps={{
+            inputLabel: { shrink: true },
+          }}
           style={undefined}
           sx={{}}
-        />
-      )}
-    />
-  );
-};
-
-
-
-export const CommentsNotesField = ({index}: any) => {
-  const { control: formControl } = useFormContext();
-  return (
-    <Controller
-      name={`commentsNotes`}
-      control={formControl}
-      rules={{ required: false }}
-      render={({ field: controllerField, fieldState }) => (
-        <TextField
-          {...controllerField}
-          multiline
-          maxRows={4}
-          type="text" 
-          variant="standard"
-          label="Comments Notes"
-          placeholder="Add any comments or notes"
-          helperText={fieldState.error ? "Comments/Notes are required" : "Any additional comments or notes regarding the request."}
-          error={!!fieldState.error}
-          disabled={false}
-          className=""
-          style={undefined}
-          sx={{}}
+          false
+          value={
+            controllerField.value
+              ? Number(controllerField.value)
+              : ""
+          }
         />
       )}
     />

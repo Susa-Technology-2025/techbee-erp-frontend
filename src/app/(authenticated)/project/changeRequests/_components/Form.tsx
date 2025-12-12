@@ -15,9 +15,10 @@ import TabPanel from "@mui/lab/TabPanel";
 import { useState, useEffect } from "react";
 import {GeneralSection} from "./GeneralSection"
 import {DetailsSection} from "./DetailsSection"
-import {CostAndImpactSection} from "./CostAndImpactSection"
+import {RequestorSection} from "./RequestorSection"
+import {ImpactCostSection} from "./ImpactCostSection"
 import {ImplementationSection} from "./ImplementationSection"
-import {RequesterInfoSection} from "./RequesterInfoSection"
+import {AdminSection} from "./AdminSection"
 import { useDataMutation } from "@/lib/tanstack/useDataQuery";
 import {  FormResolverErrors } from "./FormResolverErrors";
 import { ChangeRequestCreateInputFormSchema } from "./schema";
@@ -118,8 +119,17 @@ export default function ChangeRequestCreateInputForm ({
                     },
                   }}
                 /> <Tab
-                  label="CostAndImpact"
-                  value="CostAndImpact"
+                  label="Requestor"
+                  value="Requestor"
+                  sx={{
+                    borderRadius: 1,
+                    "&.Mui-selected": {
+                      bgcolor: "action.selected",
+                    },
+                  }}
+                /> <Tab
+                  label="ImpactCost"
+                  value="ImpactCost"
                   sx={{
                     borderRadius: 1,
                     "&.Mui-selected": {
@@ -136,8 +146,8 @@ export default function ChangeRequestCreateInputForm ({
                     },
                   }}
                 /> <Tab
-                  label="RequesterInfo"
-                  value="RequesterInfo"
+                  label="Admin"
+                  value="Admin"
                   sx={{
                     borderRadius: 1,
                     "&.Mui-selected": {
@@ -195,7 +205,7 @@ export default function ChangeRequestCreateInputForm ({
                 >
                   <DetailsSection />
                 </TabPanel> <TabPanel
-                  value={"CostAndImpact"}
+                  value={"Requestor"}
                   sx={{
                     p: 0,
                     pt: 2,
@@ -213,7 +223,27 @@ export default function ChangeRequestCreateInputForm ({
                     },
                   }}
                 >
-                  <CostAndImpactSection />
+                  <RequestorSection />
+                </TabPanel> <TabPanel
+                  value={"ImpactCost"}
+                  sx={{
+                    p: 0,
+                    pt: 2,
+                    "& .MuiFormControl-root": {
+                      mb: 1.5,
+                    },
+                    "& .MuiInputBase-root": {
+                      fontSize: "0.875rem",
+                    },
+                    "& .MuiInputLabel-root": {
+                      fontSize: "0.875rem",
+                    },
+                    "& .MuiButton-root": {
+                      fontSize: "0.8125rem",
+                    },
+                  }}
+                >
+                  <ImpactCostSection />
                 </TabPanel> <TabPanel
                   value={"Implementation"}
                   sx={{
@@ -235,7 +265,7 @@ export default function ChangeRequestCreateInputForm ({
                 >
                   <ImplementationSection />
                 </TabPanel> <TabPanel
-                  value={"RequesterInfo"}
+                  value={"Admin"}
                   sx={{
                     p: 0,
                     pt: 2,
@@ -253,7 +283,7 @@ export default function ChangeRequestCreateInputForm ({
                     },
                   }}
                 >
-                  <RequesterInfoSection />
+                  <AdminSection />
                 </TabPanel>
           </Box>
         </TabContext>

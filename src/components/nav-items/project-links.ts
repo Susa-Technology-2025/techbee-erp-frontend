@@ -260,6 +260,17 @@ export const projectLinks: NavItem[] = [
     category: "time",
     description: "Track time spent on project tasks.",
     active: true,
+  },
+  {
+    link: "/project/timeEntries",
+    hub: "project",
+    module: "projectmanagement",
+    entity: "timeEntries",
+    name: "TimeEntries",
+    emojie: "⏱️",
+    category: "time",
+    description: "Track time entries spent on tasks.",
+    active: true,
     nonSidebar: true,
   },
 

@@ -1,7 +1,8 @@
 import {TitleField} from "./GeneralSectionFields"
+import {PriorityField} from "./GeneralSectionFields"
 import {CodeField} from "./GeneralSectionFields"
 import {ChangeTypeField} from "./GeneralSectionFields"
-import {PriorityField} from "./GeneralSectionFields"
+import {ProjectField} from "./GeneralSectionFields"
 import {WbsItemField} from "./GeneralSectionFields"
 import { Box } from "@mui/material";
 
@@ -17,9 +18,10 @@ export const GeneralSection = () =>{
       }}
     >
       <TitleField/>
+<PriorityField/>
 <CodeField/>
 <ChangeTypeField/>
-<PriorityField/>
+<ProjectField/>
 <WbsItemField/>
       </Box>)
     }

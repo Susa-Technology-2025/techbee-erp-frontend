@@ -40,28 +40,31 @@ import { Close } from "@mui/icons-material";
 
 
 
-export const DescriptionField = ({index}: any) => {
+export const StartTimeField = ({index}: any) => {
   const { control: formControl } = useFormContext();
   return (
     <Controller
-      name={`description`}
+      name={`startTime`}
       control={formControl}
       rules={{ required: false }}
       render={({ field: controllerField, fieldState }) => (
         <TextField
           {...controllerField}
-          multiline
-          maxRows={4}
-          type="text" 
+          type="datetime-local" 
           variant="standard"
-          label="Description"
-          placeholder="Describe the change in detail"
-          helperText={fieldState.error ? "Description is required" : "Detailed explanation of the change request."}
+          label="Start Time"
+          placeholder="Select start time"
+          helperText={fieldState.error ? "This field is optional" : "The start time of the work period."}
           error={!!fieldState.error}
           disabled={false}
           className=""
+           slotProps={{
+            inputLabel: { shrink: true },
+          }}
           style={undefined}
           sx={{}}
+          false
+          false
         />
       )}
     />
@@ -70,28 +73,31 @@ export const DescriptionField = ({index}: any) => {
 
 
 
-export const ReasonField = ({index}: any) => {
+export const EndTimeField = ({index}: any) => {
   const { control: formControl } = useFormContext();
   return (
     <Controller
-      name={`reason`}
+      name={`endTime`}
       control={formControl}
       rules={{ required: false }}
       render={({ field: controllerField, fieldState }) => (
         <TextField
           {...controllerField}
-          multiline
-          maxRows={4}
-          type="text" 
+          type="datetime-local" 
           variant="standard"
-          label="Reason"
-          placeholder="Provide the reason for the change"
-          helperText={fieldState.error ? "Reason is required" : "The justification or rationale for the requested change."}
+          label="End Time"
+          placeholder="Select end time"
+          helperText={fieldState.error ? "This field is optional" : "The end time of the work period."}
           error={!!fieldState.error}
           disabled={false}
           className=""
+           slotProps={{
+            inputLabel: { shrink: true },
+          }}
           style={undefined}
           sx={{}}
+          false
+          false
         />
       )}
     />
@@ -100,28 +106,35 @@ export const ReasonField = ({index}: any) => {
 
 
 
-export const CommentsNotesField = ({index}: any) => {
+export const WorkDateField = ({index}: any) => {
   const { control: formControl } = useFormContext();
   return (
     <Controller
-      name={`commentsNotes`}
+      name={`workDate`}
       control={formControl}
       rules={{ required: false }}
       render={({ field: controllerField, fieldState }) => (
         <TextField
           {...controllerField}
-          multiline
-          maxRows={4}
-          type="text" 
+          type="date" 
           variant="standard"
-          label="Comments Notes"
-          placeholder="Add any comments or notes"
-          helperText={fieldState.error ? "Comments/Notes are required" : "Any additional comments or notes regarding the request."}
+          label="Work Date"
+          placeholder="Select work date"
+          helperText={fieldState.error ? "work date is requried" : "The date the work was performed."}
           error={!!fieldState.error}
           disabled={false}
           className=""
+           slotProps={{
+            inputLabel: { shrink: true },
+          }}
           style={undefined}
           sx={{}}
+          value={
+            controllerField.value
+              ? new Date(controllerField.value).toISOString().split("T")[0]
+              : ""
+          }
+          false
         />
       )}
     />

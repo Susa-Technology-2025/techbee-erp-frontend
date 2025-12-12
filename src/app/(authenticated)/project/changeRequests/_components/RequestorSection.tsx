@@ -1,8 +1,8 @@
-import {ImplementationPlanField} from "./ImplementationSectionFields"
+import {RequestedByEmployeeIdField} from "./RequestorSectionFields"
 import { Box } from "@mui/material";
 
 
-export const ImplementationSection = () =>{
+export const RequestorSection = () =>{
     return ( <Box
       sx={{
         display: "flex",
@@ -12,6 +12,6 @@ export const ImplementationSection = () =>{
         justifyContent: "start",
       }}
     >
-      <ImplementationPlanField/>
+      <RequestedByEmployeeIdField/>
       </Box>)
     }

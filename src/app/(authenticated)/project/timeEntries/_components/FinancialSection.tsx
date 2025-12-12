@@ -1,8 +1,9 @@
-import {ImplementationPlanField} from "./ImplementationSectionFields"
+import {AmountField} from "./FinancialSectionFields"
+import {HourlyRateField} from "./FinancialSectionFields"
 import { Box } from "@mui/material";
 
 
-export const ImplementationSection = () =>{
+export const FinancialSection = () =>{
     return ( <Box
       sx={{
         display: "flex",
@@ -12,6 +13,7 @@ export const ImplementationSection = () =>{
         justifyContent: "start",
       }}
     >
-      <ImplementationPlanField/>
+      <AmountField/>
+<HourlyRateField/>
       </Box>)
     }

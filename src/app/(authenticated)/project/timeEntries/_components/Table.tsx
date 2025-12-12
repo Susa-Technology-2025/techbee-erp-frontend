@@ -9,7 +9,7 @@ import { useDataQuery } from "@/lib/tanstack/useDataQuery";
 import { getTableOptions } from "./TableConfig";
 
 export default function MaterialTable({ idString,defaultValues ,invalidateQueryKey}: { idString?: string,defaultValues?:any,invalidateQueryKey:string[] }) {
-  const apiEndPoint = "https://api.techbee.et/api/project/changeRequests" + (Boolean(idString)  ? String(idString) : "");
+  const apiEndPoint = "https://api.techbee.et/api/project/timeEntries" + (Boolean(idString)  ? String(idString) : "");
   const [columnFilters, setColumnFilters] = useState<any[]>([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [sorting, setSorting] = useState<any[]>([]);
