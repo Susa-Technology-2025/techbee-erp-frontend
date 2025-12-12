@@ -313,7 +313,7 @@ const TasksTab: React.FC<TasksTabProps> = ({
                             {taskViewType === 'upcoming' && 'No upcoming tasks found.'}
                             {taskViewType === 'overdue' && 'No overdue tasks found.'}
                             {taskViewType === 'completed' && 'No completed tasks found.'}
-                            {taskViewType === 'all' && 'No tasks found matching your filters.'}
+                            {taskViewType === 'all' && 'No tasks found.'}
                         </Typography>
                         {searchQuery && (
                             <Button onClick={onClearFilters} sx={{ mt: 2 }}>

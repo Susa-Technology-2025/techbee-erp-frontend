@@ -362,11 +362,12 @@ const ProjectDetail: React.FC<ProjectDetailProps> = ({
   return (
     <Box
       sx={{
-        height: "90vh",
+        height: "89vh",
         display: "flex",
         flexDirection: "column",
         position: "relative",
-        overflow: "hidden",
+        overflow: "clip",
+        // border: "2px solid red"
         // backgroundColor: theme.palette.background.default,
       }}
     >
