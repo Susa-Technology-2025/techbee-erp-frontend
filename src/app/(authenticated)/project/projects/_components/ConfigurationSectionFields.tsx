@@ -1,7 +1,7 @@
 import { useDataMutation, useDataQuery } from "@/lib/tanstack/useDataQuery";
-import AddIcon from "@mui/icons-material/Add"
+import AddIcon from "@mui/icons-material/Add";
 import FileUploadWithPreview from "@/components/ReusableFormDrawer/file-upload";
-import DeleteIcon from "@mui/icons-material/Delete"
+import DeleteIcon from "@mui/icons-material/Delete";
 import {
   Autocomplete,
   TextField,
@@ -32,15 +32,14 @@ import {
   Toolbar,
 } from "@mui/material";
 import MDEditor from "@uiw/react-md-editor";
-import { useState, useEffect,useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Controller, useFormContext, useFieldArray } from "react-hook-form";
 import toast from "react-hot-toast";
 import { Close } from "@mui/icons-material";
 
-import  TaskStageSetFieldForm  from "../../taskStageSets?where[isSystem]=false/_components/Form";
+import TaskStageSetFieldForm from "../../taskStageSets/_components/Form";
 
-
-export const ApprovalRequiredField = ({index}: any) => {
+export const ApprovalRequiredField = ({ index }: any) => {
   const { control: formControl } = useFormContext();
   return (
     <Controller
@@ -63,7 +62,9 @@ export const ApprovalRequiredField = ({index}: any) => {
             sx={{}}
           />
           <FormHelperText error={!!fieldState.error}>
-            {fieldState.error ? "Approval required is required" : "Indicates if the project requires formal approval."}
+            {fieldState.error
+              ? "Approval required is required"
+              : "Indicates if the project requires formal approval."}
           </FormHelperText>
         </FormControl>
       )}
@@ -71,9 +72,7 @@ export const ApprovalRequiredField = ({index}: any) => {
   );
 };
 
-
-
-export const RiskFlagField = ({index}: any) => {
+export const RiskFlagField = ({ index }: any) => {
   const { control: formControl } = useFormContext();
   return (
     <Controller
@@ -96,7 +95,9 @@ export const RiskFlagField = ({index}: any) => {
             sx={{}}
           />
           <FormHelperText error={!!fieldState.error}>
-            {fieldState.error ? "Risk flag is required" : "Set if the project has a significant risk flag."}
+            {fieldState.error
+              ? "Risk flag is required"
+              : "Set if the project has a significant risk flag."}
           </FormHelperText>
         </FormControl>
       )}
@@ -104,9 +105,7 @@ export const RiskFlagField = ({index}: any) => {
   );
 };
 
-
-
-export const NotifyMemberInvitedField = ({index}: any) => {
+export const NotifyMemberInvitedField = ({ index }: any) => {
   const { control: formControl } = useFormContext();
   return (
     <Controller
@@ -129,7 +128,9 @@ export const NotifyMemberInvitedField = ({index}: any) => {
             sx={{}}
           />
           <FormHelperText error={!!fieldState.error}>
-            {fieldState.error ? "Notify member invited is required" : "Whether to notify members when they are invited to the project."}
+            {fieldState.error
+              ? "Notify member invited is required"
+              : "Whether to notify members when they are invited to the project."}
           </FormHelperText>
         </FormControl>
       )}
@@ -137,9 +138,7 @@ export const NotifyMemberInvitedField = ({index}: any) => {
   );
 };
 
-
-
-export const NotifyProjectAssignmentChangedField = ({index}: any) => {
+export const NotifyProjectAssignmentChangedField = ({ index }: any) => {
   const { control: formControl } = useFormContext();
   return (
     <Controller
@@ -162,7 +161,9 @@ export const NotifyProjectAssignmentChangedField = ({index}: any) => {
             sx={{}}
           />
           <FormHelperText error={!!fieldState.error}>
-            {fieldState.error ? "Notify project assignment changed is required" : "Whether to notify on changes to project assignment."}
+            {fieldState.error
+              ? "Notify project assignment changed is required"
+              : "Whether to notify on changes to project assignment."}
           </FormHelperText>
         </FormControl>
       )}
@@ -170,29 +171,26 @@ export const NotifyProjectAssignmentChangedField = ({index}: any) => {
   );
 };
 
-
-
 export const TaskStageSetField = ({ index }: any) => {
   const { control: formControl } = useFormContext();
-  
+
   const [options, setOptions] = useState([]);
-  const endpoint = "https://api.techbee.et/api/project/taskStageSets?where[isSystem]=false"
-  
+  const endpoint =
+    "https://api.techbee.et/api/project/taskStageSets?where[isSystem]=false";
+
   const { data, isLoading, isSuccess } = useDataQuery({
     apiEndPoint: endpoint,
     noFilter: true,
   });
   useEffect(() => {
     if (isSuccess) {
-     setOptions(
+      setOptions(
         Array.isArray(data) ? data : Array.isArray(data?.data) ? data?.data : []
       );
     }
   }, [isSuccess, data]);
-  
-  
+
   const [openDialog, setOpenDialog] = useState(false);
-  
 
   return (
     <>
@@ -201,49 +199,76 @@ export const TaskStageSetField = ({ index }: any) => {
         control={formControl}
         rules={{ required: false }}
         render={({ field: controllerField, fieldState }) => {
-
-          const isPrimitiveField = typeof controllerField.value === "string" || typeof controllerField.value === "number";
+          const isPrimitiveField =
+            typeof controllerField.value === "string" ||
+            typeof controllerField.value === "number";
 
           const mappedValue = useMemo(() => {
             if (!controllerField.value) return false ? [] : null;
             if (false) {
               if (isPrimitiveField) {
-                return (controllerField.value ?? []).map(val =>
-                  options.find(o => (option=>option.id)(o) === val)
-                ).filter(Boolean);
+                return (controllerField.value ?? [])
+                  .map((val) =>
+                    options.find((o) => ((option) => option.id)(o) === val)
+                  )
+                  .filter(Boolean);
               } else {
-                return (controllerField.value ?? []).map(val =>
-                  options.find(o => o === val || (option=>option.id)(o) === (option=>option.id)(val))
-                ).filter(Boolean);
+                return (controllerField.value ?? [])
+                  .map((val) =>
+                    options.find(
+                      (o) =>
+                        o === val ||
+                        ((option) => option.id)(o) ===
+                          ((option) => option.id)(val)
+                    )
+                  )
+                  .filter(Boolean);
               }
             } else {
               if (isPrimitiveField) {
-                return options.find(o => (option=>option.id)(o) === controllerField.value) || null;
+                return (
+                  options.find(
+                    (o) => ((option) => option.id)(o) === controllerField.value
+                  ) || null
+                );
               } else {
-                return options.find(o => o === controllerField.value || (option=>option.id)(o) === (option=>option.id)(controllerField.value)) || null;
+                return (
+                  options.find(
+                    (o) =>
+                      o === controllerField.value ||
+                      ((option) => option.id)(o) ===
+                        ((option) => option.id)(controllerField.value)
+                  ) || null
+                );
               }
             }
           }, [controllerField.value, options]);
 
           return (
             <Autocomplete
-              
               {...controllerField}
-              
               loading={isLoading}
               options={options}
               sx={{ minWidth: 240, maxWidth: 360 }}
-              getOptionLabel={option=>option.name}
-              getOptionKey={option=>option.id}
+              getOptionLabel={(option) => option.name}
+              getOptionKey={(option) => option.id}
               value={mappedValue}
               onChange={(_, value) => {
                 if (false) {
                   controllerField.onChange(
-                    isPrimitiveField ? (value ?? []).map((v: any) => (option=>option.id)(v)) : value ?? []
+                    isPrimitiveField
+                      ? (value ?? []).map((v: any) =>
+                          ((option) => option.id)(v)
+                        )
+                      : value ?? []
                   );
                 } else {
                   controllerField.onChange(
-                    isPrimitiveField ? (value ? (option=>option.id)(value) : null) : value ?? null
+                    isPrimitiveField
+                      ? value
+                        ? ((option) => option.id)(value)
+                        : null
+                      : value ?? null
                   );
                 }
               }}
@@ -251,62 +276,62 @@ export const TaskStageSetField = ({ index }: any) => {
               renderInput={(params) => (
                 <TextField
                   {...params}
-                  
-  slotProps={{
-    input: {
-      ...params.InputProps,
-      startAdornment: (
-        <>
-          <InputAdornment position="start">
-            <IconButton
-              loading={isLoading}
-              onClick={() => setOpenDialog(true)}
-              size="small"
-            >
-              <AddIcon />
-            </IconButton>
-          </InputAdornment>
-          {params.InputProps.startAdornment}
-        </>
-      ),
-    },
-    inputLabel: {shrink: true}
-  }}
-  
+                  slotProps={{
+                    input: {
+                      ...params.InputProps,
+                      startAdornment: (
+                        <>
+                          <InputAdornment position="start">
+                            <IconButton
+                              loading={isLoading}
+                              onClick={() => setOpenDialog(true)}
+                              size="small"
+                            >
+                              <AddIcon />
+                            </IconButton>
+                          </InputAdornment>
+                          {params.InputProps.startAdornment}
+                        </>
+                      ),
+                    },
+                    inputLabel: { shrink: true },
+                  }}
                   variant="standard"
                   label="Task Stage Set"
                   placeholder="Select task stage set"
-                  helperText={fieldState.error ? "Task stage set is required" : "The set of stages used for tasks within this project."}
+                  helperText={
+                    fieldState.error
+                      ? "Task stage set is required"
+                      : "The set of stages used for tasks within this project."
+                  }
                   error={!!fieldState.error}
                   className=""
                   style={undefined}
-                  sx={{"width":"100%","mb":2}}
+                  sx={{ width: "100%", mb: 2 }}
                 />
               )}
-              
-  renderOption={(props, option, { selected }) => {
-    const { key, ...otherProps } = props;
-    return (
-      <ListItem
-        key={key}
-        {...otherProps}
-        sx={{
-          p: 0,
-          m: 0,
-          display: "flex",
-          alignItems: "center",
-        }}
-      >
-        <Checkbox
-          style={{ marginRight: 8 }}
-          checked={selected}
-          sx={{ m: 0, p: 0 }}
-        />
-        {(option=>option.name)(option)}
-      </ListItem>
-    );
-  }}
-  
+              renderOption={(props, option, { selected }) => {
+                const { key, ...otherProps } = props;
+                return (
+                  <ListItem
+                    key={key}
+                    {...otherProps}
+                    sx={{
+                      p: 0,
+                      m: 0,
+                      display: "flex",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Checkbox
+                      style={{ marginRight: 8 }}
+                      checked={selected}
+                      sx={{ m: 0, p: 0 }}
+                    />
+                    {((option) => option.name)(option)}
+                  </ListItem>
+                );
+              }}
             />
           );
         }}
@@ -324,7 +349,7 @@ export const TaskStageSetField = ({ index }: any) => {
         >
           <Toolbar>
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Create Task Stage Set
+              Create Task Stage Set
             </Typography>
             <IconButton
               edge="end"
@@ -337,7 +362,7 @@ export const TaskStageSetField = ({ index }: any) => {
           </Toolbar>
         </AppBar>
         <DialogContent sx={{ p: 0, m: 0 }}>
-           <TaskStageSetFieldForm formMode="create" />
+          <TaskStageSetFieldForm formMode="create" />
         </DialogContent>
       </Dialog>
     </>
