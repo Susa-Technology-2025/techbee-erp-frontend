@@ -1,16 +1,2 @@
-import { z } from "zod";
-export const TaskStageFormSchema = z.object({
-  id: z.string().optional().nullable(),
-  name: z.string({ error: "Task Stage name is required" }),
-  code: z.string({ error: "Code is required" }),
-  sequence: z.coerce.number({ error: "Sequence number is required" }),
-  setField: z
-    .object({ id: z.string({ error: "Task Stage Set is required" }) })
-    .meta({ url: "/taskStageSets" }),
-  active: z.boolean().default(true),
-  requiresApproval: z.boolean().default(false),
-  triggersNotification: z.boolean().default(false),
-  color: z.string().optional().nullable(),
-  description: z.string().optional().nullable(),
-  notes: z.string().optional().nullable(),
-});
+import {z} from "zod"
+export const TaskStageFormSchema = z.object({ id: z.string().optional().nullable(), name: z.string({ error: "Task Stage name is required" }), code: z.string({ error: "Code is required" }), sequence: z.coerce.number({ error: "Sequence number is required" }), setField: z.object({ id: z.string({ error: "Task Stage Set is required" }) }).meta({ url: "/taskStageSets" }), active: z.boolean().default(true),  triggersNotification: z.boolean().default(false), color: z.string().optional().nullable(), description: z.string().optional().nullable(), notes: z.string().optional().nullable(), })

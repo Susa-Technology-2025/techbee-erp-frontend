@@ -177,39 +177,6 @@ export const StageActiveField = ({index}: any) => {
 
 
 
-export const StageRequiresApprovalField = ({index}: any) => {
-  const { control: formControl } = useFormContext();
-  return (
-    <Controller
-      name={`stages.${index}.requiresApproval`}
-      control={formControl}
-      rules={{ required: false }}
-      render={({ field: controllerField, fieldState }) => (
-        <FormControl component="fieldset" className="">
-          <FormControlLabel
-            control={
-              <Checkbox
-                {...controllerField}
-                checked={controllerField.value || false}
-                disabled={false}
-                color="primary"
-              />
-            }
-            label="Requires Approval"
-            style={undefined}
-            sx={{}}
-          />
-          <FormHelperText error={!!fieldState.error}>
-            {fieldState.error ? "Requires approval status is required" : "Indicates if the project stage requires approval."}
-          </FormHelperText>
-        </FormControl>
-      )}
-    />
-  );
-};
-
-
-
 export const StageTriggersNotificationField = ({index}: any) => {
   const { control: formControl } = useFormContext();
   return (
@@ -381,7 +348,6 @@ const [popoverAnchor, setPopoverAnchor] = useState<HTMLElement | null>(null);
         <StageCodeField index={index} />
         <StageSequenceField index={index} />
         <StageActiveField index={index} />
-        <StageRequiresApprovalField index={index} />
         <StageTriggersNotificationField index={index} />
             <IconButton 
               color="error" 

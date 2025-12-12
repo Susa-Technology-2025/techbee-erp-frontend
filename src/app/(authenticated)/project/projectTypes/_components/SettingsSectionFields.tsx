@@ -40,40 +40,7 @@ import { Close } from "@mui/icons-material";
 import  DefaultWbsTemplateIdFieldForm  from "../../wbsItems/_components/Form";
 import  DefaultBillingMethodFieldForm  from "../../billingMethods/_components/Form";
 import  DefaultProjectStageSetFieldForm  from "../../projectStageSets/_components/Form";
-import  DefaultTaskStageSetFieldForm  from "../../taskStageSets/_components/Form";
-
-
-export const ApprovalRequiredField = ({index}: any) => {
-  const { control: formControl } = useFormContext();
-  return (
-    <Controller
-      name={`approvalRequired`}
-      control={formControl}
-      rules={{ required: false }}
-      render={({ field: controllerField, fieldState }) => (
-        <FormControl component="fieldset" className="">
-          <FormControlLabel
-            control={
-              <Checkbox
-                {...controllerField}
-                checked={controllerField.value || false}
-                disabled={false}
-                color="primary"
-              />
-            }
-            label="Approval Required"
-            style={undefined}
-            sx={{}}
-          />
-          <FormHelperText error={!!fieldState.error}>
-            {fieldState.error ? "Approval required is required" : "Indicates if approval is required for projects of this type."}
-          </FormHelperText>
-        </FormControl>
-      )}
-    />
-  );
-};
-
+import  DefaultTaskStageSetFieldForm  from "../../taskStageSets?where[isSystem]=false/_components/Form";
 
 
 export const DefaultWbsTemplateIdField = ({ index }: any) => {
@@ -602,7 +569,7 @@ export const DefaultTaskStageSetField = ({ index }: any) => {
   const { control: formControl } = useFormContext();
   
   const [options, setOptions] = useState([]);
-  const endpoint = "https://api.techbee.et/api/project/taskStageSets"
+  const endpoint = "https://api.techbee.et/api/project/taskStageSets?where[isSystem]=false"
   
   const { data, isLoading, isSuccess } = useDataQuery({
     apiEndPoint: endpoint,

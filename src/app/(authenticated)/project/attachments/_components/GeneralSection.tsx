@@ -3,7 +3,7 @@ import {DescriptionField} from "./GeneralSectionFields"
 import {MimeTypeField} from "./GeneralSectionFields"
 import {SizeBytesField} from "./GeneralSectionFields"
 import {VersionField} from "./GeneralSectionFields"
-import {UploadedByEmployeeIdField} from "./GeneralSectionFields"
+import {UploadedByUserIdField} from "./GeneralSectionFields"
 import {MilestoneField} from "./GeneralSectionFields"
 import {WbsItemField} from "./GeneralSectionFields"
 import { Box } from "@mui/material";
@@ -24,7 +24,7 @@ export const GeneralSection = () =>{
 <MimeTypeField/>
 <SizeBytesField/>
 <VersionField/>
-<UploadedByEmployeeIdField/>
+<UploadedByUserIdField/>
 <MilestoneField/>
 <WbsItemField/>
       </Box>)

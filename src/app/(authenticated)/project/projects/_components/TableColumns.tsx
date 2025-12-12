@@ -37,7 +37,7 @@ export const columns: MRT_ColumnDef<any, any>[] = [
   } },
   { accessorKey: "customerName", header: "Customer Name" },
   { accessorKey: "departmentOrCostCenter", header: "Department/Cost Center" },
-  { accessorKey: "projectManagerEmployeeId", header: "Project Manager" },
+  { accessorKey: "projectManagerUserId", header: "Project Manager" },
   { accessorKey: "billingMethod.id", header: "Billing Method" },
   { accessorKey: "projectStage.id", header: "Project Stage" },
   { accessorKey: "projectType.id", header: "Project Type" },

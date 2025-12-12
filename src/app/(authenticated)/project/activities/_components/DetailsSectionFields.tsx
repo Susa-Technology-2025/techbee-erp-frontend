@@ -37,7 +37,7 @@ import { Controller, useFormContext, useFieldArray } from "react-hook-form";
 import toast from "react-hot-toast";
 import { Close } from "@mui/icons-material";
 
-import  AssigneeEmployeeIdFieldForm  from "../../projectAssignments/_components/Form";
+import  AssigneeUserIdFieldForm  from "../../projectAssignments/_components/Form";
 
 
 export const PercentCompleteField = ({index}: any) => {
@@ -151,7 +151,7 @@ export const DueDateField = ({index}: any) => {
 
 
 
-export const AssigneeEmployeeIdField = ({ index }: any) => {
+export const AssigneeUserIdField = ({ index }: any) => {
   const { control: formControl } = useFormContext();
   
   const [options, setOptions] = useState([]);
@@ -174,7 +174,7 @@ export const AssigneeEmployeeIdField = ({ index }: any) => {
   return (
     <>
       <Controller
-        name={`assigneeEmployeeId`}
+        name={`assigneeUserId`}
         control={formControl}
         rules={{ required: false }}
         render={({ field: controllerField, fieldState }) => {

@@ -594,3 +594,36 @@ export const WbsItemField = ({ index }: any) => {
     </>
   );
 };
+
+
+
+export const ApprovalRequiredField = ({index}: any) => {
+  const { control: formControl } = useFormContext();
+  return (
+    <Controller
+      name={`approvalRequired`}
+      control={formControl}
+      rules={{ required: false }}
+      render={({ field: controllerField, fieldState }) => (
+        <FormControl component="fieldset" className="">
+          <FormControlLabel
+            control={
+              <Checkbox
+                {...controllerField}
+                checked={controllerField.value || false}
+                disabled={false}
+                color="primary"
+              />
+            }
+            label="Approval Required"
+            style={undefined}
+            sx={{}}
+          />
+          <FormHelperText error={!!fieldState.error}>
+            {fieldState.error ? "Approval required is required" : "Indicates if official approval is required for this milestone."}
+          </FormHelperText>
+        </FormControl>
+      )}
+    />
+  );
+};

@@ -1,6 +1,6 @@
 import {TypeField} from "./GeneralSectionFields"
 import {BillableField} from "./GeneralSectionFields"
-import {EmployeeIdField} from "./GeneralSectionFields"
+import {UserIdField} from "./GeneralSectionFields"
 import { Box } from "@mui/material";
 
 
@@ -16,6 +16,6 @@ export const GeneralSection = () =>{
     >
       <TypeField/>
 <BillableField/>
-<EmployeeIdField/>
+<UserIdField/>
       </Box>)
     }

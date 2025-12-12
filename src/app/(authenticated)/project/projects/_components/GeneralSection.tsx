@@ -4,7 +4,7 @@ import {TotalPercentCompletionField} from "./GeneralSectionFields"
 import {CustomerNameField} from "./GeneralSectionFields"
 import {DepartmentOrCostCenterField} from "./GeneralSectionFields"
 import {DescriptionField} from "./GeneralSectionFields"
-import {ProjectManagerEmployeeIdField} from "./GeneralSectionFields"
+import {ProjectManagerUserIdField} from "./GeneralSectionFields"
 import {ProjectStageField} from "./GeneralSectionFields"
 import {ProjectTypeField} from "./GeneralSectionFields"
 import { Box } from "@mui/material";
@@ -26,7 +26,7 @@ export const GeneralSection = () =>{
 <CustomerNameField/>
 <DepartmentOrCostCenterField/>
 <DescriptionField/>
-<ProjectManagerEmployeeIdField/>
+<ProjectManagerUserIdField/>
 <ProjectStageField/>
 <ProjectTypeField/>
       </Box>)

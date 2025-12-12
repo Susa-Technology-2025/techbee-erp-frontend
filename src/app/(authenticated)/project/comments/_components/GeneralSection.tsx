@@ -1,6 +1,6 @@
 import {BodyField} from "./GeneralSectionFields"
 import {IsInternalField} from "./GeneralSectionFields"
-import {AuthorEmployeeIdField} from "./GeneralSectionFields"
+import {AuthorUserIdField} from "./GeneralSectionFields"
 import { Box } from "@mui/material";
 
 
@@ -16,6 +16,6 @@ export const GeneralSection = () =>{
     >
       <BodyField/>
 <IsInternalField/>
-<AuthorEmployeeIdField/>
+<AuthorUserIdField/>
       </Box>)
     }

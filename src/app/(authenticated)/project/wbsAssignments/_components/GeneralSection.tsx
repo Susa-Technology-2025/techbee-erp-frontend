@@ -2,7 +2,7 @@ import {ExternalMemberNameField} from "./GeneralSectionFields"
 import {ExternalResourceNameField} from "./GeneralSectionFields"
 import {RoleField} from "./GeneralSectionFields"
 import {AllocationPercentField} from "./GeneralSectionFields"
-import {EmployeeIdField} from "./GeneralSectionFields"
+import {UserIdField} from "./GeneralSectionFields"
 import {StartDateField} from "./GeneralSectionFields"
 import {EndDateField} from "./GeneralSectionFields"
 import {WbsItemField} from "./GeneralSectionFields"
@@ -23,7 +23,7 @@ export const GeneralSection = () =>{
 <ExternalResourceNameField/>
 <RoleField/>
 <AllocationPercentField/>
-<EmployeeIdField/>
+<UserIdField/>
 <StartDateField/>
 <EndDateField/>
 <WbsItemField/>

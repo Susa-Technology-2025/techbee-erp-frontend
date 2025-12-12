@@ -1,6 +1,6 @@
 import {ProjectField} from "./MainSectionFields"
 import {IsOwnerField} from "./MainSectionFields"
-import {EmployeeIdField} from "./MainSectionFields"
+import {UserIdField} from "./MainSectionFields"
 import {ExternalMemberNameField} from "./MainSectionFields"
 import {RoleField} from "./MainSectionFields"
 import {AllocationPercentField} from "./MainSectionFields"
@@ -21,7 +21,7 @@ export const MainSection = () =>{
     >
       <ProjectField/>
 <IsOwnerField/>
-<EmployeeIdField/>
+<UserIdField/>
 <ExternalMemberNameField/>
 <RoleField/>
 <AllocationPercentField/>

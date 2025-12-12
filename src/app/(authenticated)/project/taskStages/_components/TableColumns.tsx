@@ -5,8 +5,6 @@ export const columns: MRT_ColumnDef<any, any>[] = [
   { accessorKey: "sequence", header: "Sequence" },
   { accessorKey: "active", header: "Active",
   Cell: ({ cell }) => cell.getValue() ? "✔" : "✘" },
-  { accessorKey: "requiresApproval", header: "Requires Approval",
-  Cell: ({ cell }) => cell.getValue() ? "✔" : "✘" },
   { accessorKey: "triggersNotification", header: "Triggers Notification",
   Cell: ({ cell }) => cell.getValue() ? "✔" : "✘" },
   { accessorKey: "color", header: "Color" },

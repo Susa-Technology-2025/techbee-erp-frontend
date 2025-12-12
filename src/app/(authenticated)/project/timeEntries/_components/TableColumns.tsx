@@ -3,7 +3,7 @@ export const columns: MRT_ColumnDef<any, any>[] = [
   { accessorKey: "type", header: "Type" },
   { accessorKey: "billable", header: "Billable",
   Cell: ({ cell }) => cell.getValue() ? "✔" : "✘" },
-  { accessorKey: "employeeId", header: "Employee " },
+  { accessorKey: "userId", header: "Employee " },
   { accessorKey: "entryCode", header: "Entry Code" },
   { accessorKey: "taskOrActivity", header: "Task Or Activity" },
   { accessorKey: "notes", header: "Notes" },

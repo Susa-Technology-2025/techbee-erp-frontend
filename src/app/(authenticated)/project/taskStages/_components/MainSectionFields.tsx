@@ -37,7 +37,7 @@ import { Controller, useFormContext, useFieldArray } from "react-hook-form";
 import toast from "react-hot-toast";
 import { Close } from "@mui/icons-material";
 
-import  TaskStageSetFieldForm  from "../../taskStageSets/_components/Form";
+import  TaskStageSetFieldForm  from "../../taskStageSets?where[isSystem]=false/_components/Form";
 
 
 export const TaskStageNameField = ({index}: any) => {
@@ -147,7 +147,7 @@ export const TaskStageSetField = ({ index }: any) => {
   const { control: formControl } = useFormContext();
   
   const [options, setOptions] = useState([]);
-  const endpoint = "https://api.techbee.et/api/project/taskStageSets"
+  const endpoint = "https://api.techbee.et/api/project/taskStageSets?where[isSystem]=false"
   
   const { data, isLoading, isSuccess } = useDataQuery({
     apiEndPoint: endpoint,
@@ -341,39 +341,6 @@ export const TaskStageActiveField = ({index}: any) => {
           />
           <FormHelperText error={!!fieldState.error}>
             {fieldState.error ? "This field is required" : "Indicates if the task stage is currently active."}
-          </FormHelperText>
-        </FormControl>
-      )}
-    />
-  );
-};
-
-
-
-export const TaskStageRequiresApprovalField = ({index}: any) => {
-  const { control: formControl } = useFormContext();
-  return (
-    <Controller
-      name={`requiresApproval`}
-      control={formControl}
-      rules={{ required: false }}
-      render={({ field: controllerField, fieldState }) => (
-        <FormControl component="fieldset" className="">
-          <FormControlLabel
-            control={
-              <Checkbox
-                {...controllerField}
-                checked={controllerField.value || false}
-                disabled={false}
-                color="primary"
-              />
-            }
-            label="Requires Approval"
-            style={undefined}
-            sx={{}}
-          />
-          <FormHelperText error={!!fieldState.error}>
-            {fieldState.error ? "This field is required" : "Indicates if tasks reaching this stage require approval."}
           </FormHelperText>
         </FormControl>
       )}

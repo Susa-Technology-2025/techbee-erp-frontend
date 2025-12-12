@@ -10,7 +10,7 @@ export const columns: MRT_ColumnDef<any, any>[] = [
     const v = cell.getValue();
     return v ? new Date(v).toLocaleDateString() : "";
   } },
-  { accessorKey: "assigneeEmployeeId", header: "Assignee Employee Id" },
+  { accessorKey: "assigneeUserId", header: "Assignee Employee Id" },
   { accessorKey: "attachmentUrl", header: "Attachment Url" },
   { accessorKey: "wbsItem.id", header: "WBS Item" },
   { accessorKey: "schedulingType.id", header: "Scheduling Type" }

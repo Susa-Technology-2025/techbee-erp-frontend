@@ -37,7 +37,7 @@ import { Controller, useFormContext, useFieldArray } from "react-hook-form";
 import toast from "react-hot-toast";
 import { Close } from "@mui/icons-material";
 
-import  AuthorEmployeeIdFieldForm  from "../../projectAssignments/_components/Form";
+import  AuthorUserIdFieldForm  from "../../projectAssignments/_components/Form";
 
 
 export const BodyField = ({index}: any) => {
@@ -131,7 +131,7 @@ export const IsInternalField = ({index}: any) => {
 
 
 
-export const AuthorEmployeeIdField = ({ index }: any) => {
+export const AuthorUserIdField = ({ index }: any) => {
   const { control: formControl } = useFormContext();
   
   const [options, setOptions] = useState([]);
@@ -154,7 +154,7 @@ export const AuthorEmployeeIdField = ({ index }: any) => {
   return (
     <>
       <Controller
-        name={`authorEmployeeId`}
+        name={`authorUserId`}
         control={formControl}
         rules={{ required: false }}
         render={({ field: controllerField, fieldState }) => {

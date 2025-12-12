@@ -24,7 +24,6 @@ export default function MaterialTable({ idString,defaultValues ,invalidateQueryK
       columnFilters,
       globalFilter,
       pagination,
-      noFilter: Boolean(idString),
     });
 
   const rowVirtualizerInstanceRef = useRef<MRT_RowVirtualizer>(null);

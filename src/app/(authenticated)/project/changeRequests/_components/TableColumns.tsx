@@ -9,5 +9,7 @@ export const columns: MRT_ColumnDef<any, any>[] = [
   { accessorKey: "impactTimeDays", header: "Impact Time Days" },
   { accessorKey: "project", header: "Project" },
   { accessorKey: "wbsItem", header: "Wbs Item" },
-  { accessorKey: "approvalStatus", header: "Approval Status" }
+  { accessorKey: "approvalStatus", header: "Approval Status" },
+  { accessorKey: "approvalRequired", header: "Approval Required",
+  Cell: ({ cell }) => cell.getValue() ? "✔" : "✘" }
 ];

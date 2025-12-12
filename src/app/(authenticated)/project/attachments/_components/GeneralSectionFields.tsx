@@ -37,7 +37,7 @@ import { Controller, useFormContext, useFieldArray } from "react-hook-form";
 import toast from "react-hot-toast";
 import { Close } from "@mui/icons-material";
 
-import  UploadedByEmployeeIdFieldForm  from "../../projectAssignments/_components/Form";
+import  UploadedByUserIdFieldForm  from "../../projectAssignments/_components/Form";
 import  MilestoneFieldForm  from "../../milestones/_components/Form";
 import  WbsItemFieldForm  from "../../wbsItems/_components/Form";
 
@@ -212,7 +212,7 @@ export const VersionField = ({index}: any) => {
 
 
 
-export const UploadedByEmployeeIdField = ({ index }: any) => {
+export const UploadedByUserIdField = ({ index }: any) => {
   const { control: formControl } = useFormContext();
   
   const [options, setOptions] = useState([]);
@@ -235,7 +235,7 @@ export const UploadedByEmployeeIdField = ({ index }: any) => {
   return (
     <>
       <Controller
-        name={`uploadedByEmployeeId`}
+        name={`uploadedByUserId`}
         control={formControl}
         rules={{ required: false }}
         render={({ field: controllerField, fieldState }) => {

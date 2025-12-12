@@ -37,7 +37,7 @@ import { Controller, useFormContext, useFieldArray } from "react-hook-form";
 import toast from "react-hot-toast";
 import { Close } from "@mui/icons-material";
 
-import  EmployeeIdFieldForm  from "../../projectassignments/_components/Form";
+import  UserIdFieldForm  from "../../projectassignments/_components/Form";
 import  WbsItemFieldForm  from "../../wbsItems/_components/Form";
 
 
@@ -253,7 +253,7 @@ export const AllocationPercentField = ({index}: any) => {
 
 
 
-export const EmployeeIdField = ({ index }: any) => {
+export const UserIdField = ({ index }: any) => {
   const { control: formControl } = useFormContext();
   
   const [options, setOptions] = useState([]);
@@ -276,7 +276,7 @@ export const EmployeeIdField = ({ index }: any) => {
   return (
     <>
       <Controller
-        name={`employeeId`}
+        name={`userId`}
         control={formControl}
         rules={{ required: false }}
         render={({ field: controllerField, fieldState }) => {
@@ -288,18 +288,18 @@ export const EmployeeIdField = ({ index }: any) => {
             if (false) {
               if (isPrimitiveField) {
                 return (controllerField.value ?? []).map(val =>
-                  options.find(o => (option=>option.employeeId)(o) === val)
+                  options.find(o => (option=>option.userId)(o) === val)
                 ).filter(Boolean);
               } else {
                 return (controllerField.value ?? []).map(val =>
-                  options.find(o => o === val || (option=>option.employeeId)(o) === (option=>option.employeeId)(val))
+                  options.find(o => o === val || (option=>option.userId)(o) === (option=>option.userId)(val))
                 ).filter(Boolean);
               }
             } else {
               if (isPrimitiveField) {
-                return options.find(o => (option=>option.employeeId)(o) === controllerField.value) || null;
+                return options.find(o => (option=>option.userId)(o) === controllerField.value) || null;
               } else {
-                return options.find(o => o === controllerField.value || (option=>option.employeeId)(o) === (option=>option.employeeId)(controllerField.value)) || null;
+                return options.find(o => o === controllerField.value || (option=>option.userId)(o) === (option=>option.userId)(controllerField.value)) || null;
               }
             }
           }, [controllerField.value, options]);
@@ -313,16 +313,16 @@ export const EmployeeIdField = ({ index }: any) => {
               options={options}
               sx={{ minWidth: 240, maxWidth: 360 }}
               getOptionLabel={option=>option.internalResourceName}
-              getOptionKey={option=>option.employeeId}
+              getOptionKey={option=>option.userId}
               value={mappedValue}
               onChange={(_, value) => {
                 if (false) {
                   controllerField.onChange(
-                    isPrimitiveField ? (value ?? []).map((v: any) => (option=>option.employeeId)(v)) : value ?? []
+                    isPrimitiveField ? (value ?? []).map((v: any) => (option=>option.userId)(v)) : value ?? []
                   );
                 } else {
                   controllerField.onChange(
-                    isPrimitiveField ? (value ? (option=>option.employeeId)(value) : null) : value ?? null
+                    isPrimitiveField ? (value ? (option=>option.userId)(value) : null) : value ?? null
                   );
                 }
               }}

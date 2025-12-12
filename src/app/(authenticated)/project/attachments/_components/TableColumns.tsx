@@ -6,7 +6,7 @@ export const columns: MRT_ColumnDef<any, any>[] = [
   { accessorKey: "mimeType", header: "Mime Type" },
   { accessorKey: "sizeBytes", header: "Size Bytes" },
   { accessorKey: "version", header: "Version" },
-  { accessorKey: "uploadedByEmployeeId", header: "Uploaded By Employee Id" },
+  { accessorKey: "uploadedByUserId", header: "Uploaded By Employee Id" },
   { accessorKey: "milestone.title", header: "Milestone" },
   { accessorKey: "wbsItem.title", header: "Wbs Item" }
 ];

@@ -1,16 +1,10 @@
-import { z } from "zod";
+import {z} from "zod"
 export const MilestoneFormSchema = z.object({
   id: z.string().optional().nullable(),
   title: z.string({ error: "Title is required" }),
   code: z.string({ error: "Code is required" }).optional().nullable(),
-  approvalStatus: z
-    .enum(["Draft", "Pending", "Approved", "Rejected"], {
-      error: "Approval status is required",
-    })
-    .default("Draft"),
-  approvalRequired: z
-    .boolean({ error: "Approval required is required" })
-    .default(false),
+ project: z.object({ id: z.string().optional().nullable() }).optional().nullable().meta({ url: "/projects" }),  approvalStatus: z.enum(["Draft","PendingApproval","Approved","Rejected","InformationRequested","Reassigned","Withdrawn","Cancelled","Delete","Closed",], { error: "Approval status is required" }).default("Draft"),
+  approvalRequired: z.boolean({ error: "Approval required is required" }).default(false),
   billable: z.boolean({ error: "Billable is required" }).default(true),
   billingAmount: z.coerce.number().optional().nullable(),
   percentCompletion: z.coerce.number().optional().nullable(),
@@ -28,19 +22,6 @@ export const MilestoneFormSchema = z.object({
   deliverables: z.unknown().optional().nullable(),
   notificationsPolicy: z.unknown().optional().nullable(),
   predecessors: z.unknown().optional().nullable(),
-  project: z
-    .object({ id: z.string().optional().nullable() })
-    .optional()
-    .nullable()
-    .meta({ url: "/projects" }),
-  attachments: z
-    .array(z.unknown())
-    .meta({ url: "/attachments" })
-    .optional()
-    .nullable(),
-  comments: z
-    .array(z.unknown())
-    .meta({ url: "/comments" })
-    .optional()
-    .nullable(),
-});
+  attachments: z.array(z.unknown()).meta({ url: "/attachments" }).optional().nullable(),
+  comments: z.array(z.unknown()).meta({ url: "/comments" }).optional().nullable(),
+})

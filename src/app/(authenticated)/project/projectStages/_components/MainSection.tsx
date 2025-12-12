@@ -2,7 +2,6 @@ import {ProjectStageNameField} from "./MainSectionFields"
 import {ProjectStageCodeField} from "./MainSectionFields"
 import {ProjectStageSequenceField} from "./MainSectionFields"
 import {ProjectStageActiveField} from "./MainSectionFields"
-import {ProjectStageRequiresApprovalField} from "./MainSectionFields"
 import {ProjectStageSetFieldAutocomplete} from "./MainSectionFields"
 import {ProjectStageColorField} from "./MainSectionFields"
 import {ProjectStageDescriptionField} from "./MainSectionFields"
@@ -25,7 +24,6 @@ export const MainSection = () =>{
 <ProjectStageCodeField/>
 <ProjectStageSequenceField/>
 <ProjectStageActiveField/>
-<ProjectStageRequiresApprovalField/>
 <ProjectStageSetFieldAutocomplete/>
 <ProjectStageColorField/>
 <ProjectStageDescriptionField/>

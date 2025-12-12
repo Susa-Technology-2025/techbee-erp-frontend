@@ -1,4 +1,3 @@
-import {ApprovalRequiredField} from "./SettingsSectionFields"
 import {DefaultWbsTemplateIdField} from "./SettingsSectionFields"
 import {DefaultBillingMethodField} from "./SettingsSectionFields"
 import {DefaultProjectStageSetField} from "./SettingsSectionFields"
@@ -16,8 +15,7 @@ export const SettingsSection = () =>{
         justifyContent: "start",
       }}
     >
-      <ApprovalRequiredField/>
-<DefaultWbsTemplateIdField/>
+      <DefaultWbsTemplateIdField/>
 <DefaultBillingMethodField/>
 <DefaultProjectStageSetField/>
 <DefaultTaskStageSetField/>

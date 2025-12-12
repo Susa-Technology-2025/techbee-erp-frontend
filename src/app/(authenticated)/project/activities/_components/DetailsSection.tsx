@@ -1,7 +1,7 @@
 import {PercentCompleteField} from "./DetailsSectionFields"
 import {ActualCostField} from "./DetailsSectionFields"
 import {DueDateField} from "./DetailsSectionFields"
-import {AssigneeEmployeeIdField} from "./DetailsSectionFields"
+import {AssigneeUserIdField} from "./DetailsSectionFields"
 import { Box } from "@mui/material";
 
 
@@ -18,6 +18,6 @@ export const DetailsSection = () =>{
       <PercentCompleteField/>
 <ActualCostField/>
 <DueDateField/>
-<AssigneeEmployeeIdField/>
+<AssigneeUserIdField/>
       </Box>)
     }

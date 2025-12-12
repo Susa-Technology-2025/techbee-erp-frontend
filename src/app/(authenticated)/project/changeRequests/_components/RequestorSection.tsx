@@ -1,4 +1,4 @@
-import {RequestedByEmployeeIdField} from "./RequestorSectionFields"
+import {RequestedByUserIdField} from "./RequestorSectionFields"
 import { Box } from "@mui/material";
 
 
@@ -12,6 +12,6 @@ export const RequestorSection = () =>{
         justifyContent: "start",
       }}
     >
-      <RequestedByEmployeeIdField/>
+      <RequestedByUserIdField/>
       </Box>)
     }

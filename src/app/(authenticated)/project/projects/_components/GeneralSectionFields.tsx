@@ -37,7 +37,7 @@ import { Controller, useFormContext, useFieldArray } from "react-hook-form";
 import toast from "react-hot-toast";
 import { Close } from "@mui/icons-material";
 
-import  ProjectManagerEmployeeIdFieldForm  from "../../users/_components/Form";
+import  ProjectManagerUserIdFieldForm  from "../../users/_components/Form";
 import  ProjectStageFieldForm  from "../../projectStages/_components/Form";
 import  ProjectTypeFieldForm  from "../../projectTypes/_components/Form";
 
@@ -241,7 +241,7 @@ export const DescriptionField = ({index}: any) => {
 
 
 
-export const ProjectManagerEmployeeIdField = ({ index }: any) => {
+export const ProjectManagerUserIdField = ({ index }: any) => {
   const { control: formControl } = useFormContext();
   
   const [options, setOptions] = useState([]);
@@ -264,7 +264,7 @@ export const ProjectManagerEmployeeIdField = ({ index }: any) => {
   return (
     <>
       <Controller
-        name={`projectManagerEmployeeId`}
+        name={`projectManagerUserId`}
         control={formControl}
         rules={{ required: false }}
         render={({ field: controllerField, fieldState }) => {

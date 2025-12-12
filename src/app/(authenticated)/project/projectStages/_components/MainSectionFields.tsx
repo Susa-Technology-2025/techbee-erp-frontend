@@ -176,39 +176,6 @@ export const ProjectStageActiveField = ({index}: any) => {
 
 
 
-export const ProjectStageRequiresApprovalField = ({index}: any) => {
-  const { control: formControl } = useFormContext();
-  return (
-    <Controller
-      name={`requiresApproval`}
-      control={formControl}
-      rules={{ required: false }}
-      render={({ field: controllerField, fieldState }) => (
-        <FormControl component="fieldset" className="">
-          <FormControlLabel
-            control={
-              <Checkbox
-                {...controllerField}
-                checked={controllerField.value || false}
-                disabled={false}
-                color="primary"
-              />
-            }
-            label="Requires Approval"
-            style={undefined}
-            sx={{}}
-          />
-          <FormHelperText error={!!fieldState.error}>
-            {fieldState.error ? "Approval requirement is required" : "Indicates if this stage requires approval to proceed."}
-          </FormHelperText>
-        </FormControl>
-      )}
-    />
-  );
-};
-
-
-
 export const ProjectStageSetFieldAutocomplete = ({ index }: any) => {
   const { control: formControl } = useFormContext();
   

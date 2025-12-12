@@ -3,7 +3,6 @@ import {TaskStageCodeField} from "./MainSectionFields"
 import {TaskStageSequenceField} from "./MainSectionFields"
 import {TaskStageSetField} from "./MainSectionFields"
 import {TaskStageActiveField} from "./MainSectionFields"
-import {TaskStageRequiresApprovalField} from "./MainSectionFields"
 import {TaskStageTriggersNotificationField} from "./MainSectionFields"
 import { Box } from "@mui/material";
 
@@ -23,7 +22,6 @@ export const MainSection = () =>{
 <TaskStageSequenceField/>
 <TaskStageSetField/>
 <TaskStageActiveField/>
-<TaskStageRequiresApprovalField/>
 <TaskStageTriggersNotificationField/>
       </Box>)
     }

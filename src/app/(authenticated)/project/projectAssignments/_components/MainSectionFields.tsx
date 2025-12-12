@@ -38,7 +38,7 @@ import toast from "react-hot-toast";
 import { Close } from "@mui/icons-material";
 
 import  ProjectFieldForm  from "../../projects/_components/Form";
-import  EmployeeIdFieldForm  from "../../users/_components/Form";
+import  UserIdFieldForm  from "../../users/_components/Form";
 
 
 export const ProjectField = ({ index }: any) => {
@@ -248,7 +248,7 @@ export const IsOwnerField = ({index}: any) => {
 
 
 
-export const EmployeeIdField = ({ index }: any) => {
+export const UserIdField = ({ index }: any) => {
   const { control: formControl } = useFormContext();
   
   const [options, setOptions] = useState([]);
@@ -271,7 +271,7 @@ export const EmployeeIdField = ({ index }: any) => {
   return (
     <>
       <Controller
-        name={`employeeId`}
+        name={`userId`}
         control={formControl}
         rules={{ required: false }}
         render={({ field: controllerField, fieldState }) => {

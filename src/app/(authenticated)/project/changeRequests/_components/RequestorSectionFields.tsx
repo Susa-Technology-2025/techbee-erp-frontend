@@ -37,10 +37,10 @@ import { Controller, useFormContext, useFieldArray } from "react-hook-form";
 import toast from "react-hot-toast";
 import { Close } from "@mui/icons-material";
 
-import  RequestedByEmployeeIdFieldForm  from "../../projectAssignments/_components/Form";
+import  RequestedByUserIdFieldForm  from "../../projectAssignments/_components/Form";
 
 
-export const RequestedByEmployeeIdField = ({ index }: any) => {
+export const RequestedByUserIdField = ({ index }: any) => {
   const { control: formControl } = useFormContext();
   
   const [options, setOptions] = useState([]);
@@ -63,7 +63,7 @@ export const RequestedByEmployeeIdField = ({ index }: any) => {
   return (
     <>
       <Controller
-        name={`requestedByEmployeeId`}
+        name={`requestedByUserId`}
         control={formControl}
         rules={{ required: false }}
         render={({ field: controllerField, fieldState }) => {
