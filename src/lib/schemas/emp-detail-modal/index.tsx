@@ -199,7 +199,7 @@ export const EmployeeDetailModal = ({
               <Stack spacing={1}>
                 <DetailItem
                   label="Full Name"
-                  value={`${row.firstName} ${row.grandFatherName} ${row.lastName}`}
+                  value={`${row.firstName} ${row.fatherName} ${row.grandFatherName}`}
                 />
                 <DetailItem label="Gender" value={row.gender} />
                 <DetailItem

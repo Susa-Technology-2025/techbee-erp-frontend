@@ -255,7 +255,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
                                         {myProjects.recent.slice(0, 4).map((project) => (
                                             <Box key={project.projectId} sx={{ position: 'relative' }}>
                                                 <ListItem
-                                                    onClick={() => window.open(`/project/${project.projectId}`, '_blank')}
+                                                    onClick={() => window.open(`/project/${project.projectId}`)}
                                                     sx={{
                                                         borderBottom: '1px solid #e2e8f0',
                                                         cursor: 'pointer',
