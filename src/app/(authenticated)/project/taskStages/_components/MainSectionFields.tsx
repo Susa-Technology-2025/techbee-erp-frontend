@@ -1,7 +1,7 @@
 import { useDataMutation, useDataQuery } from "@/lib/tanstack/useDataQuery";
-import AddIcon from "@mui/icons-material/Add"
+import AddIcon from "@mui/icons-material/Add";
 import FileUploadWithPreview from "@/components/ReusableFormDrawer/file-upload";
-import DeleteIcon from "@mui/icons-material/Delete"
+import DeleteIcon from "@mui/icons-material/Delete";
 import {
   Autocomplete,
   TextField,
@@ -32,15 +32,14 @@ import {
   Toolbar,
 } from "@mui/material";
 import MDEditor from "@uiw/react-md-editor";
-import { useState, useEffect,useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Controller, useFormContext, useFieldArray } from "react-hook-form";
 import toast from "react-hot-toast";
 import { Close } from "@mui/icons-material";
 
-import  TaskStageSetFieldForm  from "../../taskStageSets?where[isSystem]=false/_components/Form";
+import TaskStageSetFieldForm from "../../taskStageSets/_components/Form";
 
-
-export const TaskStageNameField = ({index}: any) => {
+export const TaskStageNameField = ({ index }: any) => {
   const { control: formControl } = useFormContext();
   return (
     <Controller
@@ -50,15 +49,19 @@ export const TaskStageNameField = ({index}: any) => {
       render={({ field: controllerField, fieldState }) => (
         <TextField
           {...controllerField}
-          type="text" 
+          type="text"
           variant="standard"
           label="Name"
           placeholder="Enter task stage name"
-          helperText={fieldState.error ? "Task Stage name is required" : "The name of the task stage."}
+          helperText={
+            fieldState.error
+              ? "Task Stage name is required"
+              : "The name of the task stage."
+          }
           error={!!fieldState.error}
           disabled={false}
           className=""
-           slotProps={{
+          slotProps={{
             inputLabel: { shrink: true },
           }}
           style={undefined}
@@ -71,9 +74,7 @@ export const TaskStageNameField = ({index}: any) => {
   );
 };
 
-
-
-export const TaskStageCodeField = ({index}: any) => {
+export const TaskStageCodeField = ({ index }: any) => {
   const { control: formControl } = useFormContext();
   return (
     <Controller
@@ -83,15 +84,19 @@ export const TaskStageCodeField = ({index}: any) => {
       render={({ field: controllerField, fieldState }) => (
         <TextField
           {...controllerField}
-          type="text" 
+          type="text"
           variant="standard"
           label="Code"
           placeholder="Enter task stage code"
-          helperText={fieldState.error ? "Code is required" : "A unique short code for the task stage."}
+          helperText={
+            fieldState.error
+              ? "Code is required"
+              : "A unique short code for the task stage."
+          }
           error={!!fieldState.error}
           disabled={false}
           className=""
-           slotProps={{
+          slotProps={{
             inputLabel: { shrink: true },
           }}
           style={undefined}
@@ -104,9 +109,7 @@ export const TaskStageCodeField = ({index}: any) => {
   );
 };
 
-
-
-export const TaskStageSequenceField = ({index}: any) => {
+export const TaskStageSequenceField = ({ index }: any) => {
   const { control: formControl } = useFormContext();
   return (
     <Controller
@@ -116,54 +119,51 @@ export const TaskStageSequenceField = ({index}: any) => {
       render={({ field: controllerField, fieldState }) => (
         <TextField
           {...controllerField}
-          type="number" 
+          type="number"
           variant="standard"
           label="Sequence"
           placeholder="Enter sequence number"
-          helperText={fieldState.error ? "Sequence number is required" : "The order of this stage in the task workflow."}
+          helperText={
+            fieldState.error
+              ? "Sequence number is required"
+              : "The order of this stage in the task workflow."
+          }
           error={!!fieldState.error}
           disabled={false}
           className=""
-           slotProps={{
+          slotProps={{
             inputLabel: { shrink: true },
           }}
           style={undefined}
           sx={{}}
           false
-          value={
-            controllerField.value
-              ? Number(controllerField.value)
-              : ""
-          }
+          value={controllerField.value ? Number(controllerField.value) : ""}
         />
       )}
     />
   );
 };
 
-
-
 export const TaskStageSetField = ({ index }: any) => {
   const { control: formControl } = useFormContext();
-  
+
   const [options, setOptions] = useState([]);
-  const endpoint = "https://api.techbee.et/api/project/taskStageSets?where[isSystem]=false"
-  
+  const endpoint =
+    "https://api.techbee.et/api/project/taskStageSets?where[isSystem]=false";
+
   const { data, isLoading, isSuccess } = useDataQuery({
     apiEndPoint: endpoint,
     noFilter: true,
   });
   useEffect(() => {
     if (isSuccess) {
-     setOptions(
+      setOptions(
         Array.isArray(data) ? data : Array.isArray(data?.data) ? data?.data : []
       );
     }
   }, [isSuccess, data]);
-  
-  
+
   const [openDialog, setOpenDialog] = useState(false);
-  
 
   return (
     <>
@@ -172,49 +172,76 @@ export const TaskStageSetField = ({ index }: any) => {
         control={formControl}
         rules={{ required: false }}
         render={({ field: controllerField, fieldState }) => {
-
-          const isPrimitiveField = typeof controllerField.value === "string" || typeof controllerField.value === "number";
+          const isPrimitiveField =
+            typeof controllerField.value === "string" ||
+            typeof controllerField.value === "number";
 
           const mappedValue = useMemo(() => {
             if (!controllerField.value) return false ? [] : null;
             if (false) {
               if (isPrimitiveField) {
-                return (controllerField.value ?? []).map(val =>
-                  options.find(o => (option=>option.id)(o) === val)
-                ).filter(Boolean);
+                return (controllerField.value ?? [])
+                  .map((val) =>
+                    options.find((o) => ((option) => option.id)(o) === val)
+                  )
+                  .filter(Boolean);
               } else {
-                return (controllerField.value ?? []).map(val =>
-                  options.find(o => o === val || (option=>option.id)(o) === (option=>option.id)(val))
-                ).filter(Boolean);
+                return (controllerField.value ?? [])
+                  .map((val) =>
+                    options.find(
+                      (o) =>
+                        o === val ||
+                        ((option) => option.id)(o) ===
+                          ((option) => option.id)(val)
+                    )
+                  )
+                  .filter(Boolean);
               }
             } else {
               if (isPrimitiveField) {
-                return options.find(o => (option=>option.id)(o) === controllerField.value) || null;
+                return (
+                  options.find(
+                    (o) => ((option) => option.id)(o) === controllerField.value
+                  ) || null
+                );
               } else {
-                return options.find(o => o === controllerField.value || (option=>option.id)(o) === (option=>option.id)(controllerField.value)) || null;
+                return (
+                  options.find(
+                    (o) =>
+                      o === controllerField.value ||
+                      ((option) => option.id)(o) ===
+                        ((option) => option.id)(controllerField.value)
+                  ) || null
+                );
               }
             }
           }, [controllerField.value, options]);
 
           return (
             <Autocomplete
-              
               {...controllerField}
-              
               loading={isLoading}
               options={options}
               sx={{ minWidth: 240, maxWidth: 360 }}
-              getOptionLabel={option=>option.name}
-              getOptionKey={option=>option.id}
+              getOptionLabel={(option) => option.name}
+              getOptionKey={(option) => option.id}
               value={mappedValue}
               onChange={(_, value) => {
                 if (false) {
                   controllerField.onChange(
-                    isPrimitiveField ? (value ?? []).map((v: any) => (option=>option.id)(v)) : value ?? []
+                    isPrimitiveField
+                      ? (value ?? []).map((v: any) =>
+                          ((option) => option.id)(v)
+                        )
+                      : value ?? []
                   );
                 } else {
                   controllerField.onChange(
-                    isPrimitiveField ? (value ? (option=>option.id)(value) : null) : value ?? null
+                    isPrimitiveField
+                      ? value
+                        ? ((option) => option.id)(value)
+                        : null
+                      : value ?? null
                   );
                 }
               }}
@@ -222,62 +249,62 @@ export const TaskStageSetField = ({ index }: any) => {
               renderInput={(params) => (
                 <TextField
                   {...params}
-                  
-  slotProps={{
-    input: {
-      ...params.InputProps,
-      startAdornment: (
-        <>
-          <InputAdornment position="start">
-            <IconButton
-              loading={isLoading}
-              onClick={() => setOpenDialog(true)}
-              size="small"
-            >
-              <AddIcon />
-            </IconButton>
-          </InputAdornment>
-          {params.InputProps.startAdornment}
-        </>
-      ),
-    },
-    inputLabel: {shrink: true}
-  }}
-  
+                  slotProps={{
+                    input: {
+                      ...params.InputProps,
+                      startAdornment: (
+                        <>
+                          <InputAdornment position="start">
+                            <IconButton
+                              loading={isLoading}
+                              onClick={() => setOpenDialog(true)}
+                              size="small"
+                            >
+                              <AddIcon />
+                            </IconButton>
+                          </InputAdornment>
+                          {params.InputProps.startAdornment}
+                        </>
+                      ),
+                    },
+                    inputLabel: { shrink: true },
+                  }}
                   variant="standard"
                   label="Set Field"
                   placeholder="Select a task stage set"
-                  helperText={fieldState.error ? "Task Stage Set is required" : "The task stage set this stage belongs to."}
+                  helperText={
+                    fieldState.error
+                      ? "Task Stage Set is required"
+                      : "The task stage set this stage belongs to."
+                  }
                   error={!!fieldState.error}
                   className=""
                   style={undefined}
-                  sx={{"width":"100%","mb":2}}
+                  sx={{ width: "100%", mb: 2 }}
                 />
               )}
-              
-  renderOption={(props, option, { selected }) => {
-    const { key, ...otherProps } = props;
-    return (
-      <ListItem
-        key={key}
-        {...otherProps}
-        sx={{
-          p: 0,
-          m: 0,
-          display: "flex",
-          alignItems: "center",
-        }}
-      >
-        <Checkbox
-          style={{ marginRight: 8 }}
-          checked={selected}
-          sx={{ m: 0, p: 0 }}
-        />
-        {(option=>option.name)(option)}
-      </ListItem>
-    );
-  }}
-  
+              renderOption={(props, option, { selected }) => {
+                const { key, ...otherProps } = props;
+                return (
+                  <ListItem
+                    key={key}
+                    {...otherProps}
+                    sx={{
+                      p: 0,
+                      m: 0,
+                      display: "flex",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Checkbox
+                      style={{ marginRight: 8 }}
+                      checked={selected}
+                      sx={{ m: 0, p: 0 }}
+                    />
+                    {((option) => option.name)(option)}
+                  </ListItem>
+                );
+              }}
             />
           );
         }}
@@ -295,7 +322,7 @@ export const TaskStageSetField = ({ index }: any) => {
         >
           <Toolbar>
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Create Set Field
+              Create Set Field
             </Typography>
             <IconButton
               edge="end"
@@ -308,16 +335,14 @@ export const TaskStageSetField = ({ index }: any) => {
           </Toolbar>
         </AppBar>
         <DialogContent sx={{ p: 0, m: 0 }}>
-           <TaskStageSetFieldForm formMode="create" />
+          <TaskStageSetFieldForm formMode="create" />
         </DialogContent>
       </Dialog>
     </>
   );
 };
 
-
-
-export const TaskStageActiveField = ({index}: any) => {
+export const TaskStageActiveField = ({ index }: any) => {
   const { control: formControl } = useFormContext();
   return (
     <Controller
@@ -340,7 +365,9 @@ export const TaskStageActiveField = ({index}: any) => {
             sx={{}}
           />
           <FormHelperText error={!!fieldState.error}>
-            {fieldState.error ? "This field is required" : "Indicates if the task stage is currently active."}
+            {fieldState.error
+              ? "This field is required"
+              : "Indicates if the task stage is currently active."}
           </FormHelperText>
         </FormControl>
       )}
@@ -348,9 +375,7 @@ export const TaskStageActiveField = ({index}: any) => {
   );
 };
 
-
-
-export const TaskStageTriggersNotificationField = ({index}: any) => {
+export const TaskStageTriggersNotificationField = ({ index }: any) => {
   const { control: formControl } = useFormContext();
   return (
     <Controller
@@ -373,7 +398,9 @@ export const TaskStageTriggersNotificationField = ({index}: any) => {
             sx={{}}
           />
           <FormHelperText error={!!fieldState.error}>
-            {fieldState.error ? "This field is required" : "Indicates if reaching this stage triggers a notification."}
+            {fieldState.error
+              ? "This field is required"
+              : "Indicates if reaching this stage triggers a notification."}
           </FormHelperText>
         </FormControl>
       )}
