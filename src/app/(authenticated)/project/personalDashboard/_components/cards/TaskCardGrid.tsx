@@ -116,7 +116,7 @@ const TaskCardGrid: React.FC<TaskCardGridProps> = ({
 
                     {/* Card Header */}
                     <CardHeader
-                        onClick={() => window.open(`/project/${task.projectId}`, '_blank')}
+                        onClick={() => window.open(`/project/${task.projectId}`,)}
                         sx={{ cursor: 'pointer' }}
                         avatar={
                             <Avatar sx={{
