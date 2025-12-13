@@ -1,2 +1,0 @@
-import {z} from "zod"
-export const RolePermissionFormSchema = z.object({ id: z.string().optional().nullable(), permissionCode: z.string({ error: "Permission code is required" }), role: z.object({ id: z.string({ error: "Role is required" }), }).meta({ url: "/roles" }), })

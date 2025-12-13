@@ -167,8 +167,8 @@ export const OrganizationNodeIdField = ({ index }: any) => {
           const isPrimitiveField = typeof controllerField.value === "string" || typeof controllerField.value === "number";
 
           const mappedValue = useMemo(() => {
-            if (!controllerField.value) return true ? [] : null;
-            if (true) {
+            if (!controllerField.value) return false ? [] : null;
+            if (false) {
               if (isPrimitiveField) {
                 return (controllerField.value ?? []).map(val =>
                   options.find(o => (option=>option.name||option.code)(o) === val)
@@ -189,9 +189,9 @@ export const OrganizationNodeIdField = ({ index }: any) => {
 
           return (
             <Autocomplete
-              multiple
+              
               {...controllerField}
-              disableCloseOnSelect
+              
               loading={isLoading}
               options={options}
               sx={{ minWidth: 240, maxWidth: 360 }}
@@ -199,7 +199,7 @@ export const OrganizationNodeIdField = ({ index }: any) => {
               getOptionKey={option=>option.name||option.code}
               value={mappedValue}
               onChange={(_, value) => {
-                if (true) {
+                if (false) {
                   controllerField.onChange(
                     isPrimitiveField ? (value ?? []).map((v: any) => (option=>option.name||option.code)(v)) : value ?? []
                   );
