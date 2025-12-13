@@ -3,6 +3,5 @@ export const columns: MRT_ColumnDef<any, any>[] = [
   { accessorKey: "name", header: "Name" },
   { accessorKey: "isActive", header: "Is Active",
   Cell: ({ cell }) => cell.getValue() ? "✔" : "✘" },
-  { accessorKey: "description", header: "Description" },
-  { accessorKey: "organizationNodeId", header: "Organization Node Id" }
+  { accessorKey: "description", header: "Description" }
 ];

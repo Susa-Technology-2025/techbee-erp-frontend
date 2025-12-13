@@ -44,7 +44,7 @@ export const RolePermissionsField = ({ index }: any) => {
   const { control: formControl } = useFormContext();
   
   const [options, setOptions] = useState([]);
-  const endpoint = "https://api.techbee.et/api/auth/permissions?where[isActive]=true"
+  const endpoint = "https://api.techbee.et/api/auth/permissions"
   
   const { data, isLoading, isSuccess } = useDataQuery({
     apiEndPoint: endpoint,
