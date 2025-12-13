@@ -9,7 +9,7 @@ export default ({ idString, defaultValues,invalidateQueryKey }: { idString?: str
       invalidateQueryKey={[
           "data",
           ...(Array.isArray(invalidateQueryKey) ? invalidateQueryKey : []),
-          "https://api.techbee.et/api/auth/users" + idString,
+          "https://api.techbee.et/api/auth/userProfiles" + idString,
         ].filter((v): v is string => Boolean(v))}
       />;
     </>
