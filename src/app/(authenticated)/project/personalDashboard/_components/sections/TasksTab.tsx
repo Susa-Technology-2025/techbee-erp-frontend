@@ -33,6 +33,7 @@ import TaskMenuDialog from '../../../_dashboard/TaskMenuDialog';
 import { getPriorityColor, getStatusColor, formatDate } from '../../../_utils/helpers';
 import { colors } from '../../../_utils/consts';
 import WbsItemCreateInput from '../../../wbsItems/_components/Form';
+import { NewTaskCreateButton } from '../buttons/NewTaskcreateButton';
 
 interface TasksTabProps {
     myTasks: {
@@ -320,6 +321,7 @@ const TasksTab: React.FC<TasksTabProps> = ({
                                 Clear all filters
                             </Button>
                         )}
+                        <NewTaskCreateButton />
                     </Box>
                 )}
             </CardContent>

@@ -6,13 +6,10 @@ import {
     useTheme,
     Alert,
     CircularProgress,
-    alpha
 } from '@mui/material';
 import { useDataMutation, useDataQuery } from '@/lib/tanstack/useDataQuery';
 import dayjs, { Dayjs } from 'dayjs';
 import toast from 'react-hot-toast';
-
-// Import components
 import DateRangePicker from './_components/DateRangePicker';
 import SummarySection from './sections/SummarySection';
 import ProjectsAnalyticsSection from './sections/ProjectsAnalyticsSection';

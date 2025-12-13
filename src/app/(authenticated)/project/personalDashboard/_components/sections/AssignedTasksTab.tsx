@@ -19,6 +19,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 import { TaskIAssigned } from '../../../_utils/types';
 import TaskCardGrid from '../cards/TaskCardGrid';
+import { NewTaskCreateButton } from '../buttons/NewTaskcreateButton';
 
 interface AssignedTasksTabProps {
     tasksIAssigned: {
@@ -207,7 +208,7 @@ const AssignedTasksTab: React.FC<AssignedTasksTabProps> = ({
                                 isOverdue={tasksIAssigned.overdue.some(t => t.wbsItemId === task.wbsItemId)}
                                 isCompleted={tasksIAssigned.completed.some(t => t.wbsItemId === task.wbsItemId)}
                                 refetch={refetch}
-                                onTaskClick={onTaskClick}
+                            // onTaskClick={onTaskClick}
                             />
                         ))}
                     </Box>
@@ -226,6 +227,8 @@ const AssignedTasksTab: React.FC<AssignedTasksTabProps> = ({
                                 Clear search
                             </Button>
                         )}
+
+                        <NewTaskCreateButton />
                     </Box>
                 )}
             </CardContent>

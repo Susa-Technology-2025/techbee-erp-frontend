@@ -37,6 +37,7 @@ import { getStatusColor, formatDate } from '../../../_utils/helpers';
 import ProjectMenuDialog from '../../../_dashboard/ProjectMenuDialog';
 import { colors, formatCurrency, mainProjectAPI } from '../../../_utils/consts';
 import ProjectCreateInputForm from '../../../projects/_components/Form';
+import { NewProjectCreateButton } from '../buttons/NewProjectCreateButton';
 
 interface ProjectsTabProps {
     myProjects: {
@@ -234,11 +235,9 @@ const ProjectsTab: React.FC<ProjectsTabProps> = ({
                     <Box sx={{ textAlign: 'center', py: 4 }}>
                         <FolderIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
                         <Typography color="text.secondary">
-                            No projects found 
+                            No projects found
                         </Typography>
-                        <Button onClick={onClearFilters} sx={{ mt: 2 }}>
-                            Clear all filters
-                        </Button>
+                        <NewProjectCreateButton />
                     </Box>
                 )}
             </CardContent>
