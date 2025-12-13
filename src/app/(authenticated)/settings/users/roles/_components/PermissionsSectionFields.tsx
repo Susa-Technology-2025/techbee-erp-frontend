@@ -44,7 +44,7 @@ export const RolePermissionsField = ({ index }: any) => {
   const { control: formControl } = useFormContext();
   
   const [options, setOptions] = useState([]);
-  const endpoint = "https://api.techbee.et/api/auth/permissions"
+  const endpoint = "https://api.techbee.et/api/auth/permissions?where[isActive]=true"
   
   const { data, isLoading, isSuccess } = useDataQuery({
     apiEndPoint: endpoint,
@@ -58,8 +58,6 @@ export const RolePermissionsField = ({ index }: any) => {
     }
   }, [isSuccess, data]);
   
-  
-  const [openDialog, setOpenDialog] = useState(false);
   
 
   return (
@@ -120,27 +118,6 @@ export const RolePermissionsField = ({ index }: any) => {
                 <TextField
                   {...params}
                   
-  slotProps={{
-    input: {
-      ...params.InputProps,
-      startAdornment: (
-        <>
-          <InputAdornment position="start">
-            <IconButton
-              loading={isLoading}
-              onClick={() => setOpenDialog(true)}
-              size="small"
-            >
-              <AddIcon />
-            </IconButton>
-          </InputAdornment>
-          {params.InputProps.startAdornment}
-        </>
-      ),
-    },
-    inputLabel: {shrink: true}
-  }}
-  
                   variant="standard"
                   label="Role Permissions"
                   placeholder="Select role permissions"
@@ -179,35 +156,7 @@ export const RolePermissionsField = ({ index }: any) => {
           );
         }}
       />
-      <Dialog
-        open={openDialog}
-        onClose={() => setOpenDialog(false)}
-        maxWidth="lg"
-        fullWidth
-      >
-        <AppBar
-          position="static"
-          elevation={1}
-          sx={{ bgcolor: "section.main" }}
-        >
-          <Toolbar>
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Create Role Permissions
-            </Typography>
-            <IconButton
-              edge="end"
-              color="inherit"
-              onClick={() => setOpenDialog(false)}
-              aria-label="close"
-            >
-              <Close />
-            </IconButton>
-          </Toolbar>
-        </AppBar>
-        <DialogContent sx={{ p: 0, m: 0 }}>
-           <RolePermissionsFieldForm formMode="create" />
-        </DialogContent>
-      </Dialog>
+      
     </>
   );
 };

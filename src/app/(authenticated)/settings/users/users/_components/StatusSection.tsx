@@ -2,6 +2,7 @@ import {IsActiveField} from "./StatusSectionFields"
 import {IsVerifiedField} from "./StatusSectionFields"
 import {MustResetPasswordField} from "./StatusSectionFields"
 import {EmailVerifiedAtField} from "./StatusSectionFields"
+import {UserRolesField} from "./StatusSectionFields"
 import { Box } from "@mui/material";
 
 
@@ -19,5 +20,6 @@ export const StatusSection = () =>{
 <IsVerifiedField/>
 <MustResetPasswordField/>
 <EmailVerifiedAtField/>
+<UserRolesField/>
       </Box>)
     }

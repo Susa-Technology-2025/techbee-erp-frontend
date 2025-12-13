@@ -18,6 +18,5 @@ export const columns: MRT_ColumnDef<any, any>[] = [
   Cell: ({ cell }) => {
     const v = cell.getValue();
     return v ? new Date(v).toLocaleDateString() : "";
-  } },
-  { accessorKey: "orgNodes", header: "Org Nodes" }
+  } }
 ];

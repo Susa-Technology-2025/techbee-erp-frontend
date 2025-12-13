@@ -23,11 +23,6 @@ export const UserCreateFormSchema = z.object({
   mustResetPassword: z.boolean().optional().nullable().default(false),
   emailVerifiedAt: z.coerce.date().optional().nullable(),
   updatedBy: z.string().optional().nullable(),
-  orgNodes: z
-    .array(z.string().optional().nullable())
-    .optional()
-    .nullable()
-    .meta({ url: "/userOrgNodeAssignments" }),
   userRoles: z
     .array(
       z
