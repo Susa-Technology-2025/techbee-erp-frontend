@@ -1,11 +1,5 @@
 "use client";
-import {
-  Box,
-  Paper,
-  Button,
-  Typography,
-  Stack,
-} from "@mui/material";
+import { Box, Paper, Button, Typography, Stack } from "@mui/material";
 import { FormProvider, useForm } from "react-hook-form";
 import { toast, Toaster } from "react-hot-toast";
 import Tab from "@mui/material/Tab";
@@ -13,25 +7,26 @@ import TabContext from "@mui/lab/TabContext";
 import TabList from "@mui/lab/TabList";
 import TabPanel from "@mui/lab/TabPanel";
 import { useState, useEffect } from "react";
-import {GeneralSection} from "./GeneralSection"
-import {StatusSection} from "./StatusSection"
+import { GeneralSection } from "./GeneralSection";
+import { StatusSection } from "./StatusSection";
 import { useDataMutation } from "@/lib/tanstack/useDataQuery";
-import {  FormResolverErrors } from "./FormResolverErrors";
+import { FormResolverErrors } from "./FormResolverErrors";
 import { UserCreateFormSchema } from "./schema";
 import { transformToPrismaInput } from "./transformToPrismaInput";
 import { zodResolver } from "@hookform/resolvers/zod";
-export default function UserCreateForm ({
- formMode = "create",
+export default function UserCreateForm({
+  formMode = "create",
   defaultValues = {},
-  invalidateQueryKey = ["data","https://api.techbee.et/api/auth/users"]
+  invalidateQueryKey = ["data", "https://api.techbee.et/api/auth/users"],
 }: {
   formMode: "create" | "edit";
   defaultValues: any;
-  invalidateQueryKey: string[]
+  invalidateQueryKey: string[];
 }) {
+  const { password, ...defaultValuesWithoutPassword } = defaultValues;
   const methods = useForm({
-    defaultValues,
-     resolver: zodResolver(UserCreateFormSchema)
+    defaultValues: defaultValuesWithoutPassword,
+    resolver: zodResolver(UserCreateFormSchema),
   });
   const { mutate, isPending } = useDataMutation({
     invalidateQueryKey,
@@ -56,9 +51,8 @@ export default function UserCreateForm ({
   const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
     setTab(newValue);
   };
- 
- 
- const onSubmit = (data: any) => {
+
+  const onSubmit = (data: any) => {
     console.log(JSON.stringify(transformToPrismaInput(data)));
     mutate(transformToPrismaInput(data));
   };
@@ -69,11 +63,11 @@ export default function UserCreateForm ({
         component={"form"}
         sx={{
           width: "100%",
-          height:  "100%",
+          height: "100%",
           mx: "auto",
           p: { xs: 2, sm: 3 },
-          boxShadow:  3,
-          borderRadius:  2,
+          boxShadow: 3,
+          borderRadius: 2,
           position: "relative",
           overflow: "hidden",
         }}
@@ -97,24 +91,25 @@ export default function UserCreateForm ({
               }}
             >
               <Tab
-                  label="General"
-                  value="General"
-                  sx={{
-                    borderRadius: 1,
-                    "&.Mui-selected": {
-                      bgcolor: "action.selected",
-                    },
-                  }}
-                /> <Tab
-                  label="Status"
-                  value="Status"
-                  sx={{
-                    borderRadius: 1,
-                    "&.Mui-selected": {
-                      bgcolor: "action.selected",
-                    },
-                  }}
-                />
+                label="General"
+                value="General"
+                sx={{
+                  borderRadius: 1,
+                  "&.Mui-selected": {
+                    bgcolor: "action.selected",
+                  },
+                }}
+              />{" "}
+              <Tab
+                label="Status"
+                value="Status"
+                sx={{
+                  borderRadius: 1,
+                  "&.Mui-selected": {
+                    bgcolor: "action.selected",
+                  },
+                }}
+              />
             </TabList>
           </Box>
           <Box
@@ -124,47 +119,48 @@ export default function UserCreateForm ({
               scrollbarWidth: "thin",
             }}
           >
-             <TabPanel
-                  value={"General"}
-                  sx={{
-                    p: 0,
-                    pt: 2,
-                    "& .MuiFormControl-root": {
-                      mb: 1.5,
-                    },
-                    "& .MuiInputBase-root": {
-                      fontSize: "0.875rem",
-                    },
-                    "& .MuiInputLabel-root": {
-                      fontSize: "0.875rem",
-                    },
-                    "& .MuiButton-root": {
-                      fontSize: "0.8125rem",
-                    },
-                  }}
-                >
-                  <GeneralSection />
-                </TabPanel> <TabPanel
-                  value={"Status"}
-                  sx={{
-                    p: 0,
-                    pt: 2,
-                    "& .MuiFormControl-root": {
-                      mb: 1.5,
-                    },
-                    "& .MuiInputBase-root": {
-                      fontSize: "0.875rem",
-                    },
-                    "& .MuiInputLabel-root": {
-                      fontSize: "0.875rem",
-                    },
-                    "& .MuiButton-root": {
-                      fontSize: "0.8125rem",
-                    },
-                  }}
-                >
-                  <StatusSection />
-                </TabPanel>
+            <TabPanel
+              value={"General"}
+              sx={{
+                p: 0,
+                pt: 2,
+                "& .MuiFormControl-root": {
+                  mb: 1.5,
+                },
+                "& .MuiInputBase-root": {
+                  fontSize: "0.875rem",
+                },
+                "& .MuiInputLabel-root": {
+                  fontSize: "0.875rem",
+                },
+                "& .MuiButton-root": {
+                  fontSize: "0.8125rem",
+                },
+              }}
+            >
+              <GeneralSection />
+            </TabPanel>{" "}
+            <TabPanel
+              value={"Status"}
+              sx={{
+                p: 0,
+                pt: 2,
+                "& .MuiFormControl-root": {
+                  mb: 1.5,
+                },
+                "& .MuiInputBase-root": {
+                  fontSize: "0.875rem",
+                },
+                "& .MuiInputLabel-root": {
+                  fontSize: "0.875rem",
+                },
+                "& .MuiButton-root": {
+                  fontSize: "0.8125rem",
+                },
+              }}
+            >
+              <StatusSection />
+            </TabPanel>
           </Box>
         </TabContext>
         <Box
@@ -200,4 +196,4 @@ export default function UserCreateForm ({
       </Paper>
     </FormProvider>
   );
-};
+}
